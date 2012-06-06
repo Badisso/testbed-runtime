@@ -23,10 +23,12 @@ object RpcOperation extends Enumeration {
 }
 
 import RpcOperation._
+import java.util.concurrent.TimeUnit
 
 sealed trait OverlayMessage
 
-case class RpcRequest(requestId: Int, to: Set[String], op: RpcOperation, args: Any*) extends OverlayMessage
+case class RpcRequest(requestId: Int, to: Set[String], op: RpcOperation, ttl: Int, ttlUnit: TimeUnit, args: Any*)
+  extends OverlayMessage
 
 case class RpcResponse(requestId: Int, result: Map[String, (Boolean, Option[String])]) extends OverlayMessage
 

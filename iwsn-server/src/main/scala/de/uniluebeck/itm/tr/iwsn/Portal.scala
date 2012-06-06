@@ -52,7 +52,8 @@ object Portal extends App with Logging {
             val resetFuture = portalActor ? new RpcRequest(
               new Random().nextInt(),
               Set("A", "B", "C"),
-              RpcOperation.RESET_NODES
+              RpcOperation.RESET_NODES,
+              3, TimeUnit.SECONDS
             )
 
             resetFuture.onComplete(logResult)
@@ -75,6 +76,7 @@ object Portal extends App with Logging {
               flashRequestId,
               to,
               RpcOperation.FLASH_IMAGE,
+              30, TimeUnit.SECONDS,
               Array(1, 2, 3)
             )
 

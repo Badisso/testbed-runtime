@@ -3,6 +3,8 @@ package de.uniluebeck.itm.tr.iwsn
 import com.weiglewilczek.slf4s.Logging
 import akka.actor.{ActorRef, Actor}
 import collection.mutable.{Map => MutableMap}
+import java.util.concurrent.TimeUnit
+import akka.util.Duration
 
 class PortalActor extends Actor with Logging {
 
@@ -32,9 +34,11 @@ class PortalActor extends Actor with Logging {
 
   var devices: Map[ActorRef, Set[String]] = Map()
 
-  var pendingResponses: MutableMap[Int, RpcResult] = MutableMap()
+  // TODO per-client state
+  val pendingResponses: MutableMap[Int, RpcResult] = MutableMap()
 
-  var pendingProgressResponses: MutableMap[Int, RpcProgressResult] = MutableMap()
+  // TODO per-client state
+  val pendingProgressResponses: MutableMap[Int, RpcProgressResult] = MutableMap()
 
   private def gateway = sender
 
@@ -55,25 +59,45 @@ class PortalActor extends Actor with Logging {
 
     case req: RpcRequest =>
       logger.debug(req.toString)
-      devices.map(entry => {
-        val (gateway, gatewayUrns) = entry
-        val intersection = (req.to & gatewayUrns)
-        if (!intersection.isEmpty) {
-          gateway ! new RpcRequest(req.requestId, intersection, req.op, req.args: _*)
-          pendingResponses.put(req.requestId, new RpcResult(req, sender))
+      devices.map(
+        entry => {
+
+          val (gateway, gatewayUrns) = entry
+          val intersection = (req.to & gatewayUrns)
+
+          if (!intersection.isEmpty) {
+
+            gateway ! new RpcRequest(req.requestId, intersection, req.op, req.ttl, req.ttlUnit, req.args: _*)
+            pendingResponses.put(req.requestId, new RpcResult(req, sender))
+
+            // schedule timeout
+            val duration = Duration(req.ttl, req.ttlUnit)
+            val timeoutRunnable = new RpcRequestTimeoutRunnable(req)
+            context.system.scheduler.scheduleOnce(duration, timeoutRunnable)
+          }
         }
-      })
+      )
 
     case req: RpcProgressRequest =>
       logger.debug(req.toString)
-      devices.map(entry => {
-        val (gateway, gatewayUrns) = entry
-        val intersection = (req.to & gatewayUrns)
-        if (!intersection.isEmpty) {
-          gateway ! new RpcProgressRequest(req.requestId, req.progressRequestId, intersection)
-          pendingProgressResponses.put(req.requestId, new RpcProgressResult(req, sender))
+      devices.map(
+        entry => {
+
+          val (gateway, gatewayUrns) = entry
+          val intersection = (req.to & gatewayUrns)
+
+          if (!intersection.isEmpty) {
+
+            gateway ! new RpcProgressRequest(req.requestId, req.progressRequestId, intersection)
+            pendingProgressResponses.put(req.requestId, new RpcProgressResult(req, sender))
+
+            // schedule timeout
+            val duration = Duration(10, TimeUnit.SECONDS)
+            val timeoutRunnable = new RpcProgressRequestTimeoutRunnable(req)
+            context.system.scheduler.scheduleOnce(duration, timeoutRunnable)
+          }
         }
-      })
+      )
 
     case resp: RpcProgressResponse => {
 
@@ -89,13 +113,19 @@ class PortalActor extends Actor with Logging {
           val requestId = pendingProgressResponse.req.requestId
           val progressRequestId = resp.progressRequestId
 
-          pendingProgressResponse.client ! new RpcProgressResponse(requestId, progressRequestId, result)
+          try {
+            pendingProgressResponse.client ! new RpcProgressResponse(requestId, progressRequestId, result)
+          }
+          catch {
+            case e: Exception =>
+              logger.warn("Exception caught while sending progress response to client: " + e.toString)
+          }
+          finally {
+            pendingProgressResponses.remove(pendingProgressResponse.req.requestId)
+          }
 
-          pendingProgressResponses = pendingProgressResponses - pendingProgressResponse.req.requestId
         }
       })
-
-      // TODO handle timeouts
     }
 
     case resp: RpcResponse => {
@@ -111,13 +141,80 @@ class PortalActor extends Actor with Logging {
           val result = Map(pendingResponse.responsesReceived.toSeq: _*)
           val requestId: Int = pendingResponse.request.requestId
 
-          pendingResponse.client ! new RpcResponse(requestId, result)
+          try {
+            pendingResponse.client ! new RpcResponse(requestId, result)
+          }
+          catch {
+            case e: Exception =>
+              logger.warn("Exception caught while sending response to client: " + e.toString)
+          }
+          finally {
+            pendingResponses.remove(pendingResponse.request.requestId)
+          }
+        }
+      })
+    }
+  }
 
-          pendingResponses = pendingResponses - pendingResponse.request.requestId
+  private class RpcRequestTimeoutRunnable(val req: RpcRequest) extends Runnable {
+
+    def run() {
+      PortalActor.this.timeout(req)
+    }
+  }
+
+  private class RpcProgressRequestTimeoutRunnable(val req: RpcProgressRequest) extends Runnable {
+
+    def run() {
+      PortalActor.this.timeout(req)
+    }
+  }
+
+  private def timeout(req: RpcRequest) {
+
+    // TODO remove schedule when answer arrives early
+
+    val rpcResult = pendingResponses.remove(req.requestId)
+
+    if (rpcResult.isDefined) {
+
+      logger.debug("timeout: " + req.toString)
+
+      val responseMap: MutableMap[String, (Boolean, Option[String])] = MutableMap()
+
+      responseMap ++ rpcResult.get.responsesReceived
+      req.to.foreach(urn => {
+        if (!responseMap.contains(urn)) {
+          responseMap.put(urn, (false, Option("Timeout after " + req.ttl + " " + req.ttlUnit)))
         }
       })
 
-      // TODO handle timeouts
+      rpcResult.get.client ! new RpcResponse(req.requestId, Map(responseMap.toSeq: _*))
+    }
+  }
+
+  private def timeout(req: RpcProgressRequest) {
+
+    // TODO remove schedule when answer arrives early
+
+    val rpcProgressResult = pendingProgressResponses.remove(req.requestId)
+
+    if (rpcProgressResult.isDefined) {
+
+      logger.debug("timeout: " + req.toString)
+
+      val requestId = req.requestId
+      val progressRequestId = req.progressRequestId
+      val progressMap: MutableMap[String, (Int, Option[String])] = MutableMap()
+
+      progressMap ++ rpcProgressResult.get.responsesReceived
+      req.to.foreach(urn => {
+        if (!progressMap.contains(urn)) {
+          progressMap.put(urn, (-1, Option("Timeout")))
+        }
+      })
+
+      rpcProgressResult.get.client ! new RpcProgressResponse(requestId, progressRequestId, Map(progressMap.toSeq: _*))
     }
   }
 }
