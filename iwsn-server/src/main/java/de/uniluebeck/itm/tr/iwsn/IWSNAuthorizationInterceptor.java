@@ -27,13 +27,10 @@ public class IWSNAuthorizationInterceptor implements MethodInterceptor{
 	 */
 	private SNAA snaa;
 	
-	private String authenticatedUser;
-	
 	
 	@Inject
-	public IWSNAuthorizationInterceptor(SNAA snaa, @Named("AUTHENTICATED_USER") String authenticatedUser) {
+	public IWSNAuthorizationInterceptor(SNAA snaa) {
 		this.setSnaa(snaa);
-		this.authenticatedUser = authenticatedUser;
 	}
 	
 	@Override
@@ -41,7 +38,7 @@ public class IWSNAuthorizationInterceptor implements MethodInterceptor{
 		final AuthorizationRequired authorizationAnnotation = invocation.getMethod().getAnnotation(AuthorizationRequired.class);
 		
 		if (snaa == null){
-			throw new AuthorizationExceptionException("No Authorization server configured", new AuthorizationException());
+			throw new AuthorizationExceptionException("No Ahutorization server configured", new AuthorizationException());
 		}
 		
 		log.debug("Interception successful");

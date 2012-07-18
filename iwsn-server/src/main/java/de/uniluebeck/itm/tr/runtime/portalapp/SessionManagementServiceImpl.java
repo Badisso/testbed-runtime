@@ -346,7 +346,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			// query reservation system for reservation data if reservation system is to be used (i.e.
 			// reservationEndpointUrl is not null)
 			List<ConfidentialReservationData> confidentialReservationDataList;
-			String requestingUser = null;
 			
 			final Set<String> reservedNodes = (config.getReservationEndpointUrl() != null) ? new HashSet<String>() : null;
 			
@@ -370,10 +369,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					reservedNodes.add(nodeURN.toLowerCase());
 				}
 				
+
 				// assure that nodes are in TestbedRuntime
 				assertNodesInTestbed(reservedNodes, testbedRuntime);
-				
-				requestingUser = data.getUserData();
 
 				//Creating delay for CleanUpJob
 				long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
@@ -384,8 +382,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 						delay,
 						TimeUnit.MILLISECONDS
 				);
-				
-				
 				
 				
 			} else {
@@ -399,29 +395,14 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				throw new RuntimeException(e);
 			}
 			
-			final String authorizedUser = requestingUser;
 			
 			
 			
-			final Injector injector = Guice.createInjector(new Module() {			
+			final Injector injector = Guice.createInjector(new Module() {
+				
 
 				@Override
 				public void configure(final Binder binder) {
-					
-
-					
-					Module pm = new Module() {
-						
-						@Override
-						public void configure(Binder binder) {
-							binder.bind(String.class).annotatedWith(Names.named("AUTHENTICATED_USER")).toInstance(authorizedUser);
-							SNAA snaa = WisebedServiceHelper.getSNAAService(config.getSnaaEndpointUrl().toString());
-							binder.bind(SNAA.class).toInstance(snaa);
-							binder.bind(MethodInterceptor.class).annotatedWith(Names.named("IWSNAuthorizationInterceptor")).to(IWSNAuthorizationInterceptor.class);
-						}
-					};
-					binder.install(pm);
-					
 					
 
 					final String[] reservedNodesArray = reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]);
@@ -463,6 +444,17 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 								
 						}
 					});
+					
+					Module pm = new Module() {
+						
+						@Override
+						public void configure(Binder binder) {
+							SNAA snaa = WisebedServiceHelper.getSNAAService(config.getSnaaEndpointUrl().toString());
+							binder.bind(SNAA.class).toInstance(snaa);
+							binder.bind(MethodInterceptor.class).annotatedWith(Names.named("IWSNAuthorizationInterceptor")).to(IWSNAuthorizationInterceptor.class);
+						}
+					};
+					binder.install(pm);
 					
 					
 					
