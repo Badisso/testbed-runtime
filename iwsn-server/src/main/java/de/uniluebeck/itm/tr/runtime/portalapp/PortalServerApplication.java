@@ -23,22 +23,57 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Guice;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
-public class PortalServerApplication implements TestbedApplication {
+public class PortalServerApplication extends AbstractService implements TestbedApplication {
 
-	private SessionManagementService sessionManagementService;
+	private static final Logger log = LoggerFactory.getLogger(PortalServerApplication.class);
 
 	private final TestbedRuntime testbedRuntime;
 
-	private final Portalapp config;
+	private final SessionManagementServiceConfig config;
 
-	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp config) {
+	private final SessionManagementPreconditions preconditions;
+
+	private final WSNApp wsnApp;
+
+	private final DeliveryManager deliveryManager;
+
+	private SessionManagementService service;
+
+	/**
+	 * SOAP Web service API
+	 */
+	private SessionManagementSoapService soapService;
+
+	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp portalAppConfig) {
+
 		this.testbedRuntime = testbedRuntime;
-		this.config = config;
+
+		this.config = new SessionManagementServiceConfig(portalAppConfig);
+
+		this.preconditions = new SessionManagementPreconditions();
+		this.preconditions.addServedUrnPrefixes(this.config.getUrnPrefix());
+		this.preconditions.addKnownNodeUrns(this.config.getNodeUrnsServed());
+
+		this.wsnApp = Guice
+				.createInjector(new WSNAppModule())
+				.getInstance(WSNAppFactory.class)
+				.create(testbedRuntime, config.getNodeUrnsServed());
+
+		this.deliveryManager = new DeliveryManager();
 	}
 
 	@Override
@@ -47,17 +82,46 @@ public class PortalServerApplication implements TestbedApplication {
 	}
 
 	@Override
-	public void start() throws Exception {
-		if (sessionManagementService == null) {
-			sessionManagementService = new SessionManagementServiceImpl(testbedRuntime, config);
+	protected void doStart() {
+
+		try {
+
+			service = new SessionManagementServiceImpl(testbedRuntime, config, preconditions, wsnApp, deliveryManager);
+			service.start();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
-		sessionManagementService.start();
+
+		try {
+
+			soapService = new SessionManagementSoapService(service, config);
+			soapService.start();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStarted();
 	}
 
 	@Override
-	public void stop() throws Exception {
-		if (sessionManagementService != null) {
-			sessionManagementService.stop();
+	protected void doStop() {
+
+		try {
+			soapService.stop();
+		} catch (Exception e) {
+			log.error("Exception while shutting down Session Management SOAP web service: {}", e);
+			notifyFailed(e);
 		}
+
+		try {
+			service.stop();
+		} catch (Exception e) {
+			log.error("Exception while shutting down Session Management service: {}", e);
+			notifyFailed(e);
+		}
+
+		notifyStopped();
 	}
 }
