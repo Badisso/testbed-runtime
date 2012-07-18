@@ -47,7 +47,6 @@ import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 
-import org.aopalliance.intercept.MethodInterceptor;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -395,6 +394,26 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			
 			
 			
+			
+			
+			
+			
+
+//			wsnServiceHandleInstance = WSNServiceHandleFactory.create(
+//					secretReservationKey,
+//					testbedRuntime,
+//					config.getUrnPrefix(),
+//					wsnInstanceEndpointUrl,
+//					config.getWiseMLFilename(),
+//					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
+//					new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize()),
+//					protobufControllerServer
+//			);
+			
+			
+
+				
+				
 			final Injector injector = Guice.createInjector(new Module() {
 				
 
@@ -412,7 +431,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					});
 					
 					// -----------------------------------------
-					
+					SNAA snaa = WisebedServiceHelper.getSNAAService(config.getSnaaEndpointUrl().toString());
+					binder.bind(SNAA.class).toInstance(snaa);
 					binder.bind(ProtobufDeliveryManager.class).toInstance(new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize()));
 					binder.bind(ProtobufControllerServer.class).toInstance(protobufControllerServer);
 					binder.bind(String.class).annotatedWith(Names.named("URN_PREFIX")).toInstance(config.getUrnPrefix());
@@ -442,18 +462,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 						}
 					});
 					
-					Module pm = new Module() {
-						
-						@Override
-						public void configure(Binder binder) {
-							SNAA snaa = WisebedServiceHelper.getSNAAService(config.getSnaaEndpointUrl().toString());
-							binder.bind(SNAA.class).toInstance(snaa);
-							binder.bind(MethodInterceptor.class).annotatedWith(Names.named("IWSNAuthorizationInterceptor")).to(IWSNAuthorizationInterceptor.class);
-						}
-					};
-					binder.install(pm);
-					
-					
 					
 					// -----------------------------------------
 					
@@ -463,17 +471,24 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					
 					binder.bind(WSNService.class).annotatedWith(NonWS.class).to(WSNServiceImplInternal.class);
 					
-					binder.bind(Service.class).annotatedWith(Names.named("WSN_SERVICE_HANDLE")).to(WSNServiceHandle.class);			
-					
-					MethodInterceptor iwsnAuthorizationInterceptor = Guice.createInjector(pm).getInstance(Key.get(MethodInterceptor.class, Names.named("IWSNAuthorizationInterceptor")));
-					binder.bindInterceptor(Matchers.any(), annotatedWith(de.uniluebeck.itm.tr.iwsn.AuthorizationRequired.class), iwsnAuthorizationInterceptor);
+					binder.bind(Service.class).annotatedWith(Names.named("WSN_SERVICE_HANDLE")).to(WSNServiceHandle.class);
+
+					binder.bindInterceptor(Matchers.any(), annotatedWith(de.uniluebeck.itm.tr.iwsn.AuthorizationRequired.class), new IWSNAuthorizationInterceptor(snaa));
 				}
 			});
 			
-			
+
+			final WSNService wsnService = injector.getInstance(WSNService.class);
+			injector.injectMembers(wsnService);
+				
+				
+				
+				
 			
 
-			wsnServiceHandleInstance = (WSNServiceHandle) injector.getInstance(Key.get(Service.class, Names.named("WSN_SERVICE_HANDLE")));		
+			wsnServiceHandleInstance = (WSNServiceHandle) injector.getInstance(Key.get(Service.class, Names.named("WSN_SERVICE_HANDLE")));
+			
+			
 			
 
 			// start the WSN instance
