@@ -21,15 +21,11 @@ public class IWSNAuthorizationInterceptor implements MethodInterceptor{
 	 */
 	private SNAA snaa;
 	
-	public IWSNAuthorizationInterceptor(SNAA snaa) {
-		this.snaa = snaa;
-	}
-	
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		final AuthorizationRequired authorizationAnnotation = invocation.getMethod().getAnnotation(AuthorizationRequired.class);
 		
-		log.debug("Interception successful");
+		log.debug("Interception successfully");
 		
 		return invocation.proceed();
 	}
