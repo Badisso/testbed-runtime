@@ -23,17 +23,16 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.connection;
 
-import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
-
 import java.io.IOException;
 
 /**
  * TODO describe...
  * <p/>
- * Implementations of this interface must implement {@link Object#equals(Object)} and {@link Object#hashCode()} properly
+ * Implementations of this interface must implement {@link Object#equals(Object)} and {@link Object#hashCode()}
+ * properly
  * so it can be used in {@link java.util.HashMap}s.
  */
-public abstract class ServerConnection extends ListenerManagerImpl<ServerConnectionListener> {
+public abstract class ServerConnection {
 
 	public abstract void bind() throws ConnectionInvalidAddressException, IOException;
 

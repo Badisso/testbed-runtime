@@ -41,6 +41,8 @@ public class WSNServiceHandle implements Service {
 
 	private final WSNService wsnService;
 
+	private final WSNSoapService wsnSoapService;
+
 	private final WSNApp wsnApp;
 
 	private final URL wsnInstanceEndpointUrl;
@@ -49,12 +51,17 @@ public class WSNServiceHandle implements Service {
 
 	private final ProtobufDeliveryManager protobufControllerHelper;
 
-	WSNServiceHandle(String secretReservationKey, URL wsnInstanceEndpointUrl, WSNService wsnService, WSNApp wsnApp,
+	WSNServiceHandle(String secretReservationKey,
+					 URL wsnInstanceEndpointUrl,
+					 WSNService wsnService,
+					 WSNSoapService wsnSoapService,
+					 WSNApp wsnApp,
 					 ProtobufControllerServer protobufControllerServer,
 					 ProtobufDeliveryManager protobufControllerHelper) {
 
 		this.secretReservationKey = secretReservationKey;
 		this.wsnService = wsnService;
+		this.wsnSoapService = wsnSoapService;
 		this.wsnApp = wsnApp;
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
 		this.protobufControllerServer = protobufControllerServer;
@@ -63,12 +70,20 @@ public class WSNServiceHandle implements Service {
 
 	@Override
 	public void start() throws Exception {
-		wsnApp.start();
+		wsnApp.startAndWait();
 		wsnService.start();
+		wsnSoapService.start();
 	}
 
 	@Override
 	public void stop() {
+
+		try {
+			wsnSoapService.stop();
+		} catch (Exception e) {
+			log.error("Exception while stopping WSN SOAP Web service interface: {}", e);
+		}
+
 		try {
 			wsnService.stop();
 		} catch (Throwable e) {
@@ -78,11 +93,13 @@ public class WSNServiceHandle implements Service {
 				log.warn("" + e, e);
 			}
 		}
+
 		try {
-			wsnApp.stop();
+			wsnApp.stopAndWait();
 		} catch (Throwable e) {
 			log.warn("" + e, e);
 		}
+
 		try {
 			protobufControllerServer.stopHandlers(secretReservationKey);
 		} catch (Throwable e) {

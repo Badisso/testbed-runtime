@@ -24,10 +24,12 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -40,32 +42,36 @@ public class AsynchronousJob {
 
 	private final Messages.Msg message;
 
-	private final long timeout;
-
-	private final TimeUnit timeUnit;
-
-	private final ReliableMessagingService.AsyncCallback callback;
+	private final SettableFuture<byte[]> future;
 
 	private boolean done = false;
 
 	public AsynchronousJob(final UnreliableMessagingService unreliableMessagingService, final Messages.Msg message,
-						   final long timeout, final TimeUnit timeUnit,
-						   final ReliableMessagingService.AsyncCallback callback) {
+						   final SettableFuture<byte[]> future) {
 
 		this.unreliableMessagingService = unreliableMessagingService;
 		this.message = message;
-		this.timeout = timeout;
-		this.timeUnit = timeUnit;
-		this.callback = callback;
+		this.future = future;
 	}
 
-	public void send() throws Exception {
+	public void send() {
 
 		// lock to be sure that a callback is invoked for both success and failure in parallel
 		lock.lock();
 		try {
-			final ListenableFuture<Void> future = unreliableMessagingService.sendAsync(message);
-			future.get();
+
+			final ListenableFuture<Void> sendFuture = unreliableMessagingService.sendAsync(message);
+			sendFuture.addListener(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						sendFuture.get();
+					} catch (Exception e) {
+						failed(e);
+					}
+				}
+			}, MoreExecutors.sameThreadExecutor());
+
 		} finally {
 			lock.unlock();
 		}
@@ -80,7 +86,7 @@ public class AsynchronousJob {
 			// if we're not done it means that the callback wasn't informed of either the reply or a timeout
 			if (!done) {
 
-				callback.success(reply.getPayload().toByteArray());
+				future.set(reply.getPayload().toByteArray());
 				done = true;
 			}
 
@@ -96,7 +102,7 @@ public class AsynchronousJob {
 
 			// send the message of enough and there was no reply until now, so pass the callback an exception
 			if (!done) {
-				callback.failure(new ReliableMessagingTimeoutException());
+				future.setException(new ReliableMessagingTimeoutException());
 				done = true;
 			}
 
@@ -110,7 +116,7 @@ public class AsynchronousJob {
 		lock.lock();
 		try {
 
-			callback.failure(reason);
+			future.setException(reason);
 			done = true;
 
 		} finally {
