@@ -1,6 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -10,8 +14,12 @@ public class FlashImageRequest extends Request {
 
 	private final byte[] image;
 
-	public FlashImageRequest(final ImmutableSet<NodeUrn> nodeUrns, byte[] image) {
-		super(nodeUrns);
+	@Inject
+	FlashImageRequest(final Provider<Long> requestIdProvider,
+					  @Assisted final ImmutableSet<NodeUrn> nodeUrns,
+					  @Assisted final byte[] image) {
+
+		super(requestIdProvider, nodeUrns);
 
 		checkNotNull(image, "A node image must not be null!");
 		checkArgument(image.length > 0, "A node image must contain more than zero bytes!");
@@ -21,5 +29,14 @@ public class FlashImageRequest extends Request {
 
 	public byte[] getImage() {
 		return image;
+	}
+
+	@Override
+	public String toString() {
+		return Objects.toStringHelper(this)
+				.add("requestId", requestId)
+				.add("nodeUrns", nodeUrns)
+				.add("image", image.length + " bytes")
+				.toString();
 	}
 }
