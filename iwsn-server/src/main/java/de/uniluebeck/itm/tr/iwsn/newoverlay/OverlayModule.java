@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -16,6 +17,7 @@ public class OverlayModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		install(new FactoryModuleBuilder().build(RequestFactory.class));
+		bind(EventBus.class).toInstance(new EventBus("Overlay"));
 	}
 
 	@Provides
