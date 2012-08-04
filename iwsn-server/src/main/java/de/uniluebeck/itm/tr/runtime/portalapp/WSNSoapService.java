@@ -21,6 +21,7 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -58,7 +59,7 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 
 	private Endpoint endpoint;
 
-	public WSNSoapService(final WSNService wsn, final WSNServiceConfig config) {
+	WSNSoapService(final WSNService wsn, final WSNServiceConfig config) {
 		this.wsn = wsn;
 		this.config = config;
 	}
@@ -118,6 +119,10 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 			notifyFailed(e);
 		}
 
+	}
+
+	public URL getEndpointUrl() {
+		return config.getWebserviceEndpointUrl();
 	}
 
 	@Override

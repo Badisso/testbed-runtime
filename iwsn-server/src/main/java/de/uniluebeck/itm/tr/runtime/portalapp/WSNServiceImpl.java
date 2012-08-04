@@ -24,8 +24,11 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -33,10 +36,7 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
-import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
+import de.uniluebeck.itm.tr.runtime.wsnapp.*;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
@@ -58,6 +58,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -67,174 +68,23 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class WSNServiceImpl extends AbstractService implements WSNService {
 
-	/**
-	 * The logger for this WSN service.
-	 */
 	private static final Logger log = LoggerFactory.getLogger(WSNService.class);
 
-	/**
-	 * An implementation of {@link WSNNodeMessageReceiver} that listens for messages coming from sensor nodes and
-	 * dispatches them according to their content to either listeners or virtual links.
-	 */
-	private class WSNNodeMessageReceiverInternal implements WSNNodeMessageReceiver {
+	private static final byte MESSAGE_TYPE_PLOT = 105;
 
-		private static final byte MESSAGE_TYPE_PLOT = 105;
+	private static final byte MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
 
-		private static final byte MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
+	private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
 
-		private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
+	private static final byte WISELIB_VIRTUAL_LINK_MESSAGE = 11;
 
-		private static final byte WISELIB_VIRTUAL_LINK_MESSAGE = 11;
+	private static DatatypeFactory DATATYPE_FACTORY;
 
-		private DatatypeFactory datatypeFactory;
-
-		private WSNNodeMessageReceiverInternal() {
-			try {
-				datatypeFactory = DatatypeFactory.newInstance();
-			} catch (DatatypeConfigurationException e) {
-				log.error("" + e, e);
-			}
-		}
-
-		@Override
-		public void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
-
-			/* this is a message that was received from a sensor node. we now have to check if this is a virtual link
-			 * message. in that case we will deliver it to the destination node if there's a virtual link currently.
-			 * if the message is a virtual broadcast we'll deliver it to all destinations this node's connected to.
-			 * if the message is not a virtual link we'll deliver it to the controller of the experiment as it is. */
-
-			if (!config.getReservedNodes().contains(sourceNodeId)) {
-				log.warn("Received message from unreserved node \"{}\".", sourceNodeId);
-				return;
-			}
-
-			// check if message is a virtual link message
-			boolean isVirtualLinkMessage = bytes.length > 1 && bytes[0] == MESSAGE_TYPE_PLOT &&
-					bytes[1] == NODE_OUTPUT_VIRTUAL_LINK;
-
-			if (!isVirtualLinkMessage) {
-				deliverNonVirtualLinkMessageToControllers(bytes, sourceNodeId, timestamp);
-			} else {
-				deliverVirtualLinkMessage(bytes, sourceNodeId, timestamp);
-			}
-		}
-
-		private void deliverVirtualLinkMessage(final byte[] bytes, final String sourceNodeId, final String timestamp) {
-
-			long destinationNode = readDestinationNodeURN(bytes);
-			Map<String, WSN> recipients = determineVirtualLinkMessageRecipients(sourceNodeId, destinationNode);
-
-			if (recipients.size() > 0) {
-
-				Message outboundVirtualLinkMessage =
-						constructOutboundVirtualLinkMessage(bytes, sourceNodeId, timestamp);
-
-				for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
-
-					String targetNode = recipient.getKey();
-					WSN recipientEndpointProxy = recipient.getValue();
-
-					executorService.execute(
-							new DeliverVirtualLinkMessageRunnable(
-									sourceNodeId,
-									targetNode,
-									recipientEndpointProxy,
-									outboundVirtualLinkMessage
-							)
-					);
-				}
-			}
-		}
-
-		private Message constructOutboundVirtualLinkMessage(final byte[] bytes, final String sourceNodeId,
-															final String timestamp) {
-
-			// byte 0: ISense Packet Type
-			// byte 1: Node API Command Type
-			// byte 2: RSSI
-			// byte 3: LQI
-			// byte 4: Payload Length
-			// byte 5-8: Destination Node URN
-			// byte 9-12: Source Node URN
-			// byte 13-13+Payload Length: Payload
-
-			Message outboundVirtualLinkMessage = new Message();
-			outboundVirtualLinkMessage.setSourceNodeId(sourceNodeId);
-			outboundVirtualLinkMessage.setTimestamp(
-					datatypeFactory.newXMLGregorianCalendar(timestamp)
-			);
-
-			// construct message that is actually sent to the destination node URN
-			ChannelBuffer header = ChannelBuffers.buffer(3);
-			header.writeByte(MESSAGE_TYPE_WISELIB_DOWNSTREAM);
-			header.writeByte(WISELIB_VIRTUAL_LINK_MESSAGE);
-			header.writeByte(0); // request id according to Node API
-
-			ChannelBuffer payload = ChannelBuffers.wrappedBuffer(bytes, 2, bytes.length - 2);
-			ChannelBuffer packet = ChannelBuffers.wrappedBuffer(header, payload);
-
-			byte[] outboundVirtualLinkMessageBinaryData = new byte[packet.readableBytes()];
-			packet.getBytes(0, outboundVirtualLinkMessageBinaryData);
-
-			outboundVirtualLinkMessage.setBinaryData(outboundVirtualLinkMessageBinaryData);
-
-			return outboundVirtualLinkMessage;
-		}
-
-		private Map<String, WSN> determineVirtualLinkMessageRecipients(final String sourceNodeURN,
-																	   final long destinationNode) {
-
-			// check if message is a broadcast or unicast message
-			boolean isBroadcast = destinationNode == 0xFFFF;
-
-			// send virtual link message to all recipients
-			Map<String, WSN> recipients = new HashMap<String, WSN>();
-
-			if (isBroadcast) {
-
-				ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNodeURN);
-				if (map != null) {
-					for (Map.Entry<String, WSN> entry : map.entrySet()) {
-						recipients.put(entry.getKey(), entry.getValue());
-					}
-				}
-
-			} else {
-
-				ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNodeURN);
-				for (String targetNode : map.keySet()) {
-
-					if (StringUtils.parseHexOrDecLongFromUrn(targetNode) == destinationNode) {
-						recipients.put(targetNode, map.get(targetNode));
-					}
-				}
-			}
-
-			return recipients;
-		}
-
-		private long readDestinationNodeURN(final byte[] virtualLinkMessage) {
-			ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(virtualLinkMessage);
-			return buffer.getLong(5);
-		}
-
-		private void deliverNonVirtualLinkMessageToControllers(final byte[] bytes, final String sourceNodeId,
-															   final String timestamp) {
-
-			XMLGregorianCalendar xmlTimestamp = datatypeFactory.newXMLGregorianCalendar(timestamp);
-
-			Message message = new Message();
-			message.setSourceNodeId(sourceNodeId);
-			message.setTimestamp(xmlTimestamp);
-			message.setBinaryData(bytes);
-
-			deliveryManager.receive(message);
-		}
-
-		@Override
-		public void receiveNotification(final WSNAppMessages.Notification notification) {
-			deliveryManager.receiveNotification(Lists.newArrayList(notification.getMessage()));
+	static {
+		try {
+			DATATYPE_FACTORY = DatatypeFactory.newInstance();
+		} catch (DatatypeConfigurationException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -322,8 +172,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	 */
 	private WSNServiceConfig config;
 
-	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
-
 	@Inject
 	public WSNServiceImpl(
 			@Assisted final WSNServiceConfig config,
@@ -331,15 +179,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			@Assisted final WSNPreconditions preconditions,
 			@Assisted final WSNApp wsnApp) {
 
-		checkNotNull(config);
-		checkNotNull(deliveryManager);
-		checkNotNull(preconditions);
-		checkNotNull(wsnApp);
-
-		this.config = config;
-		this.deliveryManager = deliveryManager;
-		this.preconditions = preconditions;
-		this.wsnApp = wsnApp;
+		this.config = checkNotNull(config);
+		this.deliveryManager = checkNotNull(deliveryManager);
+		this.preconditions = checkNotNull(preconditions);
+		this.wsnApp = checkNotNull(wsnApp);
 	}
 
 	@Override
@@ -353,7 +196,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 					new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
 			);
 
-			wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
+			wsnApp.getEventBus().register(this);
 
 			deliveryManager.startAndWait();
 
@@ -371,7 +214,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 			log.info("Stopping WSN service...");
 
-			wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
+			wsnApp.getEventBus().unregister(this);
 
 			deliveryManager.experimentEnded();
 			deliveryManager.stopAndWait();
@@ -386,6 +229,150 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			notifyFailed(e);
 		}
 
+	}
+
+	@Subscribe
+	protected void onBackendNotification(final WSNAppBackendNotifications notifications) {
+		deliveryManager.receiveNotification(notifications.getMessages());
+	}
+
+	@Subscribe
+	protected void onUpstreamMessage(final WSNAppUpstreamMessage upstreamMessage) {
+
+		final String from = upstreamMessage.getFrom();
+		final byte[] bytes = upstreamMessage.getMessageBytes();
+		final String timestamp = upstreamMessage.getTimestamp();
+
+		/* this is a message that was received from a sensor node. we now have to check if this is a virtual link
+					 * message. in that case we will deliver it to the destination node if there's a virtual link currently.
+					 * if the message is a virtual broadcast we'll deliver it to all destinations this node's connected to.
+					 * if the message is not a virtual link we'll deliver it to the controller of the experiment as it is. */
+
+		if (!config.getReservedNodes().contains(from)) {
+			log.warn("Received message from unreserved node \"{}\".", from);
+			return;
+		}
+
+		// check if message is a virtual link message
+		boolean isVirtualLinkMessage = bytes.length > 1 && bytes[0] == MESSAGE_TYPE_PLOT &&
+				bytes[1] == NODE_OUTPUT_VIRTUAL_LINK;
+
+		if (!isVirtualLinkMessage) {
+			deliverNonVirtualLinkMessageToControllers(bytes, from, timestamp);
+		} else {
+			deliverVirtualLinkMessage(bytes, from, timestamp);
+		}
+
+	}
+
+	private void deliverVirtualLinkMessage(final byte[] bytes, final String sourceNodeId, final String timestamp) {
+
+		long destinationNode = readDestinationNodeURN(bytes);
+		Map<String, WSN> recipients = determineVirtualLinkMessageRecipients(sourceNodeId, destinationNode);
+
+		if (recipients.size() > 0) {
+
+			Message outboundVirtualLinkMessage =
+					constructOutboundVirtualLinkMessage(bytes, sourceNodeId, timestamp);
+
+			for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
+
+				String targetNode = recipient.getKey();
+				WSN recipientEndpointProxy = recipient.getValue();
+
+				executorService.execute(
+						new DeliverVirtualLinkMessageRunnable(
+								sourceNodeId,
+								targetNode,
+								recipientEndpointProxy,
+								outboundVirtualLinkMessage
+						)
+				);
+			}
+		}
+	}
+
+	private Message constructOutboundVirtualLinkMessage(final byte[] bytes, final String sourceNodeId,
+														final String timestamp) {
+
+		// byte 0: ISense Packet Type
+		// byte 1: Node API Command Type
+		// byte 2: RSSI
+		// byte 3: LQI
+		// byte 4: Payload Length
+		// byte 5-8: Destination Node URN
+		// byte 9-12: Source Node URN
+		// byte 13-13+Payload Length: Payload
+
+		Message outboundVirtualLinkMessage = new Message();
+		outboundVirtualLinkMessage.setSourceNodeId(sourceNodeId);
+		outboundVirtualLinkMessage.setTimestamp(DATATYPE_FACTORY.newXMLGregorianCalendar(timestamp));
+
+		// construct message that is actually sent to the destination node URN
+		ChannelBuffer header = ChannelBuffers.buffer(3);
+		header.writeByte(MESSAGE_TYPE_WISELIB_DOWNSTREAM);
+		header.writeByte(WISELIB_VIRTUAL_LINK_MESSAGE);
+		header.writeByte(0); // request id according to Node API
+
+		ChannelBuffer payload = ChannelBuffers.wrappedBuffer(bytes, 2, bytes.length - 2);
+		ChannelBuffer packet = ChannelBuffers.wrappedBuffer(header, payload);
+
+		byte[] outboundVirtualLinkMessageBinaryData = new byte[packet.readableBytes()];
+		packet.getBytes(0, outboundVirtualLinkMessageBinaryData);
+
+		outboundVirtualLinkMessage.setBinaryData(outboundVirtualLinkMessageBinaryData);
+
+		return outboundVirtualLinkMessage;
+	}
+
+	private Map<String, WSN> determineVirtualLinkMessageRecipients(final String sourceNodeURN,
+																   final long destinationNode) {
+
+		// check if message is a broadcast or unicast message
+		boolean isBroadcast = destinationNode == 0xFFFF;
+
+		// send virtual link message to all recipients
+		Map<String, WSN> recipients = new HashMap<String, WSN>();
+
+		if (isBroadcast) {
+
+			ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNodeURN);
+			if (map != null) {
+				for (Map.Entry<String, WSN> entry : map.entrySet()) {
+					recipients.put(entry.getKey(), entry.getValue());
+				}
+			}
+
+		} else {
+
+			ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNodeURN);
+			for (String targetNode : map.keySet()) {
+
+				if (StringUtils.parseHexOrDecLongFromUrn(targetNode) == destinationNode) {
+					recipients.put(targetNode, map.get(targetNode));
+				}
+			}
+		}
+
+		return recipients;
+	}
+
+	private long readDestinationNodeURN(final byte[] virtualLinkMessage) {
+		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(virtualLinkMessage);
+		return buffer.getLong(5);
+	}
+
+	private void deliverNonVirtualLinkMessageToControllers(final byte[] bytes, final String sourceNodeId,
+														   final String timestamp) {
+
+		XMLGregorianCalendar xmlTimestamp = DATATYPE_FACTORY.newXMLGregorianCalendar(timestamp);
+
+		Message message = new Message();
+		message.setSourceNodeId(sourceNodeId);
+		message.setTimestamp(xmlTimestamp);
+		message.setBinaryData(bytes);
+
+		deliveryManager.receive(message);
 	}
 
 	@Override
@@ -416,43 +403,62 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
 
+		// generate request ID to give back to client
 		final String requestId = secureIdGenerator.getNextId();
 
-		try {
+		// send message to device
+		final WSNAppDownstreamMessage downstreamMessage = new WSNAppDownstreamMessage(
+				ImmutableSet.copyOf(nodeIds),
+				message.getBinaryData()
+		);
+		wsnApp.getEventBus().post(downstreamMessage);
 
-			wsnApp.send(
-					new HashSet<String>(nodeIds),
-					message.getBinaryData(),
-					message.getSourceNodeId(),
-					message.getTimestamp().toXMLFormat(),
-					new WSNApp.Callback() {
+		// "wait" for response (asynchronously) and forward request status messages to client
+		final long start = System.currentTimeMillis();
+		downstreamMessage.getFuture().addListener(new Runnable() {
 
-						private final long start = System.currentTimeMillis();
+			@Override
+			public void run() {
 
-						@Override
-						public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
+				try {
 
-							if (log.isDebugEnabled()) {
+					final WSNAppMessages.RequestStatus requestStatus = downstreamMessage.getFuture().get();
 
-								final long duration = System.currentTimeMillis() - start;
-								final String nodeUrn = requestStatus.getStatus().getNodeId();
+					if (log.isDebugEnabled()) {
 
-								log.debug("Received reply from {} after {} ms.", nodeUrn, duration);
-							}
+						final long duration = System.currentTimeMillis() - start;
+						final String nodeUrn = requestStatus.getStatus().getNodeId();
 
-							deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-						}
-
-						@Override
-						public void failure(Exception e) {
-							deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
-						}
+						log.debug("Received reply from {} after {} ms.", nodeUrn, duration);
 					}
-			);
 
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
+					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+
+				} catch (InterruptedException e) {
+
+					onBackendNotification(new WSNAppBackendNotifications("Exception while sending message: " + e));
+					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+
+				} catch (ExecutionException e) {
+
+					final Throwable cause = e.getCause();
+					if (cause instanceof UnknownNodeUrnsException) {
+
+						final UnknownNodeUrnsException exception = (UnknownNodeUrnsException) cause;
+						deliveryManager.receiveUnknownNodeUrnRequestStatus(
+								exception.getNodeUrns(),
+								exception.getMessage(),
+								requestId
+						);
+					} else {
+
+						onBackendNotification(new WSNAppBackendNotifications("Exception while sending message: " + e));
+						deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+					}
+				}
+			}
+		}, MoreExecutors.sameThreadExecutor()
+		);
 
 		return requestId;
 

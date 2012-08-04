@@ -10,18 +10,16 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 
-import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
 
+public class ProtobufApiChannelPipelineFactory implements ChannelPipelineFactory {
 
-public class ProtobufControllerServerPipelineFactory implements ChannelPipelineFactory {
-
-	private ProtobufControllerServer protobufControllerServer;
+	private ProtobufApiService protobufApiService;
 
 	private SessionManagementService sessionManagement;
 
-	public ProtobufControllerServerPipelineFactory(final ProtobufControllerServer protobufControllerServer,
-												   final SessionManagementService sessionManagement) {
-		this.protobufControllerServer = protobufControllerServer;
+	public ProtobufApiChannelPipelineFactory(final ProtobufApiService protobufApiService,
+											 final SessionManagementService sessionManagement) {
+		this.protobufApiService = protobufApiService;
 		this.sessionManagement = sessionManagement;
 	}
 
@@ -36,13 +34,12 @@ public class ProtobufControllerServerPipelineFactory implements ChannelPipelineF
 		p.addLast("frameEncoder", new ProtobufVarint32LengthFieldPrepender());
 		p.addLast("protobufEncoder", new ProtobufEncoder());
 
-		ProtobufControllerServerHandler handler = new ProtobufControllerServerHandler(
-				protobufControllerServer,
+		ProtobufApiChannelHandler handler = new ProtobufApiChannelHandler(
+				protobufApiService,
 				sessionManagement
 		);
-		p.addLast("handler", handler);
 
-		protobufControllerServer.addHandler(handler);
+		p.addLast("handler", handler);
 
 		return p;
 	}

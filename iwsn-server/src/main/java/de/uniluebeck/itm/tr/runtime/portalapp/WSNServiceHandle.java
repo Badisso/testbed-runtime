@@ -25,10 +25,9 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufApiService;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import eu.wisebed.api.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,35 +37,19 @@ public class WSNServiceHandle extends AbstractService implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceHandle.class);
 
-	private final String secretReservationKey;
-
 	private final WSNService wsnService;
 
 	private final WSNSoapService wsnSoapService;
 
 	private final WSNApp wsnApp;
 
-	private final URL wsnInstanceEndpointUrl;
+	WSNServiceHandle(final WSNService wsnService,
+					 final WSNSoapService wsnSoapService,
+					 final WSNApp wsnApp) {
 
-	private ProtobufControllerServer protobufControllerServer;
-
-	private final ProtobufDeliveryManager protobufControllerHelper;
-
-	WSNServiceHandle(String secretReservationKey,
-					 URL wsnInstanceEndpointUrl,
-					 WSNService wsnService,
-					 WSNSoapService wsnSoapService,
-					 WSNApp wsnApp,
-					 ProtobufControllerServer protobufControllerServer,
-					 ProtobufDeliveryManager protobufControllerHelper) {
-
-		this.secretReservationKey = secretReservationKey;
 		this.wsnService = wsnService;
 		this.wsnSoapService = wsnSoapService;
 		this.wsnApp = wsnApp;
-		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
-		this.protobufControllerServer = protobufControllerServer;
-		this.protobufControllerHelper = protobufControllerHelper;
 	}
 
 	@Override
@@ -78,11 +61,12 @@ public class WSNServiceHandle extends AbstractService implements Service {
 			wsnService.startAndWait();
 			wsnSoapService.startAndWait();
 
-			notifyStarted();
 
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
+
+		notifyStarted();
 	}
 
 	@Override
@@ -108,21 +92,14 @@ public class WSNServiceHandle extends AbstractService implements Service {
 				log.error("Exception while stopping WSNApp: ", e);
 			}
 
-			try {
-				protobufControllerServer.stopHandlers(secretReservationKey);
-			} catch (Throwable e) {
-				log.error("Exception while stopping ProtobufControllerServer: ", e);
-			}
-
-			notifyStopped();
-
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
 
+		notifyStopped();
 	}
 
-	public WSN getWsnService() {
+	public WSNService getWsnService() {
 		return wsnService;
 	}
 
@@ -130,16 +107,7 @@ public class WSNServiceHandle extends AbstractService implements Service {
 		return wsnApp;
 	}
 
-	public URL getWsnInstanceEndpointUrl() {
-		return wsnInstanceEndpointUrl;
+	public WSNSoapService getWsnSoapService() {
+		return wsnSoapService;
 	}
-
-	public ProtobufDeliveryManager getProtobufControllerHelper() {
-		return protobufControllerHelper;
-	}
-
-	public String getSecretReservationKey() {
-		return secretReservationKey;
-	}
-
 }

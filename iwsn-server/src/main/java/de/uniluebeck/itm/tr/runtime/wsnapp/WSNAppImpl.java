@@ -25,8 +25,11 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.*;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -62,8 +65,6 @@ import javax.annotation.Nullable;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
@@ -158,6 +159,36 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		}
 	}
 
+	private final SimpleChannelUpstreamHandler filterPipelineTopHandler = new SimpleChannelUpstreamHandler() {
+
+		@Override
+		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
+
+			ChannelBuffer channelBuffer = (ChannelBuffer) e.getMessage();
+			SocketAddress socketAddress = e.getRemoteAddress();
+
+			byte[] bytes = new byte[channelBuffer.readableBytes()];
+			channelBuffer.readBytes(bytes);
+
+			String sourceNodeId = ((WisebedMulticastAddress) socketAddress).getNodeUrns().iterator().next();
+			String timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
+
+			if (log.isTraceEnabled()) {
+				log.trace(
+						"Received {} bytes from {}: {}. Current listeners: {}",
+						new Object[]{bytes.length, sourceNodeId, StringUtils.toHexString(bytes)}
+				);
+			}
+
+			eventBus.post(new WSNAppUpstreamMessage(sourceNodeId, timestamp, bytes));
+		}
+
+		@Override
+		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) throws Exception {
+			sendBackendNotificationsToUser("Exception in channel pipeline caught: " + e);
+		}
+	};
+
 	private static final Logger log = LoggerFactory.getLogger(WSNApp.class);
 
 	private TestbedRuntime testbedRuntime;
@@ -175,10 +206,6 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	private final BelowPipelineLogger belowPipelineLogger;
 
 	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
-
-	private ImmutableSet<WSNNodeMessageReceiver> wsnNodeMessageReceivers = ImmutableSet.of();
-
-	private final Lock wsnNodeMessageReceiversLock = new ReentrantLock();
 
 	private ScheduledExecutorService scheduler;
 
@@ -202,6 +229,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			registerNodeMessageReceiver(true);
 		}
 	};
+
+	private final EventBus eventBus = new EventBus("WSNApp-EventBus");
 
 	private MessageEventListener messageEventListener = new MessageEventAdapter() {
 
@@ -268,9 +297,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 						.mergeFrom(msg.getPayload())
 						.build();
 
-				for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-					receiver.receiveNotification(notification);
-				}
+				sendBackendNotificationsToUser(notification.getMessage());
 
 			} catch (InvalidProtocolBufferException e) {
 				log.error("" + e, e);
@@ -304,7 +331,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			if (e instanceof ExceptionEvent) {
 
-				Throwable cause = ((ExceptionEvent) e).getCause();
+				@SuppressWarnings("ThrowableResultOfMethodCallIgnored") Throwable cause =
+						((ExceptionEvent) e).getCause();
 				String notificationString = "The pipeline seems to be wrongly configured. A(n) " +
 						cause.getClass().getSimpleName() +
 						" was caught and contained the following message: " +
@@ -418,59 +446,10 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	private void sendPipelineMisconfigurationIfNotificationRateAllows(String notificationString) {
 
 		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
-
-			final WSNAppMessages.Notification notification = WSNAppMessages.Notification
-					.newBuilder()
-					.setMessage(notificationString)
-					.build();
-
-			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-				receiver.receiveNotification(notification);
-			}
-
+			sendBackendNotificationsToUser(notificationString);
 			pipelineMisconfigurationTimeDiff.touch();
 		}
 	}
-
-	private final SimpleChannelUpstreamHandler filterPipelineTopHandler = new SimpleChannelUpstreamHandler() {
-
-		@Override
-		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) throws Exception {
-			filterPipelineTopHandler.exceptionCaught(ctx, e);
-		}
-
-		@Override
-		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-
-			ChannelBuffer channelBuffer = (ChannelBuffer) e.getMessage();
-			SocketAddress socketAddress = e.getRemoteAddress();
-
-			byte[] bytes = new byte[channelBuffer.readableBytes()];
-			channelBuffer.readBytes(bytes);
-
-			String sourceNodeId = ((WisebedMulticastAddress) socketAddress).getNodeUrns().iterator().next();
-			String timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
-
-			if (log.isTraceEnabled()) {
-				log.trace(
-						"Received {} bytes from {}: {}. Current listeners: {}",
-						new Object[]{
-								bytes.length,
-								sourceNodeId,
-								StringUtils.toHexString(bytes),
-								wsnNodeMessageReceivers
-						}
-				);
-			}
-
-			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-				if (log.isTraceEnabled()) {
-					log.trace("Passing message to {}: {}", receiver, StringUtils.toHexString(bytes));
-				}
-				receiver.receive(bytes, sourceNodeId, timestamp);
-			}
-		}
-	};
 
 	@Override
 	public String getName() {
@@ -507,6 +486,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			registerNodeMessageReceiverRunnable.run();
 
+			eventBus.register(this);
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -520,6 +501,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		try {
 
 			log.info("Stopping WSNApp...");
+
+			eventBus.unregister(this);
 
 			setDefaultPipelineOnReservedNodes();
 			setDefaultPipelineLocally();
@@ -550,23 +533,17 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		notifyStopped();
 	}
 
-	private void setDefaultPipelineLocally() {
-		setChannelPipelineLocally(null, null);
-	}
+	@Subscribe
+	void onDownstreamMessage(final WSNAppDownstreamMessage message) {
 
-	@Override
-	public void send(final Set<String> nodeUrns, final byte[] bytes, final String sourceNodeId, final String timestamp,
-					 final Callback callback) throws UnknownNodeUrnsException {
+		try {
+			assertNodeUrnsKnown(message.getTo());
+		} catch (UnknownNodeUrnsException e) {
+			message.getFuture().setException(e);
+		}
 
-		assertNodeUrnsKnown(nodeUrns);
-
-		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(bytes);
-
-		final HashMap<String, Object> userContext = new HashMap<String, Object>();
-		userContext.put("timestamp", timestamp);
-		userContext.put("callback", callback);
-
-		final WisebedMulticastAddress targetAddress = new WisebedMulticastAddress(nodeUrns, userContext);
+		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getMessageBytes());
+		final WisebedMulticastAddress targetAddress = new WisebedMulticastAddress(message.getTo());
 
 		final DownstreamMessageEvent downstreamMessageEvent = new DownstreamMessageEvent(
 				pipeline.getChannel(),
@@ -576,6 +553,16 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		);
 
 		pipeline.sendDownstream(downstreamMessageEvent);
+
+		message.getFuture().set(null);
+	}
+
+	private void sendBackendNotificationsToUser(final String... messages) {
+		eventBus.post(new WSNAppBackendNotifications(ImmutableList.copyOf(messages)));
+	}
+
+	private void setDefaultPipelineLocally() {
+		setChannelPipelineLocally(null, null);
 	}
 
 	@Override
@@ -639,12 +626,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		LinkedList<Tuple<String, ChannelHandler>> handlers = newLinkedList();
 
 		handlers.addFirst(new Tuple<String, ChannelHandler>("filterPipelineTopHandler", filterPipelineTopHandler));
-
-		boolean doLogging = log.isTraceEnabled() && innerHandlers != null && !innerHandlers.isEmpty();
-
-		if (doLogging) {
-			handlers.addFirst(new Tuple<String, ChannelHandler>("aboveFilterPipelineLogger", abovePipelineLogger));
-		}
+		handlers.addFirst(new Tuple<String, ChannelHandler>("aboveFilterPipelineLogger", abovePipelineLogger));
 
 		if (innerHandlers != null) {
 			for (Tuple<String, ChannelHandler> innerHandler : innerHandlers) {
@@ -652,15 +634,10 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			}
 		}
 
-		if (doLogging) {
-			handlers.addFirst(new Tuple<String, ChannelHandler>("belowFilterPipelineLogger", belowPipelineLogger));
-		}
-
-		handlers.addFirst(new Tuple<String, ChannelHandler>("filterPipelineBottomHandler", filterPipelineBottomHandler)
-		);
+		handlers.addFirst(new Tuple<String, ChannelHandler>("belowFilterPipelineLogger", belowPipelineLogger));
+		handlers.addFirst(new Tuple<String, ChannelHandler>("filterPipelineBottomHandler", filterPipelineBottomHandler));
 
 		return handlers;
-
 	}
 
 	private void setChannelPipelineOnGateways(final Set<String> nodeUrns,
@@ -691,6 +668,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				callback.failure(e);
 			}
 		}
+	}
+
+	@Override
+	public EventBus getEventBus() {
+		return eventBus;
 	}
 
 	@Override
@@ -855,59 +837,6 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			future.addListener(new RequestStatusRunnable(future, callback, nodeUrn), executor);
 		}
 
-	}
-
-	@Override
-	public void addNodeMessageReceiver(WSNNodeMessageReceiver receiver) {
-
-		wsnNodeMessageReceiversLock.lock();
-		try {
-
-			log.debug("Adding node message receiver: {}. Listeners before: {}", receiver, wsnNodeMessageReceivers);
-
-			wsnNodeMessageReceivers = ImmutableSet.<WSNNodeMessageReceiver>builder()
-					.addAll(wsnNodeMessageReceivers)
-					.add(receiver)
-					.build();
-
-			log.debug("Added node message receiver: {}. Listeners after: {}", receiver, wsnNodeMessageReceivers);
-
-		} finally {
-			wsnNodeMessageReceiversLock.unlock();
-		}
-	}
-
-	@Override
-	public void removeNodeMessageReceiver(WSNNodeMessageReceiver receiverToRemove) {
-
-		wsnNodeMessageReceiversLock.lock();
-
-		try {
-
-			log.debug(
-					"Removing node message receiver: {}. Listeners before: {}",
-					receiverToRemove,
-					wsnNodeMessageReceivers
-			);
-
-			final ImmutableSet.Builder<WSNNodeMessageReceiver> builder = ImmutableSet.builder();
-			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-				if (receiver != receiverToRemove) {
-					builder.add(receiver);
-				}
-			}
-
-			wsnNodeMessageReceivers = builder.build();
-
-			log.debug(
-					"Removed node message receiver: {}. Listeners after: {}",
-					receiverToRemove,
-					wsnNodeMessageReceivers
-			);
-
-		} finally {
-			wsnNodeMessageReceiversLock.unlock();
-		}
 	}
 
 	@Override
