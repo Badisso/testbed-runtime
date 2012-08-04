@@ -22,6 +22,10 @@ public class SetVirtualLinkRequest extends Request {
 		this.to = checkNotNull(to, "A node URN for a request must not be null!");
 	}
 
+	public NodeUrn getFrom() {
+		return nodeUrns.iterator().next();
+	}
+
 	public NodeUrn getTo() {
 		return to;
 	}

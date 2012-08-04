@@ -2,16 +2,23 @@ package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 
-public class DownstreamMessageEvent {
+import javax.inject.Provider;
 
-	private final ImmutableSet<NodeUrn> to;
+public class MessageDownstreamRequest extends Request {
 
 	private final byte[] messageBytes;
 
-	public DownstreamMessageEvent(final ImmutableSet<NodeUrn> to, final byte[] messageBytes) {
-		this.to = to;
+	@Inject
+	MessageDownstreamRequest(final Provider<Long> requestIdProvider,
+							 @Assisted final ImmutableSet<NodeUrn> to,
+							 @Assisted final byte[] messageBytes) {
+
+		super(requestIdProvider, to);
+
 		this.messageBytes = messageBytes;
 	}
 
@@ -20,13 +27,13 @@ public class DownstreamMessageEvent {
 	}
 
 	public ImmutableSet<NodeUrn> getTo() {
-		return to;
+		return nodeUrns;
 	}
 
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this)
-				.add("to", to)
+				.add("to", nodeUrns)
 				.add("messageBytes", messageBytes.length + " bytes")
 				.toString();
 	}

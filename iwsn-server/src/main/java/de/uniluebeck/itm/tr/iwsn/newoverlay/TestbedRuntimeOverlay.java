@@ -1,16 +1,18 @@
 package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
-
-import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestbedRuntimeOverlay extends AbstractService implements Overlay {
+
+	private static final Logger log = LoggerFactory.getLogger(TestbedRuntimeOverlay.class);
 
 	private final EventBus eventBus;
 
@@ -29,17 +31,6 @@ public class TestbedRuntimeOverlay extends AbstractService implements Overlay {
 	}
 
 	@Override
-	public ListenableFuture<Response> send(final Request request, final int timeout, final TimeUnit timeUnit) {
-		return null;  // TODO implement
-	}
-
-	@Override
-	public ListenableFuture<ProgressResponse> send(final ProgressRequest progressRequest, final int timeout,
-												   final TimeUnit timeUnit) {
-		return null;  // TODO implement
-	}
-
-	@Override
 	protected void doStart() {
 		// TODO implement
 		eventBus.register(this);
@@ -52,22 +43,27 @@ public class TestbedRuntimeOverlay extends AbstractService implements Overlay {
 	}
 
 	@Subscribe
-	protected void onDownstreamMessageEvent(DownstreamMessageEvent event) {
+	protected void onDownstreamMessageEvent(MessageDownstreamRequest request) {
 		// TODO implement
 	}
 
 	@Subscribe
-	protected void onUpstreamMessageEvent(UpstreamMessageEvent event) {
+	protected void onUpstreamMessageEvent(MessageUpstreamRequest request) {
 		// TODO implement
 	}
 
 	@Subscribe
-	protected void onDevicesAttachedEvent(DevicesAttachedEvent event) {
+	protected void onDevicesAttachedEvent(DevicesAttachedEventRequest requestSendEvent) {
 		// TODO implement
 	}
 
 	@Subscribe
-	protected void onDevicesDetachedEvent(DevicesDetachedEvent event) {
+	protected void onDevicesDetachedEvent(DevicesDetachedEventRequest eventRequest) {
 		// TODO implement
+	}
+
+	@Subscribe
+	protected void onDeadEvent(DeadEvent deadEvent) {
+		log.error("Dead event: {}", deadEvent);
 	}
 }

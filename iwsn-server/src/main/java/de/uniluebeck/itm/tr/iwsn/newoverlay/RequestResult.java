@@ -1,14 +1,17 @@
 package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
+import de.uniluebeck.itm.tr.iwsn.NodeUrn;
+import de.uniluebeck.itm.tr.util.Tuple;
 
-public class Response {
+public class RequestResult {
 
 	protected final long requestId;
 
-	protected final RequestResult result;
+	protected final ImmutableMap<NodeUrn, Tuple<Boolean, String>> result;
 
-	public Response(final long requestId, final RequestResult result) {
+	public RequestResult(final long requestId, final ImmutableMap<NodeUrn, Tuple<Boolean, String>> result) {
 		this.requestId = requestId;
 		this.result = result;
 	}
@@ -17,7 +20,7 @@ public class Response {
 		return requestId;
 	}
 
-	public RequestResult getResult() {
+	public ImmutableMap<NodeUrn, Tuple<Boolean, String>> getResult() {
 		return result;
 	}
 

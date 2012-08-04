@@ -10,8 +10,4 @@ public interface Overlay extends Service {
 
 	EventBus getEventBus();
 
-	ListenableFuture<Response> send(Request request, int timeout, TimeUnit timeUnit);
-
-	ListenableFuture<ProgressResponse> send(ProgressRequest progressRequest, int timeout, TimeUnit timeUnit);
-
 }

@@ -22,10 +22,13 @@ public class DisablePhysicalLinkRequest extends Request {
 		this.to = checkNotNull(to, "A node URN for request must not be null!");
 	}
 
+	public NodeUrn getFrom() {
+		return nodeUrns.iterator().next();
+	}
+
 	public NodeUrn getTo() {
 		return to;
 	}
-
 
 	@Override
 	public String toString() {

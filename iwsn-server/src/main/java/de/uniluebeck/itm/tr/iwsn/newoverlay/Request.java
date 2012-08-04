@@ -2,7 +2,10 @@ package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
+import de.uniluebeck.itm.tr.util.Listenable;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -16,6 +19,8 @@ public class Request {
 
 	protected final ImmutableSet<NodeUrn> nodeUrns;
 
+	protected final SettableFuture<RequestResult> future;
+
 	@Inject
 	Request(final Provider<Long> requestIdProvider, final ImmutableSet<NodeUrn> nodeUrns) {
 
@@ -28,10 +33,15 @@ public class Request {
 
 		this.nodeUrns = nodeUrns;
 		this.requestId = requestIdProvider.get();
+		this.future = SettableFuture.create();
 	}
 
-	public ImmutableSet<NodeUrn> getNodeUrns() {
-		return nodeUrns;
+	public long getRequestId() {
+		return requestId;
+	}
+
+	public SettableFuture<RequestResult> getFuture() {
+		return future;
 	}
 
 	@Override

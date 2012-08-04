@@ -32,6 +32,10 @@ public class SetChannelPipelineRequest extends Request {
 		this.pipeline = pipeline;
 	}
 
+	public ImmutableSet<NodeUrn> getNodeUrns() {
+		return nodeUrns;
+	}
+
 	public ImmutableList<Tuple<String, ImmutableMap<String, String>>> getPipeline() {
 		return pipeline;
 	}

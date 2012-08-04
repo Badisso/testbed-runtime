@@ -16,6 +16,10 @@ public class EnableNodeRequest extends Request {
 		super(requestIdProvider, ImmutableSet.of(nodeUrn));
 	}
 
+	public ImmutableSet<NodeUrn> getNodeUrns() {
+		return nodeUrns;
+	}
+
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this)

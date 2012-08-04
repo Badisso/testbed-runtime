@@ -14,4 +14,8 @@ public class AreNodesAliveRequest extends Request {
 
 		super(requestIdProvider, nodeUrns);
 	}
+
+	public ImmutableSet<NodeUrn> getNodeUrns() {
+		return nodeUrns;
+	}
 }

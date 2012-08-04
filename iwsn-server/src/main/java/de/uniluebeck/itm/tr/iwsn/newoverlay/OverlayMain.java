@@ -8,6 +8,8 @@ import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.util.Tuple;
 
+import javax.sound.midi.SysexMessage;
+
 public class OverlayMain {
 
 	public static void main(String[] args) {
@@ -21,92 +23,56 @@ public class OverlayMain {
 		final ImmutableSet<NodeUrn> nodeUrns = ImmutableSet.of(nodeUrn1, nodeUrn2);
 		final ImmutableList<Tuple<String, ImmutableMap<String, String>>> pipeline = ImmutableList.of();
 
-		Request request;
-		ProgressRequest progressRequest;
-
-		request = requestFactory.createAreNodesAliveRequest(nodeUrns);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createAreNodesAliveRequest(nodeUrns));
+		System.out.println();
 
-		request = requestFactory.createAreNodesAliveSmRequest(nodeUrns);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createAreNodesAliveSmRequest(nodeUrns));
+		System.out.println();
 
-		request = requestFactory.createDestroyVirtualLinkRequest(nodeUrn1, nodeUrn2);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createDestroyVirtualLinkRequest(nodeUrn1, nodeUrn2));
+		System.out.println();
 
-		request = requestFactory.createDisableNodeRequest(nodeUrn1);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createDisableNodeRequest(nodeUrn1));
+		System.out.println();
 
-		request = requestFactory.createDisablePhysicalLinkRequest(nodeUrn1, nodeUrn2);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createDisablePhysicalLinkRequest(nodeUrn1, nodeUrn2));
+		System.out.println();
 
-		request = requestFactory.createEnableNodeRequest(nodeUrn1);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createEnableNodeRequest(nodeUrn1));
+		System.out.println();
 
-		request = requestFactory.createEnablePhysicalLinkRequest(nodeUrn1, nodeUrn2);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createEnablePhysicalLinkRequest(nodeUrn1, nodeUrn2));
+		System.out.println();
 
-		request = requestFactory.createFlashDefaultImageRequest(nodeUrns);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createFlashDefaultImageRequest(nodeUrns));
+		System.out.println();
 
-		request = requestFactory.createFlashImageRequest(nodeUrns, new byte[]{0x01});
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createFlashImageRequest(nodeUrns, new byte[]{0x01}));
+		System.out.println();
 
-		request = requestFactory.createResetNodesRequest(nodeUrns);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createResetNodesRequest(nodeUrns));
+		System.out.println();
 
-		request = requestFactory.createSetChannelPipelineRequest(nodeUrns, pipeline);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createSetChannelPipelineRequest(nodeUrns, pipeline));
+		System.out.println();
 
-		request = requestFactory.createSetDefaultChannelPipelineRequest(nodeUrns);
-		progressRequest = requestFactory.createProgressRequest(request);
-
-		System.out.println(request);
-		System.out.println(progressRequest);
 		System.out.println("************************************");
+		System.out.println(requestFactory.createSetDefaultChannelPipelineRequest(nodeUrns));
+		System.out.println();
+
+		System.out.println("************************************");
+		System.out.println(requestFactory.createSetVirtualLinkRequest(nodeUrn1, nodeUrn2));
+		System.out.println();
 	}
-
 }

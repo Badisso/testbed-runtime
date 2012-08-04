@@ -1,25 +1,34 @@
 package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import org.joda.time.DateTime;
 
-public class UpstreamMessageEvent {
+import javax.inject.Provider;
 
-	private final NodeUrn from;
+public class MessageUpstreamRequest extends Request {
 
 	private final DateTime timestamp;
 
 	private final byte[] messageBytes;
 
-	public UpstreamMessageEvent(final NodeUrn from, final DateTime timestamp, final byte[] messageBytes) {
-		this.from = from;
+	@Inject
+	MessageUpstreamRequest(final Provider<Long> requestIdProvider,
+						   @Assisted final NodeUrn from,
+						   @Assisted final DateTime timestamp,
+						   @Assisted final byte[] messageBytes) {
+
+		super(requestIdProvider, ImmutableSet.of(from));
+
 		this.timestamp = timestamp;
 		this.messageBytes = messageBytes;
 	}
 
 	public NodeUrn getFrom() {
-		return from;
+		return nodeUrns.iterator().next();
 	}
 
 	public byte[] getMessageBytes() {
@@ -33,7 +42,7 @@ public class UpstreamMessageEvent {
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this)
-				.add("from", from)
+				.add("from", nodeUrns.iterator().next())
 				.add("timestamp", timestamp)
 				.add("messageBytes", messageBytes.length + " bytes")
 				.toString();

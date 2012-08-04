@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.util.Tuple;
+import org.joda.time.DateTime;
 
 public interface RequestFactory {
 
@@ -32,6 +33,14 @@ public interface RequestFactory {
 
 	ResetNodesRequest createResetNodesRequest(ImmutableSet<NodeUrn> nodeUrns);
 
+	DevicesAttachedEventRequest createDevicesAttachedEventRequest(ImmutableSet<NodeUrn> nodeUrns);
+
+	DevicesDetachedEventRequest createDevicesDetachedEventRequest(ImmutableSet<NodeUrn> nodeUrns);
+
+	MessageDownstreamRequest createMessageDownstreamRequest(ImmutableSet<NodeUrn> to, byte[] messageBytes);
+
+	MessageUpstreamRequest createMessageUpstreamRequest(NodeUrn from, DateTime timestamp, byte[] messageBytes);
+
 	SetChannelPipelineRequest createSetChannelPipelineRequest(ImmutableSet<NodeUrn> nodeUrns,
 															  ImmutableList<Tuple<String, ImmutableMap<String, String>>> pipeline);
 
@@ -39,7 +48,5 @@ public interface RequestFactory {
 
 	SetVirtualLinkRequest createSetVirtualLinkRequest(@Assisted("from") NodeUrn from,
 													  @Assisted("to") NodeUrn to);
-
-	ProgressRequest createProgressRequest(Request request);
 
 }

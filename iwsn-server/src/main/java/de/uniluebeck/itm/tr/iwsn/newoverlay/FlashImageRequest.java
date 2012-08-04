@@ -27,6 +27,10 @@ public class FlashImageRequest extends Request {
 		this.image = image;
 	}
 
+	public ImmutableSet<NodeUrn> getNodeUrns() {
+		return nodeUrns;
+	}
+
 	public byte[] getImage() {
 		return image;
 	}

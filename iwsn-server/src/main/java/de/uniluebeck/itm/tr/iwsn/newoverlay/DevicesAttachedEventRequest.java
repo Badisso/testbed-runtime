@@ -2,15 +2,17 @@ package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 
-public class SetDefaultChannelPipelineRequest extends Request {
+import javax.inject.Provider;
+
+public class DevicesAttachedEventRequest extends Request {
 
 	@Inject
-	SetDefaultChannelPipelineRequest(final Provider<Long> requestIdProvider,
-									 @Assisted final ImmutableSet<NodeUrn> nodeUrns) {
+	DevicesAttachedEventRequest(final Provider<Long> requestIdProvider,
+								@Assisted final ImmutableSet<NodeUrn> nodeUrns) {
+
 		super(requestIdProvider, nodeUrns);
 	}
 
