@@ -32,38 +32,147 @@ public class TestbedRuntimeOverlay extends AbstractService implements Overlay {
 
 	@Override
 	protected void doStart() {
-		// TODO implement
-		eventBus.register(this);
+		try {
+			testbedRuntime.startAndWait();
+			eventBus.register(this);
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
 	protected void doStop() {
-		eventBus.unregister(this);
-		// TODO implement
-	}
-
-	@Subscribe
-	protected void onDownstreamMessageEvent(MessageDownstreamRequest request) {
-		// TODO implement
-	}
-
-	@Subscribe
-	protected void onUpstreamMessageEvent(MessageUpstreamRequest request) {
-		// TODO implement
-	}
-
-	@Subscribe
-	protected void onDevicesAttachedEvent(DevicesAttachedEventRequest requestSendEvent) {
-		// TODO implement
-	}
-
-	@Subscribe
-	protected void onDevicesDetachedEvent(DevicesDetachedEventRequest eventRequest) {
-		// TODO implement
+		try {
+			eventBus.unregister(this);
+			testbedRuntime.stopAndWait();
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Subscribe
 	protected void onDeadEvent(DeadEvent deadEvent) {
 		log.error("Dead event: {}", deadEvent);
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onAreNodesAliveRequest(AreNodesAliveRequest request) {
+		log.debug("TestbedRuntimeOverlay.onAreNodesAliveRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onAreNodesAliveSmRequest(AreNodesAliveSmRequest request) {
+		log.debug("TestbedRuntimeOverlay.onAreNodesAliveSmRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onDestroyVirtualLinkRequest(DestroyVirtualLinkRequest request) {
+		log.debug("TestbedRuntimeOverlay.onDestroyVirtualLinkRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onDevicesAttachedEventRequest(DevicesAttachedEventRequest request) {
+		log.debug("TestbedRuntimeOverlay.onDevicesAttachedEventRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onDevicesDetachedEventRequest(DevicesDetachedEventRequest request) {
+		log.debug("TestbedRuntimeOverlay.onDevicesDetachedEventRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onDisableNodeRequest(DisableNodeRequest request) {
+		log.debug("TestbedRuntimeOverlay.onDisableNodeRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onDisablePhysicalLinkRequest(DisablePhysicalLinkRequest request) {
+		log.debug("TestbedRuntimeOverlay.onDisablePhysicalLinkRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onEnableNodeRequest(EnableNodeRequest request) {
+		log.debug("TestbedRuntimeOverlay.onEnableNodeRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onEnablePhysicalLinkRequest(EnablePhysicalLinkRequest request) {
+		log.debug("TestbedRuntimeOverlay.onEnablePhysicalLinkRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onFlashDefaultImageRequest(FlashDefaultImageRequest request) {
+		log.debug("TestbedRuntimeOverlay.onFlashDefaultImageRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onFlashImageRequest(FlashImageRequest request) {
+		log.debug("TestbedRuntimeOverlay.onFlashImageRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onMessageDownstreamRequest(MessageDownstreamRequest request) {
+		log.debug("TestbedRuntimeOverlay.onMessageDownstreamRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onMessageUpstreamRequest(MessageUpstreamRequest request) {
+		log.debug("TestbedRuntimeOverlay.onMessageUpstreamRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onResetNodesRequest(ResetNodesRequest request) {
+		log.debug("TestbedRuntimeOverlay.onResetNodesRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onSetChannelPipelineRequest(SetChannelPipelineRequest request) {
+		log.debug("TestbedRuntimeOverlay.onSetChannelPipelineRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onSetDefaultChannelPipelineRequest(SetDefaultChannelPipelineRequest request) {
+		log.debug("TestbedRuntimeOverlay.onSetDefaultChannelPipelineRequest({})", request);
+		// TODO implement
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onSetVirtualLinkRequest(SetVirtualLinkRequest request) {
+		log.debug("TestbedRuntimeOverlay.onSetVirtualLinkRequest({})", request);
+		// TODO implement
 	}
 }

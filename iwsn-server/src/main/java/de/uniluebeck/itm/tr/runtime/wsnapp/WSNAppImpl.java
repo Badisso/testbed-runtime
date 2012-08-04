@@ -304,6 +304,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			if (e instanceof ExceptionEvent) {
 
+				@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 				Throwable cause = ((ExceptionEvent) e).getCause();
 				String notificationString = "The pipeline seems to be wrongly configured. A(n) " +
 						cause.getClass().getSimpleName() +

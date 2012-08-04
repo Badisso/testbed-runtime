@@ -29,7 +29,7 @@ public interface RequestFactory {
 
 	FlashDefaultImageRequest createFlashDefaultImageRequest(ImmutableSet<NodeUrn> nodeUrns);
 
-	FlashImageRequest createFlashImageRequest(ImmutableSet<NodeUrn> nodeUrns, byte[] image);
+	FlashImageRequest createFlashImageRequest(ImmutableMap<ImmutableSet<NodeUrn>, byte[]> images);
 
 	ResetNodesRequest createResetNodesRequest(ImmutableSet<NodeUrn> nodeUrns);
 

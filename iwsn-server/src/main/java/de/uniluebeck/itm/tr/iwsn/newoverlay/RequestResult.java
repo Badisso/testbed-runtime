@@ -9,9 +9,9 @@ public class RequestResult {
 
 	protected final long requestId;
 
-	protected final ImmutableMap<NodeUrn, Tuple<Boolean, String>> result;
+	protected final ImmutableMap<NodeUrn, Tuple<Integer, String>> result;
 
-	public RequestResult(final long requestId, final ImmutableMap<NodeUrn, Tuple<Boolean, String>> result) {
+	public RequestResult(final long requestId, final ImmutableMap<NodeUrn, Tuple<Integer, String>> result) {
 		this.requestId = requestId;
 		this.result = result;
 	}
@@ -20,7 +20,7 @@ public class RequestResult {
 		return requestId;
 	}
 
-	public ImmutableMap<NodeUrn, Tuple<Boolean, String>> getResult() {
+	public ImmutableMap<NodeUrn, Tuple<Integer, String>> getResult() {
 		return result;
 	}
 

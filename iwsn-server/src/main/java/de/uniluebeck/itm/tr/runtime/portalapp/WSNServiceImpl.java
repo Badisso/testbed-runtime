@@ -23,26 +23,36 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
+import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.*;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
@@ -57,6 +67,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -64,12 +75,114 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 
-public class WSNServiceImpl implements WSNService {
+public class WSNServiceImpl extends AbstractService implements WSNService {
+
+	/**
+	 * A runnable that delivers virtual link messages to the intended testbed.
+	 */
+	private static class RequestResultRunnable implements Runnable {
+
+		private final List<String> nodeIds;
+
+		private final Request request;
+
+		private final DeliveryManager deliveryManager;
+
+		private final long start;
+
+		private RequestResultRunnable(final List<String> nodeIds, final Request request,
+									  final DeliveryManager deliveryManager) {
+			this.nodeIds = nodeIds;
+			this.request = request;
+			this.deliveryManager = deliveryManager;
+			this.start = System.currentTimeMillis();
+		}
+
+		@Override
+		public void run() {
+
+			try {
+
+				final RequestResult result = request.getFuture().get();
+
+				if (log.isDebugEnabled()) {
+
+					final long duration = System.currentTimeMillis() - start;
+
+					for (Map.Entry<NodeUrn, Tuple<Integer, String>> entry : result.getResult().entrySet()) {
+
+						final String nodeUrn = entry.getKey().toString();
+						final Integer value = entry.getValue().getFirst();
+						final String msg = entry.getValue().getSecond();
+
+						log.debug(
+								"{} => Received status for {} after {} ms: {}{}",
+								new Object[]{
+										nodeUrn,
+										request.getClass().getSimpleName(),
+										duration,
+										value,
+										msg == null ? "" : " (" + msg + ")"
+								}
+						);
+					}
+				}
+
+				deliveryManager.receiveStatus(convert(result));
+
+			} catch (InterruptedException e) {
+
+				deliveryManager.receiveFailureStatusMessages(nodeIds, Long.toString(request.getRequestId()), e, -1);
+
+			} catch (ExecutionException e) {
+
+				if (e.getCause() instanceof UnknownNodeUrnsException) {
+
+					UnknownNodeUrnsException exception = (UnknownNodeUrnsException) e.getCause();
+					deliveryManager.receiveUnknownNodeUrnRequestStatus(
+							exception.getNodeUrns(),
+							e.getMessage(),
+							Long.toString(request.getRequestId())
+					);
+
+				} else {
+
+					deliveryManager.receiveFailureStatusMessages(nodeIds, Long.toString(request.getRequestId()), e, -1);
+				}
+			}
+		}
+
+		private static List<RequestStatus> convert(final RequestResult result) {
+
+			List<RequestStatus> list = newArrayList();
+
+			for (Map.Entry<NodeUrn, Tuple<Integer, String>> entry : result.getResult().entrySet()) {
+
+				final RequestStatus requestStatus = new RequestStatus();
+				requestStatus.setRequestId(Long.toString(result.getRequestId()));
+
+				final NodeUrn nodeUrn = entry.getKey();
+				final Integer value = entry.getValue().getFirst();
+				final String msg = entry.getValue().getSecond();
+
+				final Status status = new Status();
+				status.setNodeId(nodeUrn.toString());
+				status.setValue(value);
+				status.setMsg(msg);
+
+				requestStatus.getStatus().add(status);
+
+				list.add(requestStatus);
+			}
+
+			return list;
+		}
+	}
 
 	/**
 	 * The logger for this WSN service.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(WSNService.class);
 
 	/**
 	 * An implementation of {@link WSNNodeMessageReceiver} that listens for messages coming from sensor nodes and
@@ -235,11 +348,9 @@ public class WSNServiceImpl implements WSNService {
 		public void receiveNotification(final WSNAppMessages.Notification notification) {
 			deliveryManager.receiveNotification(Lists.newArrayList(notification.getMessage()));
 		}
+
 	}
 
-	/**
-	 * A runnable that delivers virtual link messages to the intended testbed.
-	 */
 	private class DeliverVirtualLinkMessageRunnable implements Runnable {
 
 		private String sourceNode;
@@ -288,87 +399,127 @@ public class WSNServiceImpl implements WSNService {
 				}
 			}
 		}
+
 	}
 
 	/**
-	 * Used to generate secure non-predictable secure request IDs as used request-response matching identifier.
+	 * Used to check method preconditions upon invocation of this WSN services public Web Service APIs methods.
 	 */
-	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+	private final WSNPreconditions preconditions;
 
 	/**
-	 * The WSNApp instance associated with this WSN service instance. Does all the testbed internal work around
-	 * communicating with the nodes.
+	 * The configuration for this service.
 	 */
-	private WSNApp wsnApp;
+	private final WSNServiceConfig config;
+
+	/**
+	 * The overlay network used to distributed requests to and collect request results from.
+	 */
+	private final Overlay overlay;
+
+	private final RequestFactory requestFactory;
+
+	private final DeliveryManager deliveryManager;
 
 	/**
 	 * Used for executing all parallel jobs.
 	 */
 	private ScheduledExecutorService executorService;
 
-	/**
-	 * Used to check method preconditions upon invocation of this WSN services public Web Service APIs methods.
-	 */
-	private WSNPreconditions preconditions;
-
-	/**
-	 * Used to manage controllers and send them messages and request statuses.
-	 */
-	private DeliveryManager deliveryManager;
-
-	/**
-	 * The configuration for this service.
-	 */
-	private WSNServiceConfig config;
-
 	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
 
+	/**
+	 * Map: (Source Node URN) -> (Map: (Target Node URN) -> (WSN endpoint instance))
+	 */
+	private ImmutableMap<String, ImmutableMap<String, WSN>> virtualLinksMap = ImmutableMap.of();
+
 	@Inject
-	public WSNServiceImpl(
-			@Assisted final WSNServiceConfig config,
-			@Assisted final DeliveryManager deliveryManager,
-			@Assisted final WSNPreconditions preconditions,
-			@Assisted final WSNApp wsnApp) {
+	public WSNServiceImpl(final Overlay overlay,
+						  final RequestFactory requestFactory,
+						  final DeliveryManager deliveryManager,
+						  @Assisted final WSNServiceConfig config,
+						  @Assisted final WSNPreconditions preconditions) {
 
-		checkNotNull(config);
-		checkNotNull(deliveryManager);
-		checkNotNull(preconditions);
-		checkNotNull(wsnApp);
+		this.overlay = checkNotNull(overlay);
+		this.requestFactory = checkNotNull(requestFactory);
+		this.deliveryManager = checkNotNull(deliveryManager);
+		this.config = checkNotNull(config);
+		this.preconditions = checkNotNull(preconditions);
+	}
 
-		this.config = config;
-		this.deliveryManager = deliveryManager;
-		this.preconditions = preconditions;
-		this.wsnApp = wsnApp;
+
+	@Override
+	protected void doStart() {
+
+		try {
+
+			log.info("Starting WSN service...");
+
+			executorService = Executors.newSingleThreadScheduledExecutor(
+					new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
+			);
+
+			overlay.getEventBus().register(this);
+
+			deliveryManager.startAndWait();
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStop() {
 
-		log.info("Starting WSN service...");
+		try {
 
-		executorService = Executors.newSingleThreadScheduledExecutor(
-				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
-		);
+			log.info("Stopping WSN service...");
 
-		wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
+			overlay.getEventBus().unregister(this);
 
-		deliveryManager.start();
+			deliveryManager.experimentEnded();
+			deliveryManager.stopAndWait();
+
+			ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
+
+			log.info("Stopped WSN service!");
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
 	}
 
-	@Override
-	public void stop() {
+	@Subscribe
+	@VisibleForTesting
+	void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
+		// TODO implement
+		throw new RuntimeException("Not yet implemented!");
+	}
 
-		log.info("Stopping WSN service...");
+	@Subscribe
+	@VisibleForTesting
+	void onDevicesAttachedEventRequest(final DevicesAttachedEventRequest request) {
+		// TODO implement
+		throw new RuntimeException("Not yet implemented!");
+	}
 
-		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
+	@Subscribe
+	@VisibleForTesting
+	void onDevicesDetachedEventRequest(final DevicesDetachedEventRequest request) {
+		// TODO implement
+		throw new RuntimeException("Not yet implemented!");
+	}
 
-		deliveryManager.experimentEnded();
-		deliveryManager.stop();
-
-		ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
-
-		log.info("Stopped WSN service!");
-
+	@Subscribe
+	@VisibleForTesting
+	void onRequestStatus(final de.uniluebeck.itm.tr.iwsn.newoverlay.RequestStatus requestStatus) {
+		// TODO implement
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override
@@ -395,113 +546,38 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String send(final List<String> nodeIds, final Message message) {
 
+		log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
 		preconditions.checkSendArguments(nodeIds, message);
 
-		log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
-
-		final String requestId = secureIdGenerator.getNextId();
-
-		try {
-
-			wsnApp.send(
-					new HashSet<String>(nodeIds),
-					message.getBinaryData(),
-					message.getSourceNodeId(),
-					message.getTimestamp().toXMLFormat(),
-					new WSNApp.Callback() {
-
-						private final long start = System.currentTimeMillis();
-
-						@Override
-						public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-
-							if (log.isDebugEnabled()) {
-
-								final long duration = System.currentTimeMillis() - start;
-								final String nodeUrn = requestStatus.getStatus().getNodeId();
-
-								log.debug("Received reply from {} after {} ms.", nodeUrn, duration);
-							}
-
-							deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-						}
-
-						@Override
-						public void failure(Exception e) {
-							deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
-						}
-					}
-			);
-
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
-
+		final MessageDownstreamRequest request = requestFactory.createMessageDownstreamRequest(
+				convert(nodeIds),
+				message.getBinaryData()
+		);
+		return addResponseListenerAndPostRequest(nodeIds, request);
 	}
 
 	@Override
 	public String setChannelPipeline(final List<String> nodes,
 									 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
+		log.debug("WSNServiceImpl.setChannelPipeline({}, {})", nodes, channelHandlerConfigurations);
 		preconditions.checkSetChannelPipelineArguments(nodes, channelHandlerConfigurations);
 
-		log.debug("WSNServiceImpl.setChannelPipeline({}, {})", nodes, channelHandlerConfigurations);
-
-		final String requestId = secureIdGenerator.getNextId();
-		final long start = System.currentTimeMillis();
-
-		try {
-			wsnApp.setChannelPipeline(new HashSet<String>(nodes), channelHandlerConfigurations, new WSNApp.Callback() {
-
-				@Override
-				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					long end = System.currentTimeMillis();
-					log.debug("Received reply after {} ms.", (end - start));
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
-				}
-			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
+		final SetChannelPipelineRequest request = requestFactory.createSetChannelPipelineRequest(
+				convert(nodes),
+				convert(channelHandlerConfigurations)
+		);
+		return addResponseListenerAndPostRequest(nodes, request);
 	}
 
 	@Override
 	public String areNodesAlive(final List<String> nodeIds) {
 
+		log.debug("WSNServiceImpl.checkAreNodesAlive({})", nodeIds);
 		preconditions.checkAreNodesAliveArguments(nodeIds);
 
-		log.debug("WSNServiceImpl.checkAreNodesAlive({})", nodeIds);
-
-		final String requestId = secureIdGenerator.getNextId();
-
-		try {
-			wsnApp.areNodesAlive(new HashSet<String>(nodeIds), new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
-				}
-			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
+		final AreNodesAliveRequest request = requestFactory.createAreNodesAliveRequest(convert(nodeIds));
+		return addResponseListenerAndPostRequest(nodeIds, request);
 	}
 
 	@Override
@@ -509,9 +585,11 @@ public class WSNServiceImpl implements WSNService {
 								final List<Integer> programIndices,
 								final List<Program> programs) {
 
+		log.debug("WSNServiceImpl.flashPrograms(...)");
+
 		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
 
-		log.debug("WSNServiceImpl.flashPrograms");
+		// TODO implement
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -587,36 +665,11 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String resetNodes(final List<String> nodeUrns) {
 
+		log.debug("WSNServiceImpl.resetNodes({})", nodeUrns);
 		preconditions.checkResetNodesArguments(nodeUrns);
 
-		log.debug("WSNServiceImpl.resetNodes({})", nodeUrns);
-
-		final String requestId = secureIdGenerator.getNextId();
-
-		try {
-			wsnApp.resetNodes(new HashSet<String>(nodeUrns), new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(nodeUrns, requestId, e, -1);
-				}
-			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
+		return addResponseListenerAndPostRequest(nodeUrns, requestFactory.createResetNodesRequest(convert(nodeUrns)));
 	}
-
-	/**
-	 * Map: (Source Node URN) -> (Map: (Target Node URN) -> (WSN endpoint instance))
-	 */
-	private ImmutableMap<String, ImmutableMap<String, WSN>> virtualLinksMap = ImmutableMap.of();
 
 	@Override
 	public String setVirtualLink(final String sourceNode,
@@ -625,37 +678,184 @@ public class WSNServiceImpl implements WSNService {
 								 final List<String> parameters,
 								 final List<String> filters) {
 
+		log.debug(
+				"WSNServiceImpl.setVirtualLink({}, {}, {}, {}, {})",
+				new Object[]{sourceNode, targetNode, remoteServiceInstance, parameters, filters}
+		);
 		preconditions.checkSetVirtualLinkArguments(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
 
-		final String requestId = secureIdGenerator.getNextId();
+		final NodeUrn sourceNodeUrn = new NodeUrn(sourceNode);
+		final NodeUrn targetNodeUrn = new NodeUrn(targetNode);
 
-		try {
-			wsnApp.setVirtualLink(sourceNode, targetNode, new WSNApp.Callback() {
+		final SetVirtualLinkRequest request = requestFactory.createSetVirtualLinkRequest(sourceNodeUrn, targetNodeUrn);
+		final String requestId = addResponseListenerAndPostRequest(newArrayList(sourceNode), request);
 
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
+		request.getFuture().addListener(new Runnable() {
+			@Override
+			public void run() {
+				try {
 
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-
-					if (requestStatus.getStatus().getValue() == 1) {
+					final RequestResult result = request.getFuture().get();
+					if (result.getResult().get(sourceNodeUrn).getFirst() == 1) {
 						addVirtualLink(sourceNode, targetNode, remoteServiceInstance);
 					}
 
-				}
-
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(sourceNode), requestId, e, -1);
+				} catch (Exception e) {
+					// handled by other listener
 				}
 			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
+		}, MoreExecutors.sameThreadExecutor());
 
 		// TODO support filters
 
 		return requestId;
+	}
+
+	@Override
+	public String destroyVirtualLink(final String sourceNode,
+									 final String targetNode) {
+
+		log.debug("WSNServiceImpl.destroyVirtualLink({}, {})", sourceNode, targetNode);
+		preconditions.checkDestroyVirtualLinkArguments(sourceNode, targetNode);
+
+		final NodeUrn sourceNodeUrn = new NodeUrn(sourceNode);
+		final NodeUrn targetNodeUrn = new NodeUrn(targetNode);
+
+		final DestroyVirtualLinkRequest request = requestFactory.createDestroyVirtualLinkRequest(
+				sourceNodeUrn,
+				targetNodeUrn
+		);
+
+		final String requestId = addResponseListenerAndPostRequest(newArrayList(sourceNode), request);
+
+		request.getFuture().addListener(new Runnable() {
+			@Override
+			public void run() {
+				try {
+
+					final RequestResult result = request.getFuture().get();
+					if (result.getResult().get(sourceNodeUrn).getFirst() == 1) {
+						removeVirtualLink(sourceNode, targetNode);
+					}
+
+				} catch (Exception e) {
+					// handled by other listener
+				}
+			}
+		}, MoreExecutors.sameThreadExecutor());
+
+		return requestId;
+	}
+
+	@Override
+	public String disableNode(final String node) {
+
+		log.debug("WSNServiceImpl.disableNode({})", node);
+		preconditions.checkDisableNodeArguments(node);
+
+		final DisableNodeRequest request = requestFactory.createDisableNodeRequest(new NodeUrn(node));
+		return addResponseListenerAndPostRequest(newArrayList(node), request);
+	}
+
+	@Override
+	public String disablePhysicalLink(final String nodeA, final String nodeB) {
+
+		log.debug("WSNServiceImpl.disablePhysicalLink({}, {})", nodeA, nodeB);
+		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
+
+		final NodeUrn from = new NodeUrn(nodeA);
+		final NodeUrn to = new NodeUrn(nodeB);
+
+		final DisablePhysicalLinkRequest request = requestFactory.createDisablePhysicalLinkRequest(from, to);
+		return addResponseListenerAndPostRequest(newArrayList(nodeA), request);
+	}
+
+	@Override
+	public String enableNode(final String node) {
+
+		log.debug("WSNServiceImpl.enableNode({})", node);
+		preconditions.checkEnableNodeArguments(node);
+
+		final EnableNodeRequest request = requestFactory.createEnableNodeRequest(new NodeUrn(node));
+		return addResponseListenerAndPostRequest(newArrayList(node), request);
+	}
+
+	@Override
+	public String enablePhysicalLink(final String nodeA, final String nodeB) {
+
+		log.debug("WSNServiceImpl.enablePhysicalLink({}, {})", nodeA, nodeB);
+		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
+
+		final NodeUrn to = new NodeUrn(nodeB);
+		final NodeUrn from = new NodeUrn(nodeA);
+
+		final EnablePhysicalLinkRequest request = requestFactory.createEnablePhysicalLinkRequest(from, to);
+		return addResponseListenerAndPostRequest(newArrayList(nodeA), request);
+	}
+
+	@Override
+	public List<String> getFilters() {
+		log.debug("WSNServiceImpl.getFilters");
+		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
+	}
+
+	private ChannelHandlerDescription convert(
+			final HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription) {
+
+		ChannelHandlerDescription target = new ChannelHandlerDescription();
+		target.setDescription(handlerDescription.getDescription());
+		target.setName(handlerDescription.getName());
+		for (Map.Entry<String, String> entry : handlerDescription.getConfigurationOptions().entries()) {
+			final KeyValuePair keyValuePair = new KeyValuePair();
+			keyValuePair.setKey(entry.getKey());
+			keyValuePair.setValue(entry.getValue());
+			target.getConfigurationOptions().add(keyValuePair);
+		}
+		return target;
+	}
+
+	private static ImmutableSet<NodeUrn> convert(final List<String> nodeIds) {
+		final ImmutableSet.Builder<NodeUrn> builder = ImmutableSet.builder();
+		for (String nodeId : nodeIds) {
+			builder.add(new NodeUrn(nodeId));
+		}
+		return builder.build();
+	}
+
+	private static ImmutableList<Tuple<String, ImmutableMap<String, String>>> convert(
+			final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+
+		final ImmutableList.Builder<Tuple<String, ImmutableMap<String, String>>> list = ImmutableList.builder();
+
+		for (ChannelHandlerConfiguration config : channelHandlerConfigurations) {
+
+			final String name = config.getName();
+			final List<KeyValuePair> params = config.getConfiguration();
+			final ImmutableMap.Builder<String, String> paramsMapBuilder = ImmutableMap.builder();
+
+			if (params != null && params.size() > 0) {
+
+				for (KeyValuePair param : params) {
+					paramsMapBuilder.put(param.getKey(), param.getValue());
+				}
+			}
+
+			list.add(new Tuple<String, ImmutableMap<String, String>>(name, paramsMapBuilder.build()));
+		}
+
+		return list.build();
+	}
+
+	private String addResponseListenerAndPostRequest(final List<String> nodes, final Request request) {
+
+		request.getFuture().addListener(
+				new RequestResultRunnable(nodes, request, deliveryManager),
+				MoreExecutors.sameThreadExecutor()
+		);
+
+		overlay.getEventBus().post(request);
+
+		return Long.toString(request.getRequestId());
 	}
 
 	private void addVirtualLink(String sourceNode, String targetNode, String remoteServiceInstance) {
@@ -728,189 +928,6 @@ public class WSNServiceImpl implements WSNService {
 	private boolean containsVirtualLink(String sourceNode, String targetNode) {
 		ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNode);
 		return map != null && map.containsKey(targetNode);
-	}
-
-	@Override
-	public String destroyVirtualLink(final String sourceNode,
-									 final String targetNode) {
-
-		preconditions.checkDestroyVirtualLinkArguments(sourceNode, targetNode);
-
-		final String requestId = secureIdGenerator.getNextId();
-
-		try {
-			wsnApp.destroyVirtualLink(sourceNode, targetNode, new WSNApp.Callback() {
-
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-
-					if (requestStatus.getStatus().getValue() == 1) {
-						removeVirtualLink(sourceNode, targetNode);
-					}
-
-				}
-
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(sourceNode), requestId, e, -1);
-				}
-			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
-	}
-
-	@Override
-	public String disableNode(final String node) {
-
-		preconditions.checkDisableNodeArguments(node);
-
-		log.debug("WSNServiceImpl.disableNode");
-
-		final String requestId = secureIdGenerator.getNextId();
-
-		try {
-
-			wsnApp.disableNode(node, new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(node), requestId, e, -1);
-				}
-			}
-			);
-
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
-	}
-
-	@Override
-	public String disablePhysicalLink(final String nodeA, final String nodeB) {
-
-		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
-
-		log.debug("WSNServiceImpl.disablePhysicalLink");
-
-		final String requestId = secureIdGenerator.getNextId();
-
-		try {
-
-			wsnApp.disablePhysicalLink(nodeA, nodeB, new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(nodeA), requestId, e, -1);
-				}
-			}
-			);
-
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
-
-	}
-
-	@Override
-	public String enableNode(final String node) {
-
-		preconditions.checkEnableNodeArguments(node);
-
-		log.debug("WSNServiceImpl.enableNode");
-
-		final String requestId = secureIdGenerator.getNextId();
-
-		try {
-
-			wsnApp.enableNode(node, new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(node), requestId, e, -1);
-				}
-			}
-			);
-
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
-
-	}
-
-	@Override
-	public String enablePhysicalLink(final String nodeA, final String nodeB) {
-
-		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
-
-		log.debug("WSNServiceImpl.enablePhysicalLink");
-
-		final String requestId = secureIdGenerator.getNextId();
-
-		try {
-
-			wsnApp.enablePhysicalLink(nodeA, nodeB, new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(nodeA), requestId, e, -1);
-				}
-			}
-			);
-
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
-
-	}
-
-	@Override
-	public List<String> getFilters() {
-		log.debug("WSNServiceImpl.getFilters");
-		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
-	}
-
-	private ChannelHandlerDescription convert(
-			final HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription) {
-
-		ChannelHandlerDescription target = new ChannelHandlerDescription();
-		target.setDescription(handlerDescription.getDescription());
-		target.setName(handlerDescription.getName());
-		for (Map.Entry<String, String> entry : handlerDescription.getConfigurationOptions().entries()) {
-			final KeyValuePair keyValuePair = new KeyValuePair();
-			keyValuePair.setKey(entry.getKey());
-			keyValuePair.setValue(entry.getValue());
-			target.getConfigurationOptions().add(keyValuePair);
-		}
-		return target;
 	}
 
 }

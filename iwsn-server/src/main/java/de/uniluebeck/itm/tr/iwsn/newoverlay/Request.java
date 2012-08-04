@@ -1,13 +1,11 @@
 package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
-import de.uniluebeck.itm.tr.util.Listenable;
 
-import javax.inject.Inject;
 import javax.inject.Provider;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -21,12 +19,39 @@ public class Request {
 
 	protected final SettableFuture<RequestResult> future;
 
-	@Inject
-	Request(final Provider<Long> requestIdProvider, final ImmutableSet<NodeUrn> nodeUrns) {
+	protected Request(final Provider<Long> requestIdProvider,
+					  final ImmutableSet<ImmutableSet<NodeUrn>> nodeUrnSetSets) {
+
+		checkNotNull(requestIdProvider);
+		checkNotNull(nodeUrnSetSets);
+		checkArgument(nodeUrnSetSets.size() > 0);
+
+		for (ImmutableSet<NodeUrn> nodeUrnSet : nodeUrnSetSets) {
+			checkNotNull(nodeUrnSet, "A set of node URN must not be null!");
+			for (NodeUrn nodeUrn : nodeUrnSet) {
+				checkNotNull(nodeUrn, "A node URN must not be null!");
+			}
+		}
+
+		final ImmutableSet.Builder<NodeUrn> builder = ImmutableSet.builder();
+
+		for (ImmutableSet<NodeUrn> nodeUrnSet : nodeUrnSetSets) {
+			builder.addAll(nodeUrnSet);
+		}
+
+		this.nodeUrns = builder.build();
+		this.requestId = requestIdProvider.get();
+		this.future = SettableFuture.create();
+	}
+
+	@VisibleForTesting
+	protected Request(final Provider<Long> requestIdProvider,
+					  final ImmutableSet<NodeUrn> nodeUrns) {
 
 		checkNotNull(requestIdProvider);
 		checkNotNull(nodeUrns);
 		checkArgument(nodeUrns.size() > 0, "A request must at least contain one node URN!");
+
 		for (NodeUrn nodeUrn : nodeUrns) {
 			checkNotNull(nodeUrn, "A node URN for a request must not be null!");
 		}

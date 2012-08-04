@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -16,10 +17,9 @@ public class FlashImageRequest extends Request {
 
 	@Inject
 	FlashImageRequest(final Provider<Long> requestIdProvider,
-					  @Assisted final ImmutableSet<NodeUrn> nodeUrns,
-					  @Assisted final byte[] image) {
+					  @Assisted final ImmutableMap<ImmutableSet<NodeUrn>, byte[]> images) {
 
-		super(requestIdProvider, nodeUrns);
+		super(requestIdProvider, images.keySet());
 
 		checkNotNull(image, "A node image must not be null!");
 		checkArgument(image.length > 0, "A node image must contain more than zero bytes!");
