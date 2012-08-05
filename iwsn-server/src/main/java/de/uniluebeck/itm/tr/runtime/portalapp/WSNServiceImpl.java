@@ -27,6 +27,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -160,7 +161,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			.expireAfterWrite(10, TimeUnit.MINUTES)
 			.build();
 
-	private final Overlay overlay;
+	private final EventBus eventBus;
 
 	private final RequestFactory requestFactory;
 
@@ -175,7 +176,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	private final WSNPreconditions preconditions;
 
 	@Inject
-	public WSNServiceImpl(final Overlay overlay,
+	public WSNServiceImpl(final EventBus eventBus,
 						  final RequestFactory requestFactory,
 						  final DeliveryManager deliveryManager,
 						  final WSNServiceVirtualLinkManager virtualLinkManager,
@@ -183,7 +184,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 						  @Assisted final WSNServiceConfig config,
 						  @Assisted final WSNPreconditions preconditions) {
 
-		this.overlay = checkNotNull(overlay);
+		this.eventBus = checkNotNull(eventBus);
 		this.requestFactory = checkNotNull(requestFactory);
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.virtualLinkManager = checkNotNull(virtualLinkManager);
@@ -200,7 +201,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		try {
 
 			log.info("Starting WSN service...");
-			overlay.getEventBus().register(this);
+			eventBus.register(this);
 			deliveryManager.startAndWait();
 			notifyStarted();
 
@@ -216,7 +217,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 			log.info("Stopping WSN service...");
 
-			overlay.getEventBus().unregister(this);
+			eventBus.unregister(this);
 
 			deliveryManager.experimentEnded();
 			deliveryManager.stopAndWait();
@@ -432,8 +433,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		}, MoreExecutors.sameThreadExecutor()
 		);
 
-		// TODO support filters
-
 		return requestId;
 	}
 
@@ -534,13 +533,9 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 													 final Request request,
 													 final String requestId) {
 
-		request.getFuture().addListener(
-				new RequestResultRunnable(nodes, requestId, request, deliveryManager),
-				MoreExecutors.sameThreadExecutor()
-		);
-
-		overlay.getEventBus().post(request);
-
+		final RequestResultRunnable listener = new RequestResultRunnable(nodes, requestId, request, deliveryManager);
+		request.getFuture().addListener(listener, MoreExecutors.sameThreadExecutor());
+		eventBus.post(request);
 		return requestId;
 	}
 }

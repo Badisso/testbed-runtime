@@ -99,6 +99,7 @@ public class WSNPreconditions {
 		checkNotNull(sourceNode);
 		checkNotNull(targetNode);
 		checkNotNull(remoteServiceInstance);
+		checkArgument(filters == null || filters.isEmpty(), "Virtual link filters are not yet supported!");
 
 		commonPreconditions.checkNodesKnown(sourceNode);
 

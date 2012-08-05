@@ -1,11 +1,11 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageUpstreamRequest;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.Message;
@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 
 public class WSNServiceVirtualLinkManager extends AbstractService {
@@ -104,21 +105,22 @@ public class WSNServiceVirtualLinkManager extends AbstractService {
 	 */
 	private ImmutableMap<String, ImmutableMap<String, WSN>> virtualLinksMap = ImmutableMap.of();
 
-	private final Overlay overlay;
+	private final EventBus eventBus;
 
 	private final ScheduledExecutorService scheduledExecutorService;
 
 	@Inject
-	public WSNServiceVirtualLinkManager(final Overlay overlay,
+	public WSNServiceVirtualLinkManager(final EventBus eventBus,
 										final ScheduledExecutorService scheduledExecutorService) {
-		this.overlay = overlay;
-		this.scheduledExecutorService = scheduledExecutorService;
+
+		this.eventBus = checkNotNull(eventBus);
+		this.scheduledExecutorService = checkNotNull(scheduledExecutorService);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
-			overlay.getEventBus().register(this);
+			eventBus.register(this);
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -129,7 +131,7 @@ public class WSNServiceVirtualLinkManager extends AbstractService {
 	@Override
 	protected void doStop() {
 		try {
-			overlay.getEventBus().unregister(this);
+			eventBus.unregister(this);
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);

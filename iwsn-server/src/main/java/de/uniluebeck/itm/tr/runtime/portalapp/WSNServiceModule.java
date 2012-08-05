@@ -8,10 +8,10 @@ public class WSNServiceModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		install(new FactoryModuleBuilder()
-		.implement(WSNService.class, WSNServiceImpl.class)
-		.build(WSNServiceFactory.class)
-);
+				.implement(WSNService.class, WSNServiceImpl.class)
+				.build(WSNServiceFactory.class)
+		);
 	}
-	
+
 
 }
