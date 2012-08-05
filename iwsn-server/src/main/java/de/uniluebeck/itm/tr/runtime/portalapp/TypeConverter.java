@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
@@ -27,6 +28,40 @@ import static com.google.common.collect.Lists.newArrayList;
  * Helper class for this package that converts types from WSNApp representation to Web service representation and back.
  */
 class TypeConverter {
+
+	static List<String> convert(final ImmutableSet<NodeUrn> nodeUrns) {
+		final ArrayList<String> list = newArrayList();
+		for (NodeUrn nodeUrn : nodeUrns) {
+			list.add(nodeUrn.toString());
+		}
+		return list;
+	}
+
+	static List<RequestStatus> convert(final RequestResult result, final String requestId) {
+
+		List<RequestStatus> list = newArrayList();
+
+		for (Map.Entry<NodeUrn, Tuple<Integer, String>> entry : result.getResult().entrySet()) {
+
+			final RequestStatus requestStatus = new RequestStatus();
+			requestStatus.setRequestId(requestId);
+
+			final NodeUrn nodeUrn = entry.getKey();
+			final Integer value = entry.getValue().getFirst();
+			final String msg = entry.getValue().getSecond();
+
+			final Status status = new Status();
+			status.setNodeId(nodeUrn.toString());
+			status.setValue(value);
+			status.setMsg(msg);
+
+			requestStatus.getStatus().add(status);
+
+			list.add(requestStatus);
+		}
+
+		return list;
+	}
 
 	static List<ChannelHandlerDescription> convert(
 			final List<HandlerFactoryRegistry.ChannelHandlerDescription> descriptions) {
@@ -99,12 +134,19 @@ class TypeConverter {
 		return retRequestStatus;
 	}
 
+	static ImmutableSet<Tuple<ImmutableSet<NodeUrn>, byte[]>> convert(List<String> nodeIds,
+																	  List<Integer> programIndices,
+																	  List<Program> programs) {
+
+		throw new RuntimeException("Not yet implemented!");
+	}
+
 	static Map<String, WSNAppMessages.Program> convertFlashImage(List<String> nodeIds, List<Integer> programIndices,
-													   List<Program> programs) {
+																 List<Program> programs) {
 
 		Map<String, WSNAppMessages.Program> programsMap = new HashMap<String, WSNAppMessages.Program>();
 
-		List<WSNAppMessages.Program> convertedPrograms = convert(programs);
+		List<WSNAppMessages.Program> convertedPrograms = convertPrograms(programs);
 
 		for (int i = 0; i < nodeIds.size(); i++) {
 			programsMap.put(nodeIds.get(i), convertedPrograms.get(programIndices.get(i)));

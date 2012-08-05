@@ -24,11 +24,14 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
@@ -37,8 +40,6 @@ import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.*;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
@@ -55,13 +56,12 @@ import javax.xml.datatype.DatatypeFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convert;
-import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertCHCs;
-import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertNodeUrns;
+import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.*;
 import static de.uniluebeck.itm.tr.util.NetworkUtils.checkConnectivity;
 
 public class WSNServiceImpl extends AbstractService implements WSNService {
@@ -70,15 +70,20 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		private final List<String> nodeIds;
 
+		private final String requestId;
+
 		private final Request request;
 
 		private final DeliveryManager deliveryManager;
 
 		private final long start;
 
-		private RequestResultRunnable(final List<String> nodeIds, final Request request,
+		private RequestResultRunnable(final List<String> nodeIds,
+									  final String requestId,
+									  final Request request,
 									  final DeliveryManager deliveryManager) {
 			this.nodeIds = nodeIds;
+			this.requestId = requestId;
 			this.request = request;
 			this.deliveryManager = deliveryManager;
 			this.start = System.currentTimeMillis();
@@ -114,11 +119,11 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 					}
 				}
 
-				deliveryManager.receiveStatus(convert(result));
+				deliveryManager.receiveStatus(convert(result, requestId));
 
 			} catch (InterruptedException e) {
 
-				deliveryManager.receiveFailureStatusMessages(nodeIds, Long.toString(request.getRequestId()), e, -1);
+				deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 
 			} catch (ExecutionException e) {
 
@@ -128,40 +133,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 					deliveryManager.receiveUnknownNodeUrnRequestStatus(
 							exception.getNodeUrns(),
 							e.getMessage(),
-							Long.toString(request.getRequestId())
+							requestId
 					);
 
 				} else {
 
-					deliveryManager.receiveFailureStatusMessages(nodeIds, Long.toString(request.getRequestId()), e, -1);
+					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 				}
 			}
-		}
-
-		private static List<RequestStatus> convert(final RequestResult result) {
-
-			List<RequestStatus> list = newArrayList();
-
-			for (Map.Entry<NodeUrn, Tuple<Integer, String>> entry : result.getResult().entrySet()) {
-
-				final RequestStatus requestStatus = new RequestStatus();
-				requestStatus.setRequestId(Long.toString(result.getRequestId()));
-
-				final NodeUrn nodeUrn = entry.getKey();
-				final Integer value = entry.getValue().getFirst();
-				final String msg = entry.getValue().getSecond();
-
-				final Status status = new Status();
-				status.setNodeId(nodeUrn.toString());
-				status.setValue(value);
-				status.setMsg(msg);
-
-				requestStatus.getStatus().add(status);
-
-				list.add(requestStatus);
-			}
-
-			return list;
 		}
 	}
 
@@ -177,9 +156,9 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		}
 	}
 
-	private final WSNPreconditions preconditions;
-
-	private final WSNServiceConfig config;
+	private final Cache<Long, String> overlayToClientRequestIdCache = CacheBuilder.newBuilder()
+			.expireAfterWrite(10, TimeUnit.MINUTES)
+			.build();
 
 	private final Overlay overlay;
 
@@ -189,20 +168,29 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	private final WSNServiceVirtualLinkManager virtualLinkManager;
 
+	private final Provider<Long> requestIdProvider;
+
+	private final WSNServiceConfig config;
+
+	private final WSNPreconditions preconditions;
+
 	@Inject
 	public WSNServiceImpl(final Overlay overlay,
 						  final RequestFactory requestFactory,
 						  final DeliveryManager deliveryManager,
 						  final WSNServiceVirtualLinkManager virtualLinkManager,
+						  final Provider<Long> requestIdProvider,
 						  @Assisted final WSNServiceConfig config,
 						  @Assisted final WSNPreconditions preconditions) {
 
 		this.overlay = checkNotNull(overlay);
 		this.requestFactory = checkNotNull(requestFactory);
 		this.deliveryManager = checkNotNull(deliveryManager);
+		this.virtualLinkManager = checkNotNull(virtualLinkManager);
+		this.requestIdProvider = checkNotNull(requestIdProvider);
+
 		this.config = checkNotNull(config);
 		this.preconditions = checkNotNull(preconditions);
-		this.virtualLinkManager = checkNotNull(virtualLinkManager);
 	}
 
 
@@ -260,7 +248,13 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	void onRequestStatus(final de.uniluebeck.itm.tr.iwsn.newoverlay.RequestStatus requestStatus) {
 
 		final RequestStatus soapStatus = new RequestStatus();
-		soapStatus.setRequestId(Long.toString(requestStatus.getRequestId()));
+
+		final String cachedClientRequestId = overlayToClientRequestIdCache.getIfPresent(requestStatus.getRequestId());
+		final String clientRequestId = cachedClientRequestId != null ?
+				cachedClientRequestId :
+				Long.toString(requestStatus.getRequestId());
+
+		soapStatus.setRequestId(clientRequestId);
 
 		for (Map.Entry<NodeUrn, Tuple<Integer, String>> entry : requestStatus.getStatus().entrySet()) {
 
@@ -310,7 +304,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 				convertNodeUrns(nodeIds),
 				message.getBinaryData()
 		);
-		return addResponseListenerAndPostRequest(nodeIds, request);
+		return addResponseListenerAndPostRequest(nodeIds, request, Long.toString(request.getRequestId()));
 	}
 
 	@Override
@@ -324,7 +318,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 				convertNodeUrns(nodes),
 				convertCHCs(channelHandlerConfigurations)
 		);
-		return addResponseListenerAndPostRequest(nodes, request);
+		return addResponseListenerAndPostRequest(nodes, request, Long.toString(request.getRequestId()));
 	}
 
 	@Override
@@ -334,7 +328,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		preconditions.checkAreNodesAliveArguments(nodeIds);
 
 		final AreNodesAliveRequest request = requestFactory.createAreNodesAliveRequest(convertNodeUrns(nodeIds));
-		return addResponseListenerAndPostRequest(nodeIds, request);
+		return addResponseListenerAndPostRequest(nodeIds, request, Long.toString(request.getRequestId()));
 	}
 
 	@Override
@@ -342,55 +336,30 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 								final List<Integer> programIndices,
 								final List<Program> programs) {
 
-		log.debug("WSNServiceImpl.flashPrograms(...)");
+		log.debug("WSNServiceImpl.flashPrograms()");
 
 		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
 
-		// TODO implement
+		final String clientRequestId = Long.toString(requestIdProvider.get());
 
-		final String requestId = secureIdGenerator.getNextId();
+		final ImmutableSet<Tuple<ImmutableSet<NodeUrn>, byte[]>> flashJobs = convert(
+				nodeIds,
+				programIndices,
+				programs
+		);
 
-		try {
-			wsnApp.flashPrograms(TypeConverter.convert(nodeIds, programIndices, programs), new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
+		for (Tuple<ImmutableSet<NodeUrn>, byte[]> flashJob : flashJobs) {
 
-					if (log.isDebugEnabled()) {
+			final ImmutableSet<NodeUrn> nodeUrns = flashJob.getFirst();
+			final byte[] image = flashJob.getSecond();
 
-						boolean hasInformation = requestStatus.hasStatus() &&
-								requestStatus.getStatus().hasValue() &&
-								requestStatus.getStatus().hasNodeId();
+			final FlashImageRequest request = requestFactory.createFlashImageRequest(nodeUrns, image);
 
-						if (hasInformation && requestStatus.getStatus().getValue() >= 0) {
-							log.debug(
-									"Flashing node {} completed {} percent.",
-									requestStatus.getStatus().getNodeId(),
-									requestStatus.getStatus().getValue()
-							);
-						} else if (hasInformation && requestStatus.getStatus().getValue() < 0) {
-							log.warn(
-									"Failed flashing node {} ({})!",
-									requestStatus.getStatus().getNodeId(),
-									requestStatus.getStatus().getValue()
-							);
-						}
-					}
-
-					// deliver output to client
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
-				}
-			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			overlayToClientRequestIdCache.put(request.getRequestId(), clientRequestId);
+			addResponseListenerAndPostRequest(convert(nodeUrns), request, clientRequestId);
 		}
 
-		return requestId;
+		return clientRequestId;
 	}
 
 	@Override
@@ -419,7 +388,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		preconditions.checkResetNodesArguments(nodeUrns);
 
 		final ImmutableSet<NodeUrn> nodeUrnSet = convertNodeUrns(nodeUrns);
-		return addResponseListenerAndPostRequest(nodeUrns, requestFactory.createResetNodesRequest(nodeUrnSet));
+		final ResetNodesRequest request = requestFactory.createResetNodesRequest(nodeUrnSet);
+		return addResponseListenerAndPostRequest(nodeUrns, request, Long.toString(request.getRequestId()));
 	}
 
 	@Override
@@ -439,7 +409,11 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		final NodeUrn targetNodeUrn = new NodeUrn(targetNode);
 
 		final SetVirtualLinkRequest request = requestFactory.createSetVirtualLinkRequest(sourceNodeUrn, targetNodeUrn);
-		final String requestId = addResponseListenerAndPostRequest(newArrayList(sourceNode), request);
+		final String requestId = addResponseListenerAndPostRequest(
+				newArrayList(sourceNode),
+				request,
+				Long.toString(request.getRequestId())
+		);
 
 		request.getFuture().addListener(new Runnable() {
 			@Override
@@ -478,7 +452,11 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 				targetNodeUrn
 		);
 
-		final String requestId = addResponseListenerAndPostRequest(newArrayList(sourceNode), request);
+		final String requestId = addResponseListenerAndPostRequest(
+				newArrayList(sourceNode),
+				request,
+				Long.toString(request.getRequestId())
+		);
 
 		request.getFuture().addListener(new Runnable() {
 			@Override
@@ -507,7 +485,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		preconditions.checkDisableNodeArguments(node);
 
 		final DisableNodeRequest request = requestFactory.createDisableNodeRequest(new NodeUrn(node));
-		return addResponseListenerAndPostRequest(newArrayList(node), request);
+		return addResponseListenerAndPostRequest(newArrayList(node), request, Long.toString(request.getRequestId()));
 	}
 
 	@Override
@@ -520,7 +498,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		final NodeUrn to = new NodeUrn(nodeB);
 
 		final DisablePhysicalLinkRequest request = requestFactory.createDisablePhysicalLinkRequest(from, to);
-		return addResponseListenerAndPostRequest(newArrayList(nodeA), request);
+		return addResponseListenerAndPostRequest(newArrayList(nodeA), request, Long.toString(request.getRequestId()));
 	}
 
 	@Override
@@ -530,7 +508,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		preconditions.checkEnableNodeArguments(node);
 
 		final EnableNodeRequest request = requestFactory.createEnableNodeRequest(new NodeUrn(node));
-		return addResponseListenerAndPostRequest(newArrayList(node), request);
+		return addResponseListenerAndPostRequest(newArrayList(node), request, Long.toString(request.getRequestId()));
 	}
 
 	@Override
@@ -543,7 +521,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		final NodeUrn from = new NodeUrn(nodeA);
 
 		final EnablePhysicalLinkRequest request = requestFactory.createEnablePhysicalLinkRequest(from, to);
-		return addResponseListenerAndPostRequest(newArrayList(nodeA), request);
+		return addResponseListenerAndPostRequest(newArrayList(nodeA), request, Long.toString(request.getRequestId()));
 	}
 
 	@Override
@@ -552,15 +530,17 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 
-	private String addResponseListenerAndPostRequest(final List<String> nodes, final Request request) {
+	private String addResponseListenerAndPostRequest(final List<String> nodes,
+													 final Request request,
+													 final String requestId) {
 
 		request.getFuture().addListener(
-				new RequestResultRunnable(nodes, request, deliveryManager),
+				new RequestResultRunnable(nodes, requestId, request, deliveryManager),
 				MoreExecutors.sameThreadExecutor()
 		);
 
 		overlay.getEventBus().post(request);
 
-		return Long.toString(request.getRequestId());
+		return requestId;
 	}
 }

@@ -20,16 +20,15 @@ import javax.xml.datatype.DatatypeFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Throwables.propagate;
 
 public class WSNServiceVirtualLinkManager extends AbstractService {
 
-	private class DeliverVirtualLinkMessageRunnable implements Runnable {
-
-		private String sourceNode;
+	private class DeliverVirtualLinkMessageCallable implements Callable<Void> {
 
 		private String targetNode;
 
@@ -39,16 +38,17 @@ public class WSNServiceVirtualLinkManager extends AbstractService {
 
 		private int tries = 0;
 
-		public DeliverVirtualLinkMessageRunnable(final String sourceNode, final String targetNode, final WSN recipient,
+		public DeliverVirtualLinkMessageCallable(final String targetNode,
+												 final WSN recipient,
 												 final Message message) {
-			this.sourceNode = sourceNode;
 			this.targetNode = targetNode;
 			this.recipient = recipient;
 			this.message = message;
 		}
 
 		@Override
-		public void run() {
+		public Void call() throws Exception {
+
 			if (tries < 3) {
 
 				tries++;
@@ -63,17 +63,19 @@ public class WSNServiceVirtualLinkManager extends AbstractService {
 
 					if (tries >= 3) {
 
-						log.warn("Repeatedly couldn't deliver virtual link message. Destroy virtual link.");
-						destroyVirtualLink(sourceNode, targetNode);
+						log.warn("Repeatedly couldn't deliver virtual link message. Dropping message.");
 
 					} else {
+
 						log.warn("Error while delivering virtual link message to remote testbed service. "
 								+ "Trying again in 5 seconds."
 						);
-						executorService.schedule(this, 5, TimeUnit.SECONDS);
+						scheduledExecutorService.schedule(this, 5, TimeUnit.SECONDS);
 					}
 				}
 			}
+
+			return null;
 		}
 	}
 
@@ -104,12 +106,13 @@ public class WSNServiceVirtualLinkManager extends AbstractService {
 
 	private final Overlay overlay;
 
-	private final ExecutorService executorService;
+	private final ScheduledExecutorService scheduledExecutorService;
 
 	@Inject
-	public WSNServiceVirtualLinkManager(final Overlay overlay, final ExecutorService executorService) {
+	public WSNServiceVirtualLinkManager(final Overlay overlay,
+										final ScheduledExecutorService scheduledExecutorService) {
 		this.overlay = overlay;
-		this.executorService = executorService;
+		this.scheduledExecutorService = scheduledExecutorService;
 	}
 
 	@Override
@@ -237,9 +240,8 @@ public class WSNServiceVirtualLinkManager extends AbstractService {
 				String targetNode = recipient.getKey();
 				WSN recipientEndpointProxy = recipient.getValue();
 
-				executorService.execute(
-						new DeliverVirtualLinkMessageRunnable(
-								sourceNodeId,
+				scheduledExecutorService.submit(
+						new DeliverVirtualLinkMessageCallable(
 								targetNode,
 								recipientEndpointProxy,
 								outboundVirtualLinkMessage

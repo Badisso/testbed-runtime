@@ -49,8 +49,8 @@ public class WSNServiceHandleFactory {
 		final WSNApp wsnApp = injector.getInstance(WSNAppFactory.class).create(testbedRuntime, reservedNodes);
 
 		final Injector wsnServiceInjector = Guice.createInjector(new WSNServiceModule());
-		final WSNService wsnService = wsnServiceInjector.getInstance(WSNServiceFactory.class)
-				.create(config, protobufDeliveryManager, preconditions, wsnApp);
+		final WSNServiceFactory wsnServiceFactory = wsnServiceInjector.getInstance(WSNServiceFactory.class);
+		final WSNService wsnService = wsnServiceFactory.create(config, preconditions);
 
 		final WSNSoapService wsnSoapService = new WSNSoapService(wsnService, config);
 
