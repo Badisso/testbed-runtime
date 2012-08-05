@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.eventbus.EventBus;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 
@@ -33,6 +34,9 @@ import java.util.Set;
 
 public interface WSNApp extends TestbedApplication {
 
+	// =================================================================================================================
+	// = Constants used by WSNApp implementation and the SocketConnector                                               =
+	// =================================================================================================================
 	public static final String MSG_TYPE_LISTENER_MANAGEMENT = WSNApp.class.getCanonicalName() + "/LISTENER_MANAGEMENT";
 
 	public static final String MSG_TYPE_LISTENER_MESSAGE = WSNApp.class.getCanonicalName() + "/LISTENER_MESSAGE";
@@ -46,6 +50,17 @@ public interface WSNApp extends TestbedApplication {
 	public static final String MSG_TYPE_OPERATION_INVOCATION_RESPONSE =
 			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_RESPONSE";
 
+	// =================================================================================================================
+	// = Event bus to receive notifications and exchange messages with sensor nodes                                    =
+	// =================================================================================================================
+	EventBus getEventBus();
+
+	// =================================================================================================================
+	// = Interface definitions                                                                                         =
+	// =================================================================================================================
+	/**
+	 * Callback interface to be implemented by callers of the RPC methods.
+	 */
 	public static interface Callback {
 
 		void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus);
@@ -53,8 +68,9 @@ public interface WSNApp extends TestbedApplication {
 		void failure(Exception e);
 	}
 
-	void addNodeMessageReceiver(WSNNodeMessageReceiver receiver);
-
+	// =================================================================================================================
+	// = RPC methods to invoke on sensor nodes                                                                         =
+	// =================================================================================================================
 	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
 	void areNodesAliveSm(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
@@ -72,12 +88,7 @@ public interface WSNApp extends TestbedApplication {
 
 	void flashPrograms(Map<String, WSNAppMessages.Program> programs, Callback callback) throws UnknownNodeUrnsException;
 
-	void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver);
-
 	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
-
-	void send(Set<String> nodeUrns, byte[] bytes, String sourceNodeId, String timestamp, Callback callback)
-			throws UnknownNodeUrnsException;
 
 	void setChannelPipeline(Set<String> nodeUrn, List<ChannelHandlerConfiguration> channelHandlerConfigurations,
 							Callback callback) throws UnknownNodeUrnsException;

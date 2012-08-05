@@ -38,13 +38,8 @@ public interface SessionManagementService extends Service {
 	/**
 	 * See {@link eu.wisebed.api.sm.SessionManagement#getInstance(java.util.List, String)}
 	 */
-	String getInstance(List<SecretReservationKey> secretReservationKeys, String controller)
+	String getInstance(String secretReservationKey, String controller)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception;
-
-	/**
-	 * See {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List, String)}
-	 */
-	String areNodesAlive(final List<String> nodes, final String controllerEndpointUrl);
 
 	/**
 	 * See {@link eu.wisebed.api.sm.SessionManagement#free(java.util.List)}

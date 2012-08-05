@@ -5,7 +5,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufApiService;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
@@ -20,14 +20,12 @@ import java.util.List;
 
 public class WSNServiceHandleFactory {
 
-	public static WSNServiceHandle create(String secretReservationKey,
-										  TestbedRuntime testbedRuntime,
+	public static WSNServiceHandle create(TestbedRuntime testbedRuntime,
 										  String urnPrefix,
 										  URL wsnServiceEndpointURL,
 										  String wiseMLFilename,
 										  ImmutableSet<String> reservedNodes,
-										  final ProtobufDeliveryManager protobufDeliveryManager,
-										  ProtobufControllerServer protobufControllerServer) {
+										  final ProtobufDeliveryManager protobufDeliveryManager) {
 
 		// De-serialize original WiseML and strip out all nodes that are not part of this reservation
 		Wiseml wiseML = WiseMLHelper.deserialize(WiseMLHelper.readWiseMLFromFile(wiseMLFilename));
@@ -54,15 +52,7 @@ public class WSNServiceHandleFactory {
 
 		final WSNSoapService wsnSoapService = new WSNSoapService(wsnService, config);
 
-		return new WSNServiceHandle(
-				secretReservationKey,
-				wsnServiceEndpointURL,
-				wsnService,
-				wsnSoapService,
-				wsnApp,
-				protobufControllerServer,
-				protobufDeliveryManager
-		);
+		return new WSNServiceHandle(wsnService, wsnSoapService, wsnApp);
 	}
 
 }

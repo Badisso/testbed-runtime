@@ -24,17 +24,23 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufApiService;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
+import de.uniluebeck.itm.tr.util.ForwardingScheduledExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.*;
 
 
 public class PortalServerApplication extends AbstractService implements TestbedApplication {
@@ -51,12 +57,23 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 
 	private final DeliveryManager deliveryManager;
 
-	private SessionManagementService service;
+	private SessionManagementService sessionManagementService;
 
 	/**
 	 * SOAP Web service API
 	 */
 	private SessionManagementSoapService soapService;
+
+	/**
+	 * Google Protocol Buffers API
+	 */
+	private ProtobufApiService protobufService;
+
+	private ScheduledExecutorService scheduler;
+
+	private ExecutorService executor;
+
+	private ForwardingScheduledExecutorService forwardingScheduler;
 
 	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp portalAppConfig) {
 
@@ -84,10 +101,20 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 	@Override
 	protected void doStart() {
 
+		scheduler = Executors.newScheduledThreadPool(1, buildThreadFactory("SessionManagement-Scheduler %d"));
+		executor = Executors.newCachedThreadPool(buildThreadFactory("SessionManagement-Executor %d"));
+		forwardingScheduler = new ForwardingScheduledExecutorService(scheduler, executor);
+
 		try {
 
-			service = new SessionManagementServiceImpl(testbedRuntime, config, preconditions, wsnApp, deliveryManager);
-			service.startAndWait();
+			sessionManagementService = new SessionManagementServiceImpl(
+					testbedRuntime,
+					config,
+					preconditions,
+					forwardingScheduler
+			);
+
+			sessionManagementService.startAndWait();
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -95,18 +122,55 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 
 		try {
 
-			soapService = new SessionManagementSoapService(service, config);
+			soapService = new SessionManagementSoapService(
+					sessionManagementService,
+					config,
+					preconditions,
+					wsnApp,
+					deliveryManager,
+					forwardingScheduler
+			);
+
 			soapService.startAndWait();
 
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
 
+		if (config.getProtobufinterface() != null) {
+
+			try {
+
+				protobufService = new ProtobufApiService(
+						sessionManagementService,
+						config.getProtobufinterface()
+				);
+
+				protobufService.startAndWait();
+
+			} catch (Exception e) {
+				notifyFailed(e);
+			}
+		}
+
 		notifyStarted();
+	}
+
+	private ThreadFactory buildThreadFactory(final String nameFormat) {
+		return new ThreadFactoryBuilder().setNameFormat(nameFormat).build();
 	}
 
 	@Override
 	protected void doStop() {
+
+		if (protobufService != null) {
+			try {
+				protobufService.stopAndWait();
+			} catch (Exception e) {
+				log.error("Exception while shutting down Session Management Protobuf service: {}", e);
+				notifyFailed(e);
+			}
+		}
 
 		try {
 			soapService.stopAndWait();
@@ -116,9 +180,17 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		}
 
 		try {
-			service.stopAndWait();
+			sessionManagementService.stopAndWait();
 		} catch (Exception e) {
 			log.error("Exception while shutting down Session Management service: {}", e);
+			notifyFailed(e);
+		}
+
+		try {
+			ExecutorUtils.shutdown(forwardingScheduler, 1, TimeUnit.SECONDS);
+			ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
+			ExecutorUtils.shutdown(executor, 1, TimeUnit.SECONDS);
+		} catch (Exception e) {
 			notifyFailed(e);
 		}
 

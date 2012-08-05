@@ -26,6 +26,9 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.common.util.concurrent.Service;
 import eu.wisebed.api.wsn.WSN;
 
+import java.net.URL;
+
 
 public interface WSNService extends Service, WSN {
+
 }
