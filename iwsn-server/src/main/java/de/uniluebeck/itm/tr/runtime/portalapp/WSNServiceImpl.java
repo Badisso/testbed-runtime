@@ -222,8 +222,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			deliveryManager.experimentEnded();
 			deliveryManager.stopAndWait();
 
-			log.info("Stopped WSN service!");
-
 			notifyStopped();
 
 		} catch (Exception e) {

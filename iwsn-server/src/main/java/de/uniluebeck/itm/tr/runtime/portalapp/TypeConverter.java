@@ -40,10 +40,11 @@ class TypeConverter {
 	static List<RequestStatus> convert(final RequestResult result, final String requestId) {
 
 		List<RequestStatus> list = newArrayList();
+		final RequestStatus requestStatus = new RequestStatus();
+		list.add(requestStatus);
 
 		for (Map.Entry<NodeUrn, Tuple<Integer, String>> entry : result.getResult().entrySet()) {
 
-			final RequestStatus requestStatus = new RequestStatus();
 			requestStatus.setRequestId(requestId);
 
 			final NodeUrn nodeUrn = entry.getKey();
@@ -56,8 +57,6 @@ class TypeConverter {
 			status.setMsg(msg);
 
 			requestStatus.getStatus().add(status);
-
-			list.add(requestStatus);
 		}
 
 		return list;

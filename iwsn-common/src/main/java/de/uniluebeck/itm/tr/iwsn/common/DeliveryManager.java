@@ -190,12 +190,12 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * @param messages
 	 * 		the list of messages to be delivered
 	 */
-	public void receive(final Message... messages) {
+	public void receive(final Message message, final Message... messages) {
 
 		if (isRunning()) {
 
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
-				deliveryWorker.receive(messages);
+				deliveryWorker.receive(message, messages);
 			}
 		}
 	}

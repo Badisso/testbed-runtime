@@ -16,8 +16,8 @@ public class EnableNodeRequest extends Request {
 		super(requestIdProvider, ImmutableSet.of(nodeUrn));
 	}
 
-	public ImmutableSet<NodeUrn> getNodeUrns() {
-		return nodeUrns;
+	public NodeUrn getNodeUrn() {
+		return nodeUrns.iterator().next();
 	}
 
 	@Override

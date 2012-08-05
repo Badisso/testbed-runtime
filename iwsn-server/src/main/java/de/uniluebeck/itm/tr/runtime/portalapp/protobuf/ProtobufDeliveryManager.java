@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
@@ -111,8 +112,13 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 	}
 
 	@Override
-	public void receive(final Message... messages) {
-		receive(Lists.newArrayList(messages));
+	public void receive(final Message message, final Message... messages) {
+		final List<Message> list = Lists.newArrayList();
+		list.add(message);
+		if (messages != null) {
+			Collections.addAll(list, messages);
+		}
+		receive(list);
 	}
 
 	@Override

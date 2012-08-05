@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.SettableFuture;
@@ -32,6 +33,11 @@ public class Request {
 		this.nodeUrns = nodeUrns;
 		this.requestId = requestIdProvider.get();
 		this.future = SettableFuture.create();
+	}
+
+	@VisibleForTesting
+	public ImmutableSet<NodeUrn> getNodeUrns() {
+		return nodeUrns;
 	}
 
 	public long getRequestId() {

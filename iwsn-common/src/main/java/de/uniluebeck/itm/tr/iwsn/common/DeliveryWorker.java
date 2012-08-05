@@ -9,6 +9,7 @@ import eu.wisebed.api.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -338,8 +339,13 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
-	public void receive(final Message... messages) {
-		receive(Lists.newArrayList(messages));
+	public void receive(final Message message, final Message... messages) {
+		final List<Message> list = Lists.newArrayList();
+		list.add(message);
+		if (messages != null) {
+			Collections.addAll(list, messages);
+		}
+		receive(list);
 	}
 
 	public void receive(final List<Message> messages) {
