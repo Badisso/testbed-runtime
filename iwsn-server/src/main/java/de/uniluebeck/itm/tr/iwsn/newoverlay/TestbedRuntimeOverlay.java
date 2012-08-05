@@ -6,6 +6,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

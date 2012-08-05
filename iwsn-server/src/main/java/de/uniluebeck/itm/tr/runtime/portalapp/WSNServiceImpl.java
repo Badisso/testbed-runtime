@@ -234,7 +234,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Subscribe
 	@VisibleForTesting
-	void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
+	public void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
 
 		Message message = new Message();
 		message.setSourceNodeId(request.getFrom().toString());
@@ -246,7 +246,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Subscribe
 	@VisibleForTesting
-	void onRequestStatus(final de.uniluebeck.itm.tr.iwsn.newoverlay.RequestStatus requestStatus) {
+	public void onRequestStatus(final de.uniluebeck.itm.tr.iwsn.newoverlay.RequestStatus requestStatus) {
 
 		final RequestStatus soapStatus = new RequestStatus();
 
@@ -270,6 +270,13 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		deliveryManager.receiveStatus(soapStatus);
 	}
 
+	@Subscribe
+	@VisibleForTesting
+	public void onBackendNotificationsRequest(final BackendNotificationsRequest request) {
+		final ImmutableSet<String> notifications = request.getNotifications();
+		deliveryManager.receiveNotification(newArrayList(notifications));
+	}
+
 	@Override
 	public String getVersion() {
 		return "2.3";
@@ -277,21 +284,13 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	public void addController(final String controllerEndpointUrl) {
-
 		log.debug("WSNServiceImpl.addController({})", controllerEndpointUrl);
-
-		if (!"NONE".equals(controllerEndpointUrl)) {
-			checkConnectivity(controllerEndpointUrl);
-		}
-
 		deliveryManager.addController(controllerEndpointUrl);
 	}
 
 	@Override
 	public void removeController(String controllerEndpointUrl) {
-
 		log.debug("WSNServiceImpl.removeController({})", controllerEndpointUrl);
-
 		deliveryManager.removeController(controllerEndpointUrl);
 	}
 

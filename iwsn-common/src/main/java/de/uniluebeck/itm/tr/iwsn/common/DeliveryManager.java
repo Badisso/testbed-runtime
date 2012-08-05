@@ -42,6 +42,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static de.uniluebeck.itm.tr.util.NetworkUtils.checkConnectivity;
+
 
 /**
  * Helper class that manages a set of {@link Controller} Web Service endpoints and allows to asynchronously deliver
@@ -102,6 +104,10 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * 		the endpoint URL of a {@link Controller} Web Service instance
 	 */
 	public void addController(String endpointUrl) {
+
+		if (!"NONE".equals(endpointUrl)) {
+			checkConnectivity(endpointUrl);
+		}
 
 		if (controllers.containsKey(endpointUrl)) {
 			log.debug("Not adding controller endpoint {} as it is already in the set of controllers.", endpointUrl);

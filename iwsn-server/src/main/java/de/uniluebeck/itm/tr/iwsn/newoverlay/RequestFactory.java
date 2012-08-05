@@ -14,6 +14,8 @@ public interface RequestFactory {
 
 	AreNodesAliveSmRequest createAreNodesAliveSmRequest(ImmutableSet<NodeUrn> nodeUrns);
 
+	BackendNotificationsRequest createBackendNotificationsRequest(ImmutableSet<String> notifications);
+
 	DestroyVirtualLinkRequest createDestroyVirtualLinkRequest(@Assisted("from") NodeUrn from,
 															  @Assisted("to") NodeUrn to);
 

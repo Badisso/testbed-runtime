@@ -1,9 +1,16 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.iwsn.NodeUrn;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageDownstreamRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageUpstreamRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayModule;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestFactory;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntimeModule;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
@@ -27,7 +34,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.runtime.wsnapp.BenchmarkHelper.*;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
@@ -39,23 +45,13 @@ public class WSNAppBenchmark {
 		Logging.setLoggingDefaults(Level.INFO);
 	}
 
-	private static final WSNApp.Callback NULL_CALLBACK = new WSNApp.Callback() {
-		@Override
-		public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-			log.debug("WSNAppBenchmark.receivedRequestStatus()");
-		}
+	private RequestFactory portalRequestFactory;
 
-		@Override
-		public void failure(final Exception e) {
-			log.debug("WSNAppBenchmark.failure({})", e);
-		}
-	};
-
-	private static class FutureMessageReceiver implements WSNNodeMessageReceiver {
+	private static class FutureMessageReceiver {
 
 		private final BenchmarkHelper helper;
 
-		private final Set<String> nodeUrns;
+		private final ImmutableSet<NodeUrn> nodeUrns;
 
 		private final int messageNumber;
 
@@ -67,18 +63,26 @@ public class WSNAppBenchmark {
 
 		private long duration = Long.MAX_VALUE;
 
-		private FutureMessageReceiver(final Set<String> nodeUrns, final int messageNumber, final WSNApp wsnApp) {
+		private final RequestFactory requestFactory;
+
+		private FutureMessageReceiver(final ImmutableSet<NodeUrn> nodeUrns,
+									  final int messageNumber,
+									  final WSNApp wsnApp,
+									  final RequestFactory requestFactory) {
 
 			this.nodeUrns = nodeUrns;
 			this.messageNumber = messageNumber;
 			this.wsnApp = wsnApp;
+			this.requestFactory = requestFactory;
 
 			this.future = SettableFuture.create();
 			this.helper = new BenchmarkHelper();
 		}
 
-		@Override
-		public synchronized void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
+		@Subscribe
+		public synchronized void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
+
+			final byte[] bytes = request.getMessageBytes();
 
 			if (log.isTraceEnabled()) {
 				log.trace("Decoding received bytes: {}", StringUtils.toHexString(bytes));
@@ -95,14 +99,9 @@ public class WSNAppBenchmark {
 			if (decodedMessage.getInt(1) == messageNumber) {
 				log.debug("Received response for messageNumber={}", messageNumber);
 				duration = timeDiff.ms();
-				wsnApp.removeNodeMessageReceiver(this);
+				wsnApp.getEventBus().unregister(this);
 				future.set(bytes);
 			}
-		}
-
-		@Override
-		public synchronized void receiveNotification(final WSNAppMessages.Notification notification) {
-			// nothing to do
 		}
 
 		public synchronized void start() {
@@ -112,14 +111,26 @@ public class WSNAppBenchmark {
 			buffer.writeInt(messageNumber);
 
 			timeDiff.touch();
-			wsnApp.addNodeMessageReceiver(this);
-			try {
+			wsnApp.getEventBus().register(this);
 
-				wsnApp.send(nodeUrns, toByteArray(helper.encode(buffer)), URN_PORTAL, "", NULL_CALLBACK);
+			final MessageDownstreamRequest request = requestFactory.createMessageDownstreamRequest(
+					nodeUrns,
+					toByteArray(helper.encode(buffer))
+			);
 
-			} catch (UnknownNodeUrnsException e) {
-				future.setException(e);
-			}
+			request.getFuture().addListener(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						request.getFuture().get();
+					} catch (Exception e) {
+						future.setException(e);
+					}
+				}
+			}, MoreExecutors.sameThreadExecutor()
+			);
+
+			wsnApp.getEventBus().post(request);
 		}
 
 		public synchronized long getDuration() {
@@ -142,55 +153,56 @@ public class WSNAppBenchmark {
 		}
 	}
 
-	private static final String URN_NODE_0 = "urn:local:0x0000";
+	private static final NodeUrn URN_NODE_0 = new NodeUrn("urn:local:0x0000");
 
-	private static final HashSet<String> NODES_1 = newHashSet(URN_NODE_0);
+	private static final NodeUrn URN_NODE_1 = new NodeUrn("urn:local:0x0001");
 
-	private static final String URN_NODE_1 = "urn:local:0x0001";
+	private static final NodeUrn URN_NODE_2 = new NodeUrn("urn:local:0x0002");
 
-	private static final HashSet<String> NODES_2 = newHashSet(URN_NODE_0, URN_NODE_1);
+	private static final NodeUrn URN_NODE_3 = new NodeUrn("urn:local:0x0003");
 
-	private static final String URN_NODE_2 = "urn:local:0x0002";
+	private static final NodeUrn URN_NODE_4 = new NodeUrn("urn:local:0x0004");
 
-	private static final HashSet<String> NODES_3 = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2);
+	private static final NodeUrn URN_NODE_5 = new NodeUrn("urn:local:0x0005");
 
-	private static final String URN_NODE_3 = "urn:local:0x0003";
+	private static final NodeUrn URN_NODE_6 = new NodeUrn("urn:local:0x0006");
 
-	private static final HashSet<String> NODES_4 = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3);
+	private static final NodeUrn URN_NODE_7 = new NodeUrn("urn:local:0x0007");
 
-	private static final String URN_NODE_4 = "urn:local:0x0004";
+	private static final NodeUrn URN_NODE_8 = new NodeUrn("urn:local:0x0008");
 
-	private static final HashSet<String> NODES_5 =
-			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4);
+	private static final NodeUrn URN_NODE_9 = new NodeUrn("urn:local:0x0009");
 
-	private static final String URN_NODE_5 = "urn:local:0x0005";
+	private static final ImmutableSet<NodeUrn> NODES_1 = ImmutableSet.of(URN_NODE_0);
 
-	private static final HashSet<String> NODES_6 =
-			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5);
+	private static final ImmutableSet<NodeUrn> NODES_2 = ImmutableSet.of(URN_NODE_0, URN_NODE_1);
 
-	private static final String URN_NODE_6 = "urn:local:0x0006";
+	private static final ImmutableSet<NodeUrn> NODES_3 = ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2);
 
-	private static final HashSet<String> NODES_7 =
-			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6);
+	private static final ImmutableSet<NodeUrn> NODES_4 =
+			ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3);
 
-	private static final String URN_NODE_7 = "urn:local:0x0007";
+	private static final ImmutableSet<NodeUrn> NODES_5 =
+			ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4);
 
-	private static final HashSet<String> NODES_8 =
-			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
+	private static final ImmutableSet<NodeUrn> NODES_6 =
+			ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5);
+
+	private static final ImmutableSet<NodeUrn> NODES_7 =
+			ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6);
+
+	private static final ImmutableSet<NodeUrn> NODES_8 =
+			ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
 					URN_NODE_7
 			);
 
-	private static final String URN_NODE_8 = "urn:local:0x0008";
-
-	private static final HashSet<String> NODES_9 =
-			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
+	private static final ImmutableSet<NodeUrn> NODES_9 =
+			ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
 					URN_NODE_7, URN_NODE_8
 			);
 
-	private static final String URN_NODE_9 = "urn:local:0x0009";
-
-	private static final HashSet<String> NODES_10 =
-			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
+	private static final ImmutableSet<NodeUrn> NODES_10 =
+			ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
 					URN_NODE_7, URN_NODE_8, URN_NODE_9
 			);
 
@@ -201,16 +213,16 @@ public class WSNAppBenchmark {
 	private static final String TCP_GATEWAY = "localhost:1111";
 
 	private static final ImmutableSet<String> reservedNodes = ImmutableSet.of(
-			URN_NODE_0,
-			URN_NODE_1,
-			URN_NODE_2,
-			URN_NODE_3,
-			URN_NODE_4,
-			URN_NODE_5,
-			URN_NODE_6,
-			URN_NODE_7,
-			URN_NODE_8,
-			URN_NODE_9
+			URN_NODE_0.toString(),
+			URN_NODE_1.toString(),
+			URN_NODE_2.toString(),
+			URN_NODE_3.toString(),
+			URN_NODE_4.toString(),
+			URN_NODE_5.toString(),
+			URN_NODE_6.toString(),
+			URN_NODE_7.toString(),
+			URN_NODE_8.toString(),
+			URN_NODE_9.toString()
 	);
 
 	private static final int RUNS = 100;
@@ -237,48 +249,49 @@ public class WSNAppBenchmark {
 		gatewayTR = gatewayTRInjector.getInstance(TestbedRuntime.class);
 
 		gatewayTR.getLocalNodeNameManager()
-				.addLocalNodeName(URN_NODE_0)
-				.addLocalNodeName(URN_NODE_1)
-				.addLocalNodeName(URN_NODE_2)
-				.addLocalNodeName(URN_NODE_3)
-				.addLocalNodeName(URN_NODE_4)
-				.addLocalNodeName(URN_NODE_5)
-				.addLocalNodeName(URN_NODE_6)
-				.addLocalNodeName(URN_NODE_7)
-				.addLocalNodeName(URN_NODE_8)
-				.addLocalNodeName(URN_NODE_9);
+				.addLocalNodeName(URN_NODE_0.toString())
+				.addLocalNodeName(URN_NODE_1.toString())
+				.addLocalNodeName(URN_NODE_2.toString())
+				.addLocalNodeName(URN_NODE_3.toString())
+				.addLocalNodeName(URN_NODE_4.toString())
+				.addLocalNodeName(URN_NODE_5.toString())
+				.addLocalNodeName(URN_NODE_6.toString())
+				.addLocalNodeName(URN_NODE_7.toString())
+				.addLocalNodeName(URN_NODE_8.toString())
+				.addLocalNodeName(URN_NODE_9.toString());
 
 		gatewayTR.getRoutingTableService()
 				.setNextHop(URN_PORTAL, URN_PORTAL)
-				.setNextHop(URN_NODE_0, URN_NODE_0)
-				.setNextHop(URN_NODE_1, URN_NODE_1)
-				.setNextHop(URN_NODE_2, URN_NODE_2)
-				.setNextHop(URN_NODE_3, URN_NODE_3)
-				.setNextHop(URN_NODE_4, URN_NODE_4)
-				.setNextHop(URN_NODE_5, URN_NODE_5)
-				.setNextHop(URN_NODE_6, URN_NODE_6)
-				.setNextHop(URN_NODE_7, URN_NODE_7)
-				.setNextHop(URN_NODE_8, URN_NODE_8)
-				.setNextHop(URN_NODE_9, URN_NODE_9);
+				.setNextHop(URN_NODE_0.toString(), URN_NODE_0.toString())
+				.setNextHop(URN_NODE_1.toString(), URN_NODE_1.toString())
+				.setNextHop(URN_NODE_2.toString(), URN_NODE_2.toString())
+				.setNextHop(URN_NODE_3.toString(), URN_NODE_3.toString())
+				.setNextHop(URN_NODE_4.toString(), URN_NODE_4.toString())
+				.setNextHop(URN_NODE_5.toString(), URN_NODE_5.toString())
+				.setNextHop(URN_NODE_6.toString(), URN_NODE_6.toString())
+				.setNextHop(URN_NODE_7.toString(), URN_NODE_7.toString())
+				.setNextHop(URN_NODE_8.toString(), URN_NODE_8.toString())
+				.setNextHop(URN_NODE_9.toString(), URN_NODE_9.toString());
 
 		gatewayTR.getNamingService()
 				.addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1))
-				.addEntry(new NamingEntry(URN_NODE_0, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_1, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_2, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_3, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_4, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_5, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_6, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_7, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_8, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_9, new NamingInterface("tcp", TCP_GATEWAY), 1));
+				.addEntry(new NamingEntry(URN_NODE_0.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_1.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_2.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_3.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_4.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_5.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_6.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_7.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_8.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_9.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1));
 
 		gatewayTR.getMessageServerService().addMessageServer("tcp", TCP_GATEWAY);
 
 		Injector portalTRInjector = Guice.createInjector(
 				new TestbedRuntimeModule(scheduler, scheduler, scheduler),
-				new WSNAppModule()
+				new WSNAppModule(),
+				new OverlayModule()
 		);
 
 		portalTR = portalTRInjector.getInstance(TestbedRuntime.class);
@@ -288,29 +301,29 @@ public class WSNAppBenchmark {
 
 		portalTR.getRoutingTableService()
 				.setNextHop(URN_PORTAL, URN_PORTAL)
-				.setNextHop(URN_NODE_0, URN_NODE_0)
-				.setNextHop(URN_NODE_1, URN_NODE_1)
-				.setNextHop(URN_NODE_2, URN_NODE_2)
-				.setNextHop(URN_NODE_3, URN_NODE_3)
-				.setNextHop(URN_NODE_4, URN_NODE_4)
-				.setNextHop(URN_NODE_5, URN_NODE_5)
-				.setNextHop(URN_NODE_6, URN_NODE_6)
-				.setNextHop(URN_NODE_7, URN_NODE_7)
-				.setNextHop(URN_NODE_8, URN_NODE_8)
-				.setNextHop(URN_NODE_9, URN_NODE_9);
+				.setNextHop(URN_NODE_0.toString(), URN_NODE_0.toString())
+				.setNextHop(URN_NODE_1.toString(), URN_NODE_1.toString())
+				.setNextHop(URN_NODE_2.toString(), URN_NODE_2.toString())
+				.setNextHop(URN_NODE_3.toString(), URN_NODE_3.toString())
+				.setNextHop(URN_NODE_4.toString(), URN_NODE_4.toString())
+				.setNextHop(URN_NODE_5.toString(), URN_NODE_5.toString())
+				.setNextHop(URN_NODE_6.toString(), URN_NODE_6.toString())
+				.setNextHop(URN_NODE_7.toString(), URN_NODE_7.toString())
+				.setNextHop(URN_NODE_8.toString(), URN_NODE_8.toString())
+				.setNextHop(URN_NODE_9.toString(), URN_NODE_9.toString());
 
 		portalTR.getNamingService()
 				.addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1))
-				.addEntry(new NamingEntry(URN_NODE_0, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_1, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_2, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_3, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_4, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_5, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_6, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_7, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_8, new NamingInterface("tcp", TCP_GATEWAY), 1))
-				.addEntry(new NamingEntry(URN_NODE_9, new NamingInterface("tcp", TCP_GATEWAY), 1));
+				.addEntry(new NamingEntry(URN_NODE_0.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_1.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_2.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_3.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_4.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_5.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_6.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_7.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_8.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_9.toString(), new NamingInterface("tcp", TCP_GATEWAY), 1));
 
 		portalTR.getMessageServerService().addMessageServer("tcp", TCP_PORTAL);
 
@@ -323,6 +336,8 @@ public class WSNAppBenchmark {
 
 		wsnApp = portalTRInjector.getInstance(WSNAppFactory.class).create(portalTR, reservedNodes);
 		wsnApp.startAndWait();
+
+		portalRequestFactory = portalTRInjector.getInstance(RequestFactory.class);
 	}
 
 	@After
@@ -383,7 +398,7 @@ public class WSNAppBenchmark {
 		// fork
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
-			receiver = new FutureMessageReceiver(NODES_1, messageNumber, wsnApp);
+			receiver = new FutureMessageReceiver(NODES_1, messageNumber, wsnApp, portalRequestFactory);
 			receiver.start();
 			receivers.add(receiver);
 		}
@@ -413,7 +428,7 @@ public class WSNAppBenchmark {
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
 
 			final FutureMessageReceiver receiver;
-			receiver = new FutureMessageReceiver(NODES_10, messageNumber, wsnApp);
+			receiver = new FutureMessageReceiver(NODES_10, messageNumber, wsnApp, portalRequestFactory);
 			receiver.start();
 			try {
 				receiver.getFuture().get(5, TimeUnit.SECONDS);
@@ -478,7 +493,7 @@ public class WSNAppBenchmark {
 		System.out.println("-----------------------------------------------------");
 	}
 
-	private List<Float> executeSerial(final HashSet<String> nodeUrns)
+	private List<Float> executeSerial(final ImmutableSet<NodeUrn> nodeUrns)
 			throws InterruptedException, TimeoutException, ExecutionException {
 
 		final List<Float> durations = newLinkedList();
@@ -486,7 +501,7 @@ public class WSNAppBenchmark {
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
 
-			receiver = new FutureMessageReceiver(nodeUrns, messageNumber, wsnApp);
+			receiver = new FutureMessageReceiver(nodeUrns, messageNumber, wsnApp, portalRequestFactory);
 			receiver.start();
 			receiver.getFuture().get(5, TimeUnit.SECONDS);
 			durations.add((float) receiver.getDuration());
