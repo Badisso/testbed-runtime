@@ -20,32 +20,6 @@ public class Request {
 	protected final SettableFuture<RequestResult> future;
 
 	protected Request(final Provider<Long> requestIdProvider,
-					  final ImmutableSet<ImmutableSet<NodeUrn>> nodeUrnSetSets) {
-
-		checkNotNull(requestIdProvider);
-		checkNotNull(nodeUrnSetSets);
-		checkArgument(nodeUrnSetSets.size() > 0);
-
-		for (ImmutableSet<NodeUrn> nodeUrnSet : nodeUrnSetSets) {
-			checkNotNull(nodeUrnSet, "A set of node URN must not be null!");
-			for (NodeUrn nodeUrn : nodeUrnSet) {
-				checkNotNull(nodeUrn, "A node URN must not be null!");
-			}
-		}
-
-		final ImmutableSet.Builder<NodeUrn> builder = ImmutableSet.builder();
-
-		for (ImmutableSet<NodeUrn> nodeUrnSet : nodeUrnSetSets) {
-			builder.addAll(nodeUrnSet);
-		}
-
-		this.nodeUrns = builder.build();
-		this.requestId = requestIdProvider.get();
-		this.future = SettableFuture.create();
-	}
-
-	@VisibleForTesting
-	protected Request(final Provider<Long> requestIdProvider,
 					  final ImmutableSet<NodeUrn> nodeUrns) {
 
 		checkNotNull(requestIdProvider);

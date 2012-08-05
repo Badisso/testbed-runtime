@@ -1,9 +1,18 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
+import de.uniluebeck.itm.tr.util.Tuple;
+import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.ProgramMetaData;
 
@@ -12,10 +21,71 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
  * Helper class for this package that converts types from WSNApp representation to Web service representation and back.
  */
 class TypeConverter {
+
+	static List<ChannelHandlerDescription> convert(
+			final List<HandlerFactoryRegistry.ChannelHandlerDescription> descriptions) {
+
+		final List<ChannelHandlerDescription> channelHandlerDescriptions = newArrayList();
+
+		for (HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription : descriptions) {
+			channelHandlerDescriptions.add(convert(handlerDescription));
+		}
+
+		return channelHandlerDescriptions;
+	}
+
+	static ChannelHandlerDescription convert(
+			final HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription) {
+
+		ChannelHandlerDescription target = new ChannelHandlerDescription();
+		target.setDescription(handlerDescription.getDescription());
+		target.setName(handlerDescription.getName());
+		for (Map.Entry<String, String> entry : handlerDescription.getConfigurationOptions().entries()) {
+			final KeyValuePair keyValuePair = new KeyValuePair();
+			keyValuePair.setKey(entry.getKey());
+			keyValuePair.setValue(entry.getValue());
+			target.getConfigurationOptions().add(keyValuePair);
+		}
+		return target;
+	}
+
+	static ImmutableSet<NodeUrn> convertNodeUrns(final List<String> nodeIds) {
+		final ImmutableSet.Builder<NodeUrn> builder = ImmutableSet.builder();
+		for (String nodeId : nodeIds) {
+			builder.add(new NodeUrn(nodeId));
+		}
+		return builder.build();
+	}
+
+	static ImmutableList<Tuple<String, ImmutableMap<String, String>>> convertCHCs(
+			final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+
+		final ImmutableList.Builder<Tuple<String, ImmutableMap<String, String>>> list = ImmutableList.builder();
+
+		for (ChannelHandlerConfiguration config : channelHandlerConfigurations) {
+
+			final String name = config.getName();
+			final List<KeyValuePair> params = config.getConfiguration();
+			final ImmutableMap.Builder<String, String> paramsMapBuilder = ImmutableMap.builder();
+
+			if (params != null && params.size() > 0) {
+
+				for (KeyValuePair param : params) {
+					paramsMapBuilder.put(param.getKey(), param.getValue());
+				}
+			}
+
+			list.add(new Tuple<String, ImmutableMap<String, String>>(name, paramsMapBuilder.build()));
+		}
+
+		return list.build();
+	}
 
 	static RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
 		RequestStatus retRequestStatus = new RequestStatus();
@@ -29,7 +99,7 @@ class TypeConverter {
 		return retRequestStatus;
 	}
 
-	static Map<String, WSNAppMessages.Program> convert(List<String> nodeIds, List<Integer> programIndices,
+	static Map<String, WSNAppMessages.Program> convertFlashImage(List<String> nodeIds, List<Integer> programIndices,
 													   List<Program> programs) {
 
 		Map<String, WSNAppMessages.Program> programsMap = new HashMap<String, WSNAppMessages.Program>();
@@ -43,7 +113,7 @@ class TypeConverter {
 		return programsMap;
 	}
 
-	static List<WSNAppMessages.Program> convert(List<Program> programs) {
+	static List<WSNAppMessages.Program> convertPrograms(List<Program> programs) {
 		List<WSNAppMessages.Program> list = new ArrayList<WSNAppMessages.Program>(programs.size());
 		for (Program program : programs) {
 			list.add(convert(program));

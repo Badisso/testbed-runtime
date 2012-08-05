@@ -29,7 +29,7 @@ public interface RequestFactory {
 
 	FlashDefaultImageRequest createFlashDefaultImageRequest(ImmutableSet<NodeUrn> nodeUrns);
 
-	FlashImageRequest createFlashImageRequest(ImmutableMap<ImmutableSet<NodeUrn>, byte[]> images);
+	FlashImageRequest createFlashImageRequest(ImmutableSet<NodeUrn> nodeUrns, byte[] image);
 
 	ResetNodesRequest createResetNodesRequest(ImmutableSet<NodeUrn> nodeUrns);
 
@@ -39,7 +39,7 @@ public interface RequestFactory {
 
 	MessageDownstreamRequest createMessageDownstreamRequest(ImmutableSet<NodeUrn> to, byte[] messageBytes);
 
-	MessageUpstreamRequest createMessageUpstreamRequest(NodeUrn from, DateTime timestamp, byte[] messageBytes);
+	MessageUpstreamRequest createMessageUpstreamRequest(NodeUrn from, String timestamp, byte[] messageBytes);
 
 	SetChannelPipelineRequest createSetChannelPipelineRequest(ImmutableSet<NodeUrn> nodeUrns,
 															  ImmutableList<Tuple<String, ImmutableMap<String, String>>> pipeline);

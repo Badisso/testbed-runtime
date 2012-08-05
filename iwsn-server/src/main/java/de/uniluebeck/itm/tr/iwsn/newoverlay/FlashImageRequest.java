@@ -17,9 +17,10 @@ public class FlashImageRequest extends Request {
 
 	@Inject
 	FlashImageRequest(final Provider<Long> requestIdProvider,
-					  @Assisted final ImmutableMap<ImmutableSet<NodeUrn>, byte[]> images) {
+					  @Assisted final ImmutableSet<NodeUrn> nodeUrns,
+					  @Assisted byte[] image) {
 
-		super(requestIdProvider, images.keySet());
+		super(requestIdProvider, nodeUrns);
 
 		checkNotNull(image, "A node image must not be null!");
 		checkArgument(image.length > 0, "A node image must contain more than zero bytes!");

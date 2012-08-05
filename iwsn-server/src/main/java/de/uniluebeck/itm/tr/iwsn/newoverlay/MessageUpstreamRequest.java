@@ -11,14 +11,14 @@ import javax.inject.Provider;
 
 public class MessageUpstreamRequest extends Request {
 
-	private final DateTime timestamp;
+	private final String timestamp;
 
 	private final byte[] messageBytes;
 
 	@Inject
 	MessageUpstreamRequest(final Provider<Long> requestIdProvider,
 						   @Assisted final NodeUrn from,
-						   @Assisted final DateTime timestamp,
+						   @Assisted final String timestamp,
 						   @Assisted final byte[] messageBytes) {
 
 		super(requestIdProvider, ImmutableSet.of(from));
@@ -35,7 +35,7 @@ public class MessageUpstreamRequest extends Request {
 		return messageBytes;
 	}
 
-	public DateTime getTimestamp() {
+	public String getTimestamp() {
 		return timestamp;
 	}
 
