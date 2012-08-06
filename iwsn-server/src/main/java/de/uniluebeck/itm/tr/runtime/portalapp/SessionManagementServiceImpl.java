@@ -25,9 +25,17 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.ConfidentialReservationData;
@@ -37,6 +45,9 @@ import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.wiseml.Setup;
+import eu.wisebed.wiseml.WiseMLHelper;
+import eu.wisebed.wiseml.Wiseml;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +65,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
 
 public class SessionManagementServiceImpl extends AbstractService implements SessionManagementService {
+
+	private final WSNServiceHandleFactory wsnServiceHandleFactory;
 
 	/**
 	 * Job that is scheduled to clean up resources after a reservations end in time has been reached.
@@ -123,12 +136,15 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	private final Map<String, ScheduledFuture<?>> scheduledCleanUpWSNInstanceJobs =
 			new HashMap<String, ScheduledFuture<?>>();
 
-	public SessionManagementServiceImpl(final TestbedRuntime testbedRuntime,
-										final SessionManagementServiceConfig config,
-										final SessionManagementPreconditions preconditions,
-										final ScheduledExecutorService scheduler) throws MalformedURLException {
+	@Inject
+	SessionManagementServiceImpl(final TestbedRuntime testbedRuntime,
+								 final WSNServiceHandleFactory wsnServiceHandleFactory,
+								 @Assisted final SessionManagementServiceConfig config,
+								 @Assisted final SessionManagementPreconditions preconditions,
+								 @Assisted final ScheduledExecutorService scheduler) throws MalformedURLException {
 
 		this.testbedRuntime = checkNotNull(testbedRuntime);
+		this.wsnServiceHandleFactory = checkNotNull(wsnServiceHandleFactory);
 		this.config = checkNotNull(config);
 		this.preconditions = checkNotNull(preconditions);
 		this.scheduler = checkNotNull(scheduler);
@@ -258,17 +274,11 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 					null :
 					ImmutableSet.<String>builder().add(reservedNodes.toArray(new String[reservedNodes.size()])).build();
 
+			// TODO implement
 			final ProtobufDeliveryManager protobufDeliveryManager =
 					new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize());
 
-			wsnServiceHandleInstance = WSNServiceHandleFactory.create(
-					testbedRuntime,
-					config.getUrnPrefix(),
-					wsnInstanceEndpointUrl,
-					config.getWiseMLFilename(),
-					reservedNodesSet,
-					protobufDeliveryManager
-			);
+			wsnServiceHandleInstance = createWsnServiceHandle(reservedNodes, wsnInstanceEndpointUrl, reservedNodesSet);
 
 			// start the WSN instance
 			try {
@@ -290,6 +300,38 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 		}
 
+	}
+
+	private WSNServiceHandle createWsnServiceHandle(final Set<String> reservedNodes,
+													final URL wsnInstanceEndpointUrl,
+													final ImmutableSet<String> reservedNodesSet) {
+
+		// De-serialize original WiseML and strip out all nodes that are not part of this reservation
+		Wiseml wiseML = WiseMLHelper.deserialize(WiseMLHelper.readWiseMLFromFile(config.getWiseMLFilename()));
+		List<Setup.Node> node = wiseML.getSetup().getNode();
+		Iterator<Setup.Node> nodeIterator = node.iterator();
+
+		while (nodeIterator.hasNext()) {
+			Setup.Node currentNode = nodeIterator.next();
+			if (!reservedNodes.contains(currentNode.getId())) {
+				nodeIterator.remove();
+			}
+		}
+
+		final ImmutableSet<String> servedUrnPrefixes = ImmutableSet.<String>builder().add(config.getUrnPrefix()).build();
+		final WSNServiceConfig config = new WSNServiceConfig(reservedNodesSet, wsnInstanceEndpointUrl, wiseML);
+		final WSNPreconditions preconditions = new WSNPreconditions(servedUrnPrefixes, reservedNodes);
+
+		final Injector injector = Guice.createInjector(new WSNAppModule());
+		final WSNApp wsnApp = injector.getInstance(WSNAppFactory.class).create(testbedRuntime, reservedNodesSet);
+
+		final Injector wsnServiceInjector = Guice.createInjector(new WSNServiceModule());
+		final WSNServiceFactory wsnServiceFactory = wsnServiceInjector.getInstance(WSNServiceFactory.class);
+		final WSNService wsnService = wsnServiceFactory.create(config, preconditions);
+
+		final WSNSoapService wsnSoapService = new WSNSoapService(wsnService, config);
+
+		return wsnServiceHandleFactory.create(wsnService, wsnSoapService, wsnApp);
 	}
 
 	/**

@@ -25,7 +25,9 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
@@ -35,6 +37,7 @@ import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppOverlayModule;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.ForwardingScheduledExecutorService;
 import org.slf4j.Logger;
@@ -85,10 +88,25 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		this.preconditions.addServedUrnPrefixes(this.config.getUrnPrefix());
 		this.preconditions.addKnownNodeUrns(this.config.getNodeUrnsServed());
 
-		this.wsnApp = Guice
-				.createInjector(new WSNAppModule())
+		final Injector injector = Guice.createInjector(
+				new AbstractModule() {
+					@Override
+					protected void configure() {
+						bind(TestbedRuntime.class).toInstance(testbedRuntime);
+					}
+				},
+				new WSNAppModule(),
+				new WSNAppOverlayModule(),
+				new PortalServerModule()
+		);
+
+		this.wsnApp = injector
 				.getInstance(WSNAppFactory.class)
 				.create(testbedRuntime, config.getNodeUrnsServed());
+
+		this.sessionManagementService = injector
+				.getInstance(SessionManagementServiceFactory.class)
+				.create(config, preconditions, forwardingScheduler);
 
 		this.deliveryManager = new DeliveryManager();
 	}
@@ -106,16 +124,7 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		forwardingScheduler = new ForwardingScheduledExecutorService(scheduler, executor);
 
 		try {
-
-			sessionManagementService = new SessionManagementServiceImpl(
-					testbedRuntime,
-					config,
-					preconditions,
-					forwardingScheduler
-			);
-
 			sessionManagementService.startAndWait();
-
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

@@ -63,7 +63,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.*;
-import static de.uniluebeck.itm.tr.util.NetworkUtils.checkConnectivity;
 
 public class WSNServiceImpl extends AbstractService implements WSNService {
 
@@ -176,13 +175,13 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	private final WSNPreconditions preconditions;
 
 	@Inject
-	public WSNServiceImpl(final EventBus eventBus,
-						  final RequestFactory requestFactory,
-						  final DeliveryManager deliveryManager,
-						  final WSNServiceVirtualLinkManager virtualLinkManager,
-						  final Provider<Long> requestIdProvider,
-						  @Assisted final WSNServiceConfig config,
-						  @Assisted final WSNPreconditions preconditions) {
+	WSNServiceImpl(final EventBus eventBus,
+				   final RequestFactory requestFactory,
+				   final DeliveryManager deliveryManager,
+				   final WSNServiceVirtualLinkManager virtualLinkManager,
+				   final Provider<Long> requestIdProvider,
+				   @Assisted final WSNServiceConfig config,
+				   @Assisted final WSNPreconditions preconditions) {
 
 		this.eventBus = checkNotNull(eventBus);
 		this.requestFactory = checkNotNull(requestFactory);

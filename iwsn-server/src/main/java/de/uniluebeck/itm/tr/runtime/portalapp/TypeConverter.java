@@ -6,7 +6,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageDownstreamRequest;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppDownstreamMessage;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
@@ -23,13 +25,22 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Helper class for this package that converts types from WSNApp representation to Web service representation and back.
  */
-class TypeConverter {
+public class TypeConverter {
 
-	static List<String> convert(final ImmutableSet<NodeUrn> nodeUrns) {
+	public static ImmutableSet<String> convertToStringSet(final ImmutableSet<NodeUrn> nodeUrns) {
+		ImmutableSet.Builder<String> set = ImmutableSet.builder();
+		for (NodeUrn nodeUrn : nodeUrns) {
+			set.add(nodeUrn.toString());
+		}
+		return set.build();
+	}
+
+	public static List<String> convert(final ImmutableSet<NodeUrn> nodeUrns) {
 		final ArrayList<String> list = newArrayList();
 		for (NodeUrn nodeUrn : nodeUrns) {
 			list.add(nodeUrn.toString());
@@ -37,7 +48,7 @@ class TypeConverter {
 		return list;
 	}
 
-	static List<RequestStatus> convert(final RequestResult result, final String requestId) {
+	public static List<RequestStatus> convert(final RequestResult result, final String requestId) {
 
 		List<RequestStatus> list = newArrayList();
 		final RequestStatus requestStatus = new RequestStatus();
@@ -62,7 +73,7 @@ class TypeConverter {
 		return list;
 	}
 
-	static List<ChannelHandlerDescription> convert(
+	public static List<ChannelHandlerDescription> convert(
 			final List<HandlerFactoryRegistry.ChannelHandlerDescription> descriptions) {
 
 		final List<ChannelHandlerDescription> channelHandlerDescriptions = newArrayList();
@@ -74,7 +85,7 @@ class TypeConverter {
 		return channelHandlerDescriptions;
 	}
 
-	static ChannelHandlerDescription convert(
+	public static ChannelHandlerDescription convert(
 			final HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription) {
 
 		ChannelHandlerDescription target = new ChannelHandlerDescription();
@@ -89,7 +100,7 @@ class TypeConverter {
 		return target;
 	}
 
-	static ImmutableSet<NodeUrn> convertNodeUrns(final List<String> nodeIds) {
+	public static ImmutableSet<NodeUrn> convertNodeUrns(final List<String> nodeIds) {
 		final ImmutableSet.Builder<NodeUrn> builder = ImmutableSet.builder();
 		for (String nodeId : nodeIds) {
 			builder.add(new NodeUrn(nodeId));
@@ -97,7 +108,7 @@ class TypeConverter {
 		return builder.build();
 	}
 
-	static ImmutableList<Tuple<String, ImmutableMap<String, String>>> convertCHCs(
+	public static ImmutableList<Tuple<String, ImmutableMap<String, String>>> convertCHCs(
 			final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
 		final ImmutableList.Builder<Tuple<String, ImmutableMap<String, String>>> list = ImmutableList.builder();
@@ -121,7 +132,7 @@ class TypeConverter {
 		return list.build();
 	}
 
-	static RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
+	public static RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
 		RequestStatus retRequestStatus = new RequestStatus();
 		retRequestStatus.setRequestId(requestId);
 		WSNAppMessages.RequestStatus.Status status = requestStatus.getStatus();
@@ -133,15 +144,16 @@ class TypeConverter {
 		return retRequestStatus;
 	}
 
-	static ImmutableSet<Tuple<ImmutableSet<NodeUrn>, byte[]>> convert(List<String> nodeIds,
-																	  List<Integer> programIndices,
-																	  List<Program> programs) {
+	public static ImmutableSet<Tuple<ImmutableSet<NodeUrn>, byte[]>> convert(List<String> nodeIds,
+																			 List<Integer> programIndices,
+																			 List<Program> programs) {
 
 		throw new RuntimeException("Not yet implemented!");
 	}
 
-	static Map<String, WSNAppMessages.Program> convertFlashImage(List<String> nodeIds, List<Integer> programIndices,
-																 List<Program> programs) {
+	public static Map<String, WSNAppMessages.Program> convertFlashImage(List<String> nodeIds,
+																		List<Integer> programIndices,
+																		List<Program> programs) {
 
 		Map<String, WSNAppMessages.Program> programsMap = new HashMap<String, WSNAppMessages.Program>();
 
@@ -154,7 +166,7 @@ class TypeConverter {
 		return programsMap;
 	}
 
-	static List<WSNAppMessages.Program> convertPrograms(List<Program> programs) {
+	public static List<WSNAppMessages.Program> convertPrograms(List<Program> programs) {
 		List<WSNAppMessages.Program> list = new ArrayList<WSNAppMessages.Program>(programs.size());
 		for (Program program : programs) {
 			list.add(convert(program));
@@ -162,13 +174,13 @@ class TypeConverter {
 		return list;
 	}
 
-	static WSNAppMessages.Program convert(Program program) {
+	public static WSNAppMessages.Program convert(Program program) {
 		return WSNAppMessages.Program.newBuilder().setMetaData(convert(program.getMetaData())).setProgram(
 				ByteString.copyFrom(program.getProgram())
 		).build();
 	}
 
-	static WSNAppMessages.Program.ProgramMetaData convert(ProgramMetaData metaData) {
+	public static WSNAppMessages.Program.ProgramMetaData convert(ProgramMetaData metaData) {
 		if (metaData == null) {
 			metaData = new ProgramMetaData();
 			metaData.setName("");
@@ -181,4 +193,58 @@ class TypeConverter {
 		).setPlatform(metaData.getPlatform()).setVersion(metaData.getVersion()).build();
 	}
 
+	public static de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult convertToRequestResult(
+			final WSNAppMessages.RequestStatus requestStatus, final long requestId) {
+		return new de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult(requestId, buildResultMap(requestStatus));
+	}
+
+	public static de.uniluebeck.itm.tr.iwsn.newoverlay.RequestStatus convertToRequestStatus(
+			final WSNAppMessages.RequestStatus requestStatus, final long requestId) {
+		return new de.uniluebeck.itm.tr.iwsn.newoverlay.RequestStatus(requestId, buildResultMap(requestStatus));
+	}
+
+	private static ImmutableMap<NodeUrn, Tuple<Integer, String>> buildResultMap(
+			final WSNAppMessages.RequestStatus requestStatus) {
+		final ImmutableMap.Builder<NodeUrn, Tuple<Integer, String>> resultMap = ImmutableMap.builder();
+		final NodeUrn nodeUrn = new NodeUrn(requestStatus.getStatus().getNodeId());
+
+		final Tuple<Integer, String> state = new Tuple<Integer, String>(
+				requestStatus.getStatus().getValue(),
+				requestStatus.getStatus().getMsg()
+		);
+
+		resultMap.put(nodeUrn, state);
+
+		return resultMap.build();
+	}
+
+	public static Map<String, WSNAppMessages.Program> convert(final ImmutableSet<NodeUrn> nodeUrns,
+															  final byte[] image) {
+		Map<String, WSNAppMessages.Program> map = newHashMap();
+		for (NodeUrn nodeUrn : nodeUrns) {
+
+			final WSNAppMessages.Program program = WSNAppMessages.Program.newBuilder()
+					.setProgram(ByteString.copyFrom(image))
+					.build();
+
+			map.put(nodeUrn.toString(), program);
+		}
+		return map;
+	}
+
+	public static WSNAppDownstreamMessage convert(final MessageDownstreamRequest request) {
+		return new WSNAppDownstreamMessage(convertToStringSet(request.getTo()), request.getMessageBytes());
+	}
+
+	public static RequestResult convert(final WSNAppMessages.RequestStatus requestStatus, long requestId) {
+
+		final ImmutableMap.Builder<NodeUrn, Tuple<Integer, String>> resultMap = ImmutableMap.builder();
+		final NodeUrn nodeUrn = new NodeUrn(requestStatus.getStatus().getNodeId());
+		final Tuple<Integer, String> status = new Tuple<Integer, String>(
+				requestStatus.getStatus().getValue(),
+				requestStatus.getStatus().getMsg()
+		);
+		resultMap.put(nodeUrn, status);
+		return new RequestResult(requestId, resultMap.build());
+	}
 }

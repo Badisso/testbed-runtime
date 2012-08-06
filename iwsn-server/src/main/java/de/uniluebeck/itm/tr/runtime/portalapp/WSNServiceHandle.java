@@ -61,7 +61,6 @@ public class WSNServiceHandle extends AbstractService implements Service {
 			wsnService.startAndWait();
 			wsnSoapService.startAndWait();
 
-
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

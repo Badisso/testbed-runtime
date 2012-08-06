@@ -95,8 +95,13 @@ public class WSNServiceImplTest {
 	@Before
 	public void setUp() throws Exception {
 
-		final Injector injector = Guice.createInjector(new OverlayModule());
+		final Injector injector = Guice.createInjector(
+				new OverlayModule(),
+				new WSNServiceModule()
+		);
+
 		requestFactory = injector.getInstance(RequestFactory.class);
+
 		final Provider<Long> requestIdProvider = injector.getProvider(Long.class);
 
 		wsnService = new WSNServiceImpl(
