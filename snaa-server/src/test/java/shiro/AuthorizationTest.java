@@ -44,6 +44,7 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.apache.derby.tools.ij;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -95,6 +96,7 @@ public class AuthorizationTest {
         instance.realm.setDataSource(instance.dataSource);
         instance.realm.setPermissionsLookupEnabled(true);
         instance.securityManager = new DefaultSecurityManager(instance.realm);
+        instance.securityManager.setCacheManager(new EhCacheManager());
         // Make the SecurityManager instance available to the entire application via static memory:
         SecurityUtils.setSecurityManager(instance.securityManager);
     }

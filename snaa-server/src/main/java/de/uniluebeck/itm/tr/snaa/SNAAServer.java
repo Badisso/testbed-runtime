@@ -35,6 +35,7 @@ import de.uniluebeck.itm.tr.snaa.shibboleth.MockShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
+import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.WisebedServiceHelper;
@@ -59,10 +60,6 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("restriction")
 public class SNAAServer {
-
-	static {
-		Logging.setLoggingDefaults();
-	}
 
     private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
 
@@ -123,7 +120,6 @@ public class SNAAServer {
 
     }
 
-
     public static HttpServer startFromProperties(Properties props) throws Exception {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
         int port = Integer.parseInt(props.getProperty("config.port", "8080"));
@@ -132,7 +128,7 @@ public class SNAAServer {
 
         Set<String> snaaNames = parseCSV(props.getProperty("config.snaas", ""));
 
-        //set optional proxy for shibboleth
+        // set optional proxy for shibboleth
         ShibbolethProxy shibbolethProxy;
         shibbolethProxy = setOptionalShibbolethProxy(props);
 
@@ -151,9 +147,9 @@ public class SNAAServer {
 
                 urnprefix = props.getProperty(snaaName + ".urnprefix", "urn:default:" + snaaName);
 
-                String authorizationClassName = props.getProperty(snaaName + ".authorization_class",
-                        "eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization"
-                );
+                String authorizationClassName =
+                        props.getProperty(snaaName + ".authorization_class",
+                                "eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization");
 
                 IUserAuthorization authorization = getAuthorizationModule(authorizationClassName);
 
@@ -163,16 +159,17 @@ public class SNAAServer {
 
                 String secretAuthkeyUrl = props.getProperty(snaaName + ".authorization.url");
 
-                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibbolethInjector, shibbolethProxy);
+                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibbolethInjector,
+                        shibbolethProxy);
 
             } else if ("jaas".equals(type)) {
 
                 urnprefix = props.getProperty(snaaName + ".urnprefix", "urn:default:" + snaaName);
                 String jaasModuleName = props.getProperty(snaaName + ".module", null);
                 String jaasConfigFile = props.getProperty(snaaName + ".configfile", null);
-                String authorizationClassName = props.getProperty(snaaName + ".authorization_class",
-                        "eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization"
-                );
+                String authorizationClassName =
+                        props.getProperty(snaaName + ".authorization_class",
+                                "eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization");
 
                 IUserAuthorization authorization = getAuthorizationModule(authorizationClassName);
 
@@ -189,8 +186,7 @@ public class SNAAServer {
                 }
 
                 startJAASSNAA(path, urnprefix, jaasModuleName, jaasConfigFile,
-                        getAuthorizationModule(authorizationClassName)
-                );
+                        getAuthorizationModule(authorizationClassName));
 
             } else if ("wisebed-federator".equals(type) || "federator".equals(type)) {
                 FederatorType fedType = FederatorType.GENERIC;
@@ -198,7 +194,7 @@ public class SNAAServer {
 
                 if ("wisebed-federator".equals(type)) {
                     fedType = FederatorType.WISEBED;
-                    secretAuthkeyUrl = props.getProperty(snaaName + ".authentication.url");                    
+                    secretAuthkeyUrl = props.getProperty(snaaName + ".authentication.url");
                 }
 
                 // endpoint url -> set<urnprefix>
@@ -207,18 +203,27 @@ public class SNAAServer {
                 Set<String> federates = parseCSV(props.getProperty(snaaName + ".federates", ""));
                 for (String federatedName : federates) {
 
-                    Set<String> urnPrefixes = parseCSV(props.getProperty(snaaName + "." + federatedName
-                            + ".urnprefixes"
-                    )
-                    );
+                    Set<String> urnPrefixes =
+                            parseCSV(props.getProperty(snaaName + "." + federatedName + ".urnprefixes"));
                     String endpointUrl = props.getProperty(snaaName + "." + federatedName + ".endpointurl");
 
                     federatedUrnPrefixes.put(endpointUrl, urnPrefixes);
 
                 }
 
-                startFederator(fedType, path, secretAuthkeyUrl, shibbolethInjector, shibbolethProxy, federatedUrnPrefixes);
+                startFederator(fedType, path, secretAuthkeyUrl, shibbolethInjector, shibbolethProxy,
+                        federatedUrnPrefixes);
 
+            } else if ("shiro".equals(type)) {
+
+                urnprefix = props.getProperty(snaaName + ".urnprefix", "urn:default:" + snaaName);
+                String shiroConfigPath = props.getProperty(snaaName + ".shiroConfig");
+                if (null == shiroConfigPath) {
+                    throw new IllegalArgumentException("Path to Shiro configuration is missing. Please supply value for " + snaaName + ".shiroConfig");
+                }
+                String ehCacheConfigPath = props.getProperty(snaaName + ".ehCacheConfig", "");
+
+                startShiroSNAA(path, urnprefix, shiroConfigPath, ehCacheConfigPath);
             } else {
                 log.error("Found unknown type " + type + " for snaa name " + snaaName + ". Ignoring...");
             }
@@ -232,7 +237,7 @@ public class SNAAServer {
     private static ShibbolethProxy setOptionalShibbolethProxy(Properties props) {
         String shibbolethProxyHost = props.getProperty("config.shibboleth.proxyHost");
         String shibbolethProxyPort = props.getProperty("config.shibboleth.proxyPort");
-        if (shibbolethProxyHost != null && shibbolethProxyPort != null){
+        if (shibbolethProxyHost != null && shibbolethProxyPort != null) {
             return new ShibbolethProxy(shibbolethProxyHost, Integer.parseInt(shibbolethProxyPort));
         }
         return null;
@@ -244,11 +249,10 @@ public class SNAAServer {
     }
 
     private static void startJAASSNAA(String path, String urnprefix, String jaasModuleName, String jaasConfigFile,
-                                      IUserAuthorization authorization) {
+            IUserAuthorization authorization) {
 
         log.debug("Starting JAAS SNAA, path [" + path + "], prefix[" + urnprefix + "], jaasConfigFile["
-                + jaasConfigFile + "], jaasModuleName[" + jaasModuleName + "], authorization[" + authorization + "]"
-        );
+                + jaasConfigFile + "], jaasModuleName[" + jaasModuleName + "], authorization[" + authorization + "]");
 
         System.setProperty("java.security.auth.login.config", jaasConfigFile);
 
@@ -273,16 +277,27 @@ public class SNAAServer {
 
     }
 
-    private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL, IUserAuthorization authorization, Injector injector, ShibbolethProxy shibbolethProxy) {
+    private static void startShiroSNAA(String path, String prefix, String shiroConfigPath, String ehCachePath) {
+        ShiroSNAA shiroSNAA = new ShiroSNAA(shiroConfigPath, ehCachePath);
+
+        HttpContext context = server.createContext(path);
+        Endpoint endpoint = Endpoint.create(shiroSNAA);
+        endpoint.publish(context);
+        
+        log.info("Started Shiro SNAA on " + server.getAddress() + path);
+    }
+
+    private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL,
+            IUserAuthorization authorization, Injector injector, ShibbolethProxy shibbolethProxy) {
 
         log.debug("Starting Shibboleth SNAA, path [" + path + "], prefix[" + prefix + "], secretKeyURL[" + secretKeyURL
-                + "]"
-        );
+                + "]");
 
         Set<String> prefixes = new HashSet<String>();
         prefixes.add(prefix);
 
-        ShibbolethSNAAImpl shibSnaa = new ShibbolethSNAAImpl(prefixes, secretKeyURL, authorization, injector, shibbolethProxy);
+        ShibbolethSNAAImpl shibSnaa =
+                new ShibbolethSNAAImpl(prefixes, secretKeyURL, authorization, injector, shibbolethProxy);
 
         HttpContext context = server.createContext(path);
         Endpoint endpoint = Endpoint.create(shibSnaa);
@@ -293,7 +308,7 @@ public class SNAAServer {
     }
 
     private static void startFederator(FederatorType type, String path, String secretAuthKeyURL, Injector injector,
-                                       ShibbolethProxy shibbolethProxy, Map<String, Set<String>>... prefixSets) {
+            ShibbolethProxy shibbolethProxy, Map<String, Set<String>>... prefixSets) {
 
         // union the prefix sets to one set
         Map<String, Set<String>> prefixSet = new HashMap<String, Set<String>>();
@@ -306,18 +321,17 @@ public class SNAAServer {
             log.debug("Starting Federator with the following prefixes: ");
             for (Entry<String, Set<String>> entry : prefixSet.entrySet()) {
                 log.debug("Prefix: url=" + entry.getKey() + ", prefixes: "
-                        + Arrays.toString(entry.getValue().toArray())
-                );
+                        + Arrays.toString(entry.getValue().toArray()));
             }
         }
 
         switch (type) {
-            case GENERIC:
-                federator = new FederatorSNAA(prefixSet);
-                break;
-            case WISEBED:
-                federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL, injector, shibbolethProxy);
-                break;
+        case GENERIC:
+            federator = new FederatorSNAA(prefixSet);
+            break;
+        case WISEBED:
+            federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL, injector, shibbolethProxy);
+            break;
         }
 
         HttpContext context = server.createContext(path);
@@ -332,14 +346,8 @@ public class SNAAServer {
 
         server = HttpServer.create(new InetSocketAddress(port), 5);
         // bind to a maximum of three threads which should be enough for an snaa system
-        server.setExecutor(new ThreadPoolExecutor(
-                1,
-                3,
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(),
-                new ThreadFactoryBuilder().setNameFormat("SNAA-Thread %d").build()
-        )
-        );
+        server.setExecutor(new ThreadPoolExecutor(1, 3, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
+                new ThreadFactoryBuilder().setNameFormat("SNAA-Thread %d").build()));
         server.start();
 
     }
@@ -363,9 +371,9 @@ public class SNAAServer {
     private static void callShibbAsWS() throws MalformedURLException, SNAAExceptionException,
             AuthenticationExceptionException {
 
-		SNAA port = WisebedServiceHelper.getSNAAService("http://localhost:8080/snaa/shib1");
+        SNAA port = WisebedServiceHelper.getSNAAService("http://localhost:8080/snaa/shib1");
 
-		AuthenticationTriple auth1 = new AuthenticationTriple();
+        AuthenticationTriple auth1 = new AuthenticationTriple();
         auth1.setUrnPrefix("urn:wisebed:shib1");
         auth1.setUsername("pfisterer@wisebed1.itm.uni-luebeck.de");
         auth1.setPassword("xxx");
@@ -445,7 +453,9 @@ public class SNAAServer {
 
     }
 
-    private static void createAndSetAuthenticationAttributes(String snaaName, Properties props, IUserAuthorization authorization) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    private static void createAndSetAuthenticationAttributes(String snaaName, Properties props,
+            IUserAuthorization authorization) throws ClassNotFoundException, InstantiationException,
+            IllegalAccessException {
         Map<String, String> attributes = createAuthorizationAttributeMap(snaaName, props);
         ((AttributeBasedAuthorization) authorization).setAttributes(attributes);
         ((AttributeBasedAuthorization) authorization).setDataSource(getAuthorizationDataSource(snaaName, props));
@@ -459,11 +469,13 @@ public class SNAAServer {
     private static String authorizationDataSourcePassword = ".password";
     private static String authorizationDataSourceUrl = ".url";
 
-    private static AuthorizationDataSource getAuthorizationDataSource(String snaaName, Properties props) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    private static AuthorizationDataSource getAuthorizationDataSource(String snaaName, Properties props)
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         for (Object o : props.keySet()) {
             String dataSourceName = snaaName + authorizationAtt + authorizationDataSource;
             if (o.equals(dataSourceName)) {
-                AuthorizationDataSource dataSource = (AuthorizationDataSource) Class.forName(props.getProperty((String) o)).newInstance();
+                AuthorizationDataSource dataSource =
+                        (AuthorizationDataSource) Class.forName(props.getProperty((String) o)).newInstance();
 
                 String dataSourceUsername = props.getProperty(dataSourceName + authorizationDataSourceUsername);
                 String dataSourcePassword = props.getProperty(dataSourceName + authorizationDataSourcePassword);
@@ -482,7 +494,7 @@ public class SNAAServer {
                 return dataSource;
             }
         }
-        //set default
+        // set default
         return new ShibbolethDataSource();
     }
 
@@ -490,7 +502,7 @@ public class SNAAServer {
         Map<String, String> attributes = new HashMap<String, String>();
 
         List<String> keys = new LinkedList<String>();
-        //getting keys from properties
+        // getting keys from properties
         for (Object o : props.keySet()) {
             if (((String) o).startsWith(snaaName + authorizationAtt) && ((String) o).endsWith(authorizationKeyAtt)) {
                 keys.add((String) o);
@@ -499,23 +511,23 @@ public class SNAAServer {
 
         for (String k : keys) {
             String key = props.getProperty(k);
-            //getting plain key-number from properties
+            // getting plain key-number from properties
             String plainKeyProperty = k.replaceAll(snaaName + authorizationAtt + ".", "");
             plainKeyProperty = plainKeyProperty.replaceAll(authorizationKeyAtt, "");
 
             String keyPrefix = snaaName + authorizationAtt + "." + plainKeyProperty;
 
-            //building value-property-string
+            // building value-property-string
             String value = props.getProperty(keyPrefix + authorizationValAtt);
 
-            //finally put key and values
+            // finally put key and values
             attributes.put(key, value);
         }
 
         return attributes;
     }
 
-    public static void setMockShibbolethInjector(){
+    public static void setMockShibbolethInjector() {
         shibbolethInjector = Guice.createInjector(new MockShibbolethSNAAModule());
     }
 }

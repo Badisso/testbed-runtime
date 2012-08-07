@@ -1,4 +1,5 @@
 connect 'jdbc:derby:memory:derbyDB';
+use enterprise_it_ep00;
 
 DROP TABLE ACTIONS;
 CREATE TABLE ACTIONS ( NAME VARCHAR(30) NOT NULL, PRIMARY KEY (NAME) );

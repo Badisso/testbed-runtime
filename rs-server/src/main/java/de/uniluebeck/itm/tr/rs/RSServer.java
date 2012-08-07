@@ -71,7 +71,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class RSServer {
 
 	static {
-		Logging.setLoggingDefaults();
+		Logging.setDebugLoggingDefaults();
 	}
 
 	private static HttpServer server;

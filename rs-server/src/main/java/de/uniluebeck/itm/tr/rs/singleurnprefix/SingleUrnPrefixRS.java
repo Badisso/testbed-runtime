@@ -33,6 +33,7 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.rs.*;
 import eu.wisebed.api.rs.SecretAuthenticationKey;
 import eu.wisebed.api.snaa.*;
+
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -89,7 +90,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		SecretAuthenticationKey secretAuthenticationKey = authenticationData.get(0);
 
-		checkAuthorization(secretAuthenticationKey, Actions.MAKE_RESERVATION);
+		checkAuthorization(secretAuthenticationKey, Action.RS_MAKE_RESERVATION);
 		checkNodesAvailable(reservation);
 
 		return makeReservationInternal(reservation, secretAuthenticationKey);
@@ -223,7 +224,7 @@ public class SingleUrnPrefixRS implements RS {
 		SecretAuthenticationKey key = secretAuthenticationKeys.get(0);
 
 		try {
-			checkAuthorization(key, Actions.GET_CONFIDENTIAL_RESERVATION);
+			checkAuthorization(key, Action.RS_MAKE_RESERVATION);
 		} catch (Exception e) {
 			return throwRSExceptionException(e);
 		}
@@ -490,5 +491,36 @@ public class SingleUrnPrefixRS implements RS {
 		}
 		return publicReservationDataList;
 	}
+
+    @Override
+    public List<ConfidentialReservationData> getConfidentialReservations(
+            List<commontypes.SecretAuthenticationKey> secretAuthenticationKey, GetReservations period)
+            throws RSExceptionException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<ConfidentialReservationData>
+            getReservation(List<commontypes.SecretReservationKey> secretReservationKey) throws RSExceptionException,
+                    ReservervationNotFoundExceptionException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void deleteReservation(List<commontypes.SecretReservationKey> secretReservationKey)
+            throws RSExceptionException, ReservervationNotFoundExceptionException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public List<commontypes.SecretReservationKey> makeReservation(
+            List<commontypes.SecretAuthenticationKey> authenticationData, ConfidentialReservationData reservation)
+            throws AuthorizationExceptionException, RSExceptionException, ReservervationConflictExceptionException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }
