@@ -6,6 +6,6 @@ import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 
 public interface WSNAppFactory {
 
-	WSNApp create(TestbedRuntime testbedRuntime, ImmutableSet<String> reservedNodes);
+	WSNApp create(final TestbedRuntime testbedRuntime, ImmutableSet<String> reservedNodes);
 
 }

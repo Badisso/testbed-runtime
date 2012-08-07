@@ -5,13 +5,15 @@ import com.google.common.collect.ImmutableMap;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.util.Tuple;
 
+import javax.annotation.Nullable;
+
 public class RequestResult {
 
 	protected final long requestId;
 
 	protected final ImmutableMap<NodeUrn, Tuple<Integer, String>> result;
 
-	public RequestResult(final long requestId, final ImmutableMap<NodeUrn, Tuple<Integer, String>> result) {
+	public RequestResult(final long requestId, @Nullable final ImmutableMap<NodeUrn, Tuple<Integer, String>> result) {
 		this.requestId = requestId;
 		this.result = result;
 	}
@@ -20,6 +22,7 @@ public class RequestResult {
 		return requestId;
 	}
 
+	@Nullable
 	public ImmutableMap<NodeUrn, Tuple<Integer, String>> getResult() {
 		return result;
 	}

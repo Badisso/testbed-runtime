@@ -1,14 +1,20 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Service;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.AreNodesAliveSmRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestFactory;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
@@ -27,12 +33,12 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convert;
+import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertNodeUrns;
 
 @WebService(
 		serviceName = "SessionManagementService",
@@ -54,31 +60,33 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	private final SessionManagementPreconditions preconditions;
 
 	@Nonnull
-	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
-
-	@Nonnull
 	private final DeliveryManager deliveryManager;
-
-	@Nonnull
-	private final WSNApp wsnApp;
 
 	@Nonnull
 	private final ScheduledExecutorService scheduledExecutorService;
 
+	@Nonnull
+	private final Overlay overlay;
+
 	@Nullable
 	private Endpoint endpoint;
 
-	public SessionManagementSoapService(final SessionManagementService sm,
-										final SessionManagementServiceConfig config,
-										final SessionManagementPreconditions preconditions,
-										final WSNApp wsnApp,
-										final DeliveryManager deliveryManager,
-										final ScheduledExecutorService scheduledExecutorService) {
+	private final RequestFactory requestFactory;
+
+	@Inject
+	SessionManagementSoapService(final SessionManagementService sm,
+								 final Overlay overlay,
+								 final RequestFactory requestFactory,
+								 @Assisted final SessionManagementServiceConfig config,
+								 @Assisted final SessionManagementPreconditions preconditions,
+								 @Assisted final DeliveryManager deliveryManager,
+								 @Assisted final ScheduledExecutorService scheduledExecutorService) {
 
 		this.sm = checkNotNull(sm);
+		this.overlay = checkNotNull(overlay);
+		this.requestFactory = checkNotNull(requestFactory);
 		this.config = checkNotNull(config);
 		this.preconditions = checkNotNull(preconditions);
-		this.wsnApp = checkNotNull(wsnApp);
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.scheduledExecutorService = checkNotNull(scheduledExecutorService);
 	}
@@ -148,40 +156,48 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
 								String controllerEndpointUrl) {
 
-		preconditions.checkAreNodesAliveArguments(nodes, controllerEndpointUrl);
-
 		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({})", nodes);
 
+		preconditions.checkAreNodesAliveArguments(nodes, controllerEndpointUrl);
+
 		deliveryManager.addController(controllerEndpointUrl);
-		final String requestId = secureIdGenerator.getNextId();
 
-		try {
-			wsnApp.areNodesAliveSm(new HashSet<String>(nodes), new WSNApp.Callback() {
+		final ImmutableSet<NodeUrn> nodeUrns = convertNodeUrns(nodes);
+		final AreNodesAliveSmRequest request = requestFactory.createAreNodesAliveSmRequest(nodeUrns);
+		final String requestId = Long.toString(request.getRequestId());
 
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
+		request.getFuture().addListener(new Runnable() {
+			@Override
+			public void run() {
 
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
-				}
-			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-			deliveryManager.removeController(controllerEndpointUrl);
-		}
+				try {
 
-		scheduledExecutorService.schedule(
-				new Runnable() {
-					@Override
-					public void run() {
-						deliveryManager.removeController(controllerEndpointUrl);
+					final RequestResult result = request.getFuture().get();
+					deliveryManager.receiveStatus(convert(result, requestId));
+
+				} catch (Exception e) {
+
+					if (e.getCause() instanceof UnknownNodeUrnsException) {
+
+						UnknownNodeUrnsException exception = (UnknownNodeUrnsException) e.getCause();
+						deliveryManager.receiveUnknownNodeUrnRequestStatus(
+								exception.getNodeUrns(),
+								exception.getMessage(),
+								requestId
+						);
+
+					} else {
+
+						deliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
 					}
-				}, 10, TimeUnit.SECONDS
+				}
+
+				deliveryManager.removeController(controllerEndpointUrl);
+			}
+		}, MoreExecutors.sameThreadExecutor()
 		);
+
+		overlay.getEventBus().post(request);
 
 		return requestId;
 	}

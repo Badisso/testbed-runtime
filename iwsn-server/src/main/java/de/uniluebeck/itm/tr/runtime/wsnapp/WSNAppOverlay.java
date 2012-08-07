@@ -7,6 +7,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.*;
 import de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter;
@@ -19,7 +20,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convert;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertToStringSet;
 
-public class WSNAppOverlay extends AbstractService implements Overlay {
+class WSNAppOverlay extends AbstractService implements Overlay {
 
 	private static class WSNAppCallback implements WSNApp.Callback {
 
@@ -71,19 +72,19 @@ public class WSNAppOverlay extends AbstractService implements Overlay {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNAppOverlay.class);
 
-	private final EventBus eventBus;
+	private final OverlayEventBus eventBus;
 
 	private final WSNApp wsnApp;
 
 	@Inject
 	@VisibleForTesting
-	WSNAppOverlay(final EventBus eventBus, final WSNApp wsnApp) {
+	WSNAppOverlay(@Assisted final OverlayEventBus eventBus, final WSNApp wsnApp) {
 		this.eventBus = eventBus;
 		this.wsnApp = wsnApp;
 	}
 
 	@Override
-	public EventBus getEventBus() {
+	public OverlayEventBus getEventBus() {
 		return eventBus;
 	}
 

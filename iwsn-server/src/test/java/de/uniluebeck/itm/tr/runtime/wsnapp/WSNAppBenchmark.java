@@ -30,7 +30,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 import static com.google.common.collect.Lists.newLinkedList;
@@ -290,7 +293,6 @@ public class WSNAppBenchmark {
 
 		Injector portalTRInjector = Guice.createInjector(
 				new TestbedRuntimeModule(scheduler, scheduler, scheduler),
-				new WSNAppModule(),
 				new OverlayModule()
 		);
 
@@ -334,7 +336,10 @@ public class WSNAppBenchmark {
 		createWSNDeviceApps(gatewayTRInjector);
 		startWSNDeviceApps();
 
-		wsnApp = portalTRInjector.getInstance(WSNAppFactory.class).create(portalTR, reservedNodes);
+		wsnApp = Guice.createInjector(new WSNAppModule())
+				.getInstance(WSNAppFactory.class)
+				.create(portalTR, reservedNodes);
+
 		wsnApp.startAndWait();
 
 		portalRequestFactory = portalTRInjector.getInstance(RequestFactory.class);

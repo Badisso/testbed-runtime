@@ -1,14 +1,20 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Service;
+import de.uniluebeck.itm.tr.iwsn.NodeUrn;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.BackendNotificationsRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageUpstreamRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult;
 import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementService;
 import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppBackendNotifications;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppDownstreamMessage;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppUpstreamMessage;
+import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.net.SocketAddress;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufApiTypeConverter.convert;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 
 public class ProtobufApiChannelHandler extends SimpleChannelHandler {
@@ -76,6 +83,19 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 
 	};
 
+	private ChannelFutureListener notificationsFutureListener = new ChannelFutureListener() {
+		@Override
+		public void operationComplete(final ChannelFuture future) throws Exception {
+			if (!future.isSuccess()) {
+				log.warn(
+						"Exception sending notifications to {}: {}",
+						channel.getRemoteAddress(),
+						future.getCause()
+				);
+			}
+		}
+	};
+
 	public ProtobufApiChannelHandler(final ProtobufApiService protobufApiService,
 									 final SessionManagementService sessionManagement) {
 
@@ -130,13 +150,47 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Subscribe
-	void onBackendNotification(final WSNAppBackendNotifications notifications) {
-		// TODO send to client
+	void onBackendNotificationsRequest(final BackendNotificationsRequest request) {
+
+		if (log.isTraceEnabled()) {
+			log.trace(
+					"Sending notifications to {}: [{}]",
+					channel.getRemoteAddress(),
+					Joiner.on(", ").join(request.getNotifications())
+			);
+		}
+
+		for (String notification : request.getNotifications()) {
+			channel.write(convert(notification)).addListener(notificationsFutureListener);
+		}
+
+		if (!request.getFuture().isDone()) {
+			request.getFuture().set(new RequestResult(request.getRequestId(), null));
+		}
 	}
 
 	@Subscribe
-	void onUpstreamMessage(final WSNAppUpstreamMessage message) {
-		// TODO send to client
+	void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
+
+		if (log.isTraceEnabled()) {
+			log.trace(
+					"Sending node output to {}: {}",
+					channel.getRemoteAddress(),
+					toPrintableString(request.getMessageBytes(), 200)
+			);
+		}
+
+		channel.write(convert(request));
+
+		if (!request.getFuture().isDone()) {
+
+			final RequestResult result = new RequestResult(
+					request.getRequestId(),
+					ImmutableMap.of(request.getFrom(), new Tuple<Integer, String>(1, ""))
+			);
+
+			request.getFuture().set(result);
+		}
 	}
 
 	private void sendDownstreamMessageToNodes(final ChannelHandlerContext ctx, final MessageEvent e,

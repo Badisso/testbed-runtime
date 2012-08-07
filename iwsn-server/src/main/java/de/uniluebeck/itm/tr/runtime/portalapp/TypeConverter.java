@@ -14,15 +14,13 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.ProgramMetaData;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -31,6 +29,38 @@ import static com.google.common.collect.Maps.newHashMap;
  * Helper class for this package that converts types from WSNApp representation to Web service representation and back.
  */
 public class TypeConverter {
+
+	public static List<SecretReservationKey> convertToSRKList(String secretReservationKey, final String urnPrefix) {
+
+		List<SecretReservationKey> secretReservationKeyList = new LinkedList<SecretReservationKey>();
+
+		SecretReservationKey key = new SecretReservationKey();
+		key.setUrnPrefix(urnPrefix);
+		key.setSecretReservationKey(secretReservationKey);
+
+		secretReservationKeyList.add(key);
+
+		return secretReservationKeyList;
+	}
+
+	public static List<eu.wisebed.api.rs.SecretReservationKey> convertSRKs(
+			List<SecretReservationKey> secretReservationKey) {
+
+		List<eu.wisebed.api.rs.SecretReservationKey> retList =
+				new ArrayList<eu.wisebed.api.rs.SecretReservationKey>(secretReservationKey.size());
+		for (SecretReservationKey reservationKey : secretReservationKey) {
+			retList.add(convert(reservationKey));
+		}
+		return retList;
+	}
+
+	public static eu.wisebed.api.rs.SecretReservationKey convert(SecretReservationKey reservationKey) {
+		eu.wisebed.api.rs.SecretReservationKey retSRK =
+				new eu.wisebed.api.rs.SecretReservationKey();
+		retSRK.setSecretReservationKey(reservationKey.getSecretReservationKey());
+		retSRK.setUrnPrefix(reservationKey.getUrnPrefix());
+		return retSRK;
+	}
 
 	public static ImmutableSet<String> convertToStringSet(final ImmutableSet<NodeUrn> nodeUrns) {
 		ImmutableSet.Builder<String> set = ImmutableSet.builder();

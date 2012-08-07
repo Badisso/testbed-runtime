@@ -23,19 +23,18 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
-import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.ConfidentialReservationData;
@@ -62,11 +61,17 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
+import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertSRKs;
+import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertToSRKList;
 
+@Singleton
 public class SessionManagementServiceImpl extends AbstractService implements SessionManagementService {
 
 	private final WSNServiceHandleFactory wsnServiceHandleFactory;
+
+	private final Overlay overlay;
 
 	/**
 	 * Job that is scheduled to clean up resources after a reservations end in time has been reached.
@@ -117,12 +122,6 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
 	/**
-	 * The {@link TestbedRuntime} instance used to communicate with over the overlay
-	 */
-	@Nonnull
-	private final TestbedRuntime testbedRuntime;
-
-	/**
 	 * Holds all currently instantiated WSN API instances that are not yet removed by {@link
 	 * de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementService#free(java.util.List)}.
 	 */
@@ -137,13 +136,13 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			new HashMap<String, ScheduledFuture<?>>();
 
 	@Inject
-	SessionManagementServiceImpl(final TestbedRuntime testbedRuntime,
+	SessionManagementServiceImpl(final Overlay overlay,
 								 final WSNServiceHandleFactory wsnServiceHandleFactory,
 								 @Assisted final SessionManagementServiceConfig config,
 								 @Assisted final SessionManagementPreconditions preconditions,
 								 @Assisted final ScheduledExecutorService scheduler) throws MalformedURLException {
 
-		this.testbedRuntime = checkNotNull(testbedRuntime);
+		this.overlay = checkNotNull(overlay);
 		this.wsnServiceHandleFactory = checkNotNull(wsnServiceHandleFactory);
 		this.config = checkNotNull(config);
 		this.preconditions = checkNotNull(preconditions);
@@ -222,7 +221,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			if (config.getReservationEndpointUrl() != null) {
 
 				// integrate reservation system
-				List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
+				List<SecretReservationKey> keys = convertToSRKList(secretReservationKey, config.getUrnPrefix());
 				confidentialReservationDataList = getReservationDataFromRS(keys);
 				reservedNodes = new HashSet<String>();
 
@@ -240,7 +239,6 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 				for (String nodeURN : data.getNodeURNs()) {
 					reservedNodes.add(nodeURN.toLowerCase());
 				}
-
 
 				// assure that nodes are in TestbedRuntime
 				assertNodesInTestbed(reservedNodes);
@@ -273,10 +271,6 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			final ImmutableSet<String> reservedNodesSet = reservedNodes == null ?
 					null :
 					ImmutableSet.<String>builder().add(reservedNodes.toArray(new String[reservedNodes.size()])).build();
-
-			// TODO implement
-			final ProtobufDeliveryManager protobufDeliveryManager =
-					new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize());
 
 			wsnServiceHandleInstance = createWsnServiceHandle(reservedNodes, wsnInstanceEndpointUrl, reservedNodesSet);
 
@@ -318,12 +312,10 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			}
 		}
 
-		final ImmutableSet<String> servedUrnPrefixes = ImmutableSet.<String>builder().add(config.getUrnPrefix()).build();
+		final ImmutableSet<String> servedUrnPrefixes =
+				ImmutableSet.<String>builder().add(config.getUrnPrefix()).build();
 		final WSNServiceConfig config = new WSNServiceConfig(reservedNodesSet, wsnInstanceEndpointUrl, wiseML);
 		final WSNPreconditions preconditions = new WSNPreconditions(servedUrnPrefixes, reservedNodes);
-
-		final Injector injector = Guice.createInjector(new WSNAppModule());
-		final WSNApp wsnApp = injector.getInstance(WSNAppFactory.class).create(testbedRuntime, reservedNodesSet);
 
 		final Injector wsnServiceInjector = Guice.createInjector(new WSNServiceModule());
 		final WSNServiceFactory wsnServiceFactory = wsnServiceInjector.getInstance(WSNServiceFactory.class);
@@ -331,7 +323,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 		final WSNSoapService wsnSoapService = new WSNSoapService(wsnService, config);
 
-		return wsnServiceHandleFactory.create(wsnService, wsnSoapService, wsnApp);
+		return wsnServiceHandleFactory.create(overlay, wsnService, wsnSoapService);
 	}
 
 	/**
@@ -342,14 +334,16 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	 */
 	private void assertNodesInTestbed(Set<String> reservedNodes) {
 
-		for (String node : reservedNodes) {
+		if (!config.getNodeUrnsServed().containsAll(reservedNodes)) {
 
-			boolean isLocal = testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().contains(node);
-			boolean isRemote = testbedRuntime.getRoutingTableService().getEntries().keySet().contains(node);
-
-			if (!isLocal && !isRemote) {
-				throw new RuntimeException("Node URN " + node + " unknown to testbed runtime environment.");
+			List<String> unservedNodes = newArrayList();
+			for (String reservedNode : reservedNodes) {
+				if (!config.getNodeUrnsServed().contains(reservedNode)) {
+					unservedNodes.add(reservedNode);
+				}
 			}
+
+			throw new RuntimeException("Unknown Node URN(s): " + Joiner.on(", ").join(unservedNodes));
 		}
 	}
 
@@ -407,25 +401,6 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 		}
 	}
 
-	private List<eu.wisebed.api.rs.SecretReservationKey> convert(
-			List<SecretReservationKey> secretReservationKey) {
-
-		List<eu.wisebed.api.rs.SecretReservationKey> retList =
-				new ArrayList<eu.wisebed.api.rs.SecretReservationKey>(secretReservationKey.size());
-		for (SecretReservationKey reservationKey : secretReservationKey) {
-			retList.add(convert(reservationKey));
-		}
-		return retList;
-	}
-
-	private eu.wisebed.api.rs.SecretReservationKey convert(SecretReservationKey reservationKey) {
-		eu.wisebed.api.rs.SecretReservationKey retSRK =
-				new eu.wisebed.api.rs.SecretReservationKey();
-		retSRK.setSecretReservationKey(reservationKey.getSecretReservationKey());
-		retSRK.setUrnPrefix(reservationKey.getUrnPrefix());
-		return retSRK;
-	}
-
 	/**
 	 * Tries to fetch the reservation data from {@link de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceConfig#getReservationEndpointUrl()}
 	 * and returns the list of reservations.
@@ -444,7 +419,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 		try {
 
 			RS rsService = WisebedServiceHelper.getRSService(config.getReservationEndpointUrl().toString());
-			return rsService.getReservation(convert(secretReservationKeys));
+			return rsService.getReservation(convertSRKs(secretReservationKeys));
 
 		} catch (RSExceptionException e) {
 			String msg = "Generic exception occurred in the federated reservation system.";
@@ -494,18 +469,5 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 		}
 
-	}
-
-	private List<SecretReservationKey> generateSecretReservationKeyList(String secretReservationKey) {
-
-		List<SecretReservationKey> secretReservationKeyList = new LinkedList<SecretReservationKey>();
-
-		SecretReservationKey key = new SecretReservationKey();
-		key.setUrnPrefix(config.getUrnPrefix());
-		key.setSecretReservationKey(secretReservationKey);
-
-		secretReservationKeyList.add(key);
-
-		return secretReservationKeyList;
 	}
 }

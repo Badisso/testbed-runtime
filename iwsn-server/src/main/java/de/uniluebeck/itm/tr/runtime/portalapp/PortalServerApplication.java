@@ -30,6 +30,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayEventBus;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayFactory;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufApiService;
@@ -56,27 +59,25 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 
 	private final SessionManagementPreconditions preconditions;
 
-	private final WSNApp wsnApp;
-
 	private final DeliveryManager deliveryManager;
-
-	private SessionManagementService sessionManagementService;
-
-	/**
-	 * SOAP Web service API
-	 */
-	private SessionManagementSoapService soapService;
-
-	/**
-	 * Google Protocol Buffers API
-	 */
-	private ProtobufApiService protobufService;
-
-	private ScheduledExecutorService scheduler;
 
 	private ExecutorService executor;
 
+	private ScheduledExecutorService scheduler;
+
 	private ForwardingScheduledExecutorService forwardingScheduler;
+
+	private SessionManagementService sessionManagementService;
+
+	private SessionManagementSoapService sessionManagementSoapService;
+
+	private ProtobufApiService protobufService;
+
+	private OverlayEventBus overlayEventBus;
+
+	private Overlay overlay;
+
+	private WSNApp wsnApp;
 
 	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp portalAppConfig) {
 
@@ -88,27 +89,8 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		this.preconditions.addServedUrnPrefixes(this.config.getUrnPrefix());
 		this.preconditions.addKnownNodeUrns(this.config.getNodeUrnsServed());
 
-		final Injector injector = Guice.createInjector(
-				new AbstractModule() {
-					@Override
-					protected void configure() {
-						bind(TestbedRuntime.class).toInstance(testbedRuntime);
-					}
-				},
-				new WSNAppModule(),
-				new WSNAppOverlayModule(),
-				new PortalServerModule()
-		);
-
-		this.wsnApp = injector
-				.getInstance(WSNAppFactory.class)
-				.create(testbedRuntime, config.getNodeUrnsServed());
-
-		this.sessionManagementService = injector
-				.getInstance(SessionManagementServiceFactory.class)
-				.create(config, preconditions, forwardingScheduler);
-
 		this.deliveryManager = new DeliveryManager();
+		this.overlayEventBus = new OverlayEventBus();
 	}
 
 	@Override
@@ -124,26 +106,77 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		forwardingScheduler = new ForwardingScheduledExecutorService(scheduler, executor);
 
 		try {
-			sessionManagementService.startAndWait();
+
+			final WSNAppFactory wsnAppFactory = Guice
+					.createInjector(new WSNAppModule())
+					.getInstance(WSNAppFactory.class);
+
+			wsnApp = wsnAppFactory.create(testbedRuntime, config.getNodeUrnsServed());
+
 		} catch (Exception e) {
 			notifyFailed(e);
+			return;
 		}
 
 		try {
 
-			soapService = new SessionManagementSoapService(
-					sessionManagementService,
+			final OverlayFactory overlayFactory = Guice
+					.createInjector(new WSNAppOverlayModule(wsnApp))
+					.getInstance(OverlayFactory.class);
+
+			overlay = overlayFactory.create(overlayEventBus);
+
+		} catch (Exception e) {
+			notifyFailed(e);
+			return;
+		}
+
+		final Injector injector = Guice.createInjector(
+				new AbstractModule() {
+					@Override
+					protected void configure() {
+						bind(TestbedRuntime.class).toInstance(testbedRuntime);
+						bind(OverlayEventBus.class).toInstance(overlayEventBus);
+					}
+				},
+				new PortalServerModule()
+		);
+
+		final SessionManagementServiceFactory smServiceFactory =
+				injector.getInstance(SessionManagementServiceFactory.class);
+
+		final SessionManagementSoapServiceFactory smSoapServiceFactory =
+				injector.getInstance(SessionManagementSoapServiceFactory.class);
+
+		try {
+
+			sessionManagementService = smServiceFactory.create(
 					config,
 					preconditions,
-					wsnApp,
+					forwardingScheduler
+			);
+
+			sessionManagementService.startAndWait();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+			return;
+		}
+
+		try {
+
+			sessionManagementSoapService = smSoapServiceFactory.create(
+					config,
+					preconditions,
 					deliveryManager,
 					forwardingScheduler
 			);
 
-			soapService.startAndWait();
+			sessionManagementSoapService.startAndWait();
 
 		} catch (Exception e) {
 			notifyFailed(e);
+			return;
 		}
 
 		if (config.getProtobufinterface() != null) {
@@ -159,6 +192,7 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 
 			} catch (Exception e) {
 				notifyFailed(e);
+				return;
 			}
 		}
 
@@ -182,7 +216,7 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		}
 
 		try {
-			soapService.stopAndWait();
+			sessionManagementSoapService.stopAndWait();
 		} catch (Exception e) {
 			log.error("Exception while shutting down Session Management SOAP web service: {}", e);
 			notifyFailed(e);
@@ -192,6 +226,20 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 			sessionManagementService.stopAndWait();
 		} catch (Exception e) {
 			log.error("Exception while shutting down Session Management service: {}", e);
+			notifyFailed(e);
+		}
+
+		try {
+			wsnApp.stopAndWait();
+		} catch (Exception e) {
+			log.error("Exception while shutting down WSNApp: {}", e);
+			notifyFailed(e);
+		}
+
+		try {
+			overlay.stopAndWait();
+		} catch (Exception e) {
+			log.error("Exception while shutting down Overlay: {}", e);
 			notifyFailed(e);
 		}
 

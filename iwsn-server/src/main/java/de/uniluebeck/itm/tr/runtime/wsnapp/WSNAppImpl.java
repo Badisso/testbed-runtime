@@ -307,8 +307,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	};
 
 	@Inject
-	public WSNAppImpl(@Assisted final TestbedRuntime testbedRuntime,
-					  @Assisted final ImmutableSet<String> reservedNodes) {
+	WSNAppImpl(@Assisted final TestbedRuntime testbedRuntime,
+			   @Assisted final ImmutableSet<String> reservedNodes) {
 
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = reservedNodes;
@@ -636,7 +636,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		}
 
 		handlers.addFirst(new Tuple<String, ChannelHandler>("belowFilterPipelineLogger", belowPipelineLogger));
-		handlers.addFirst(new Tuple<String, ChannelHandler>("filterPipelineBottomHandler", filterPipelineBottomHandler));
+		handlers.addFirst(new Tuple<String, ChannelHandler>("filterPipelineBottomHandler", filterPipelineBottomHandler)
+		);
 
 		return handlers;
 	}
