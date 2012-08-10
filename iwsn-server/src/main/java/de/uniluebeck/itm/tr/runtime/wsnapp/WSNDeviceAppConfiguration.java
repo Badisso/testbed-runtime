@@ -2,7 +2,6 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -10,12 +9,17 @@ public class WSNDeviceAppConfiguration {
 
 	private final String nodeUrn;
 
+	private final String portalNodeUrn;
+
 	@Nullable
 	private File defaultImageFile;
 
-	public WSNDeviceAppConfiguration(final String nodeUrn, @Nullable final File defaultImageFile) {
+	public WSNDeviceAppConfiguration(final String nodeUrn,
+									 final String portalNodeUrn,
+									 @Nullable final File defaultImageFile) {
 
 		this.nodeUrn = nodeUrn;
+		this.portalNodeUrn = portalNodeUrn;
 
 		final boolean defaultImageFileNullOrReadableFile = defaultImageFile == null ||
 				(defaultImageFile.exists() && defaultImageFile.isFile() && defaultImageFile.canRead());
@@ -29,6 +33,10 @@ public class WSNDeviceAppConfiguration {
 
 	public String getNodeUrn() {
 		return nodeUrn;
+	}
+
+	public String getPortalNodeUrn() {
+		return portalNodeUrn;
 	}
 
 	@Nullable

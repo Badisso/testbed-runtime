@@ -51,9 +51,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
@@ -119,7 +117,6 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 			boolean isRecipient = wsnDeviceAppConfiguration.getNodeUrn().equals(msg.getTo());
 			boolean isOperationInvocation = WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST.equals(msg.getMsgType());
-			boolean isListenerManagement = WSNApp.MSG_TYPE_LISTENER_MANAGEMENT.equals(msg.getMsgType());
 
 			if (isRecipient && isOperationInvocation) {
 
@@ -136,38 +133,9 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 					executeOperation(invocation, msg);
 				}
 
-			} else if (isRecipient && isListenerManagement) {
-
-				log.trace("{} => Received message of type {}...", wsnDeviceAppConfiguration.getNodeUrn(),
-						msg.getMsgType()
-				);
-
-				try {
-
-					WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement
-							.newBuilder()
-							.mergeFrom(msg.getPayload())
-							.build();
-
-					executeManagement(management);
-
-					testbedRuntime.getUnreliableMessagingService().sendAsync(
-							MessageTools.buildReply(msg, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT, new byte[]{})
-					);
-
-				} catch (InvalidProtocolBufferException e) {
-					log.warn("InvalidProtocolBufferException while unmarshalling listener management message: " + e, e);
-				}
-
 			}
 		}
 	};
-
-	/**
-	 * Overlay network nodes register as a listener with this instance here to receive node outputs. The listeners node
-	 * names are kept here.
-	 */
-	private final Set<String> nodeMessageListeners = new HashSet<String>();
 
 	private SingleRequestMultiResponseListener srmrsListener = new SingleRequestMultiResponseListener() {
 		@Override
@@ -213,25 +181,22 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 					WSNAppMessages.Message message = messageBuilder.build();
 
-					for (String nodeMessageListener : nodeMessageListeners) {
-
-						if (log.isDebugEnabled()) {
-							log.debug("{} => Delivering device output to overlay node {}: {}", new String[]{
-									wsnDeviceAppConfiguration.getNodeUrn(),
-									nodeMessageListener,
-									WSNAppMessageTools.toString(message, false, 200)
-							}
-							);
-						}
-
-						testbedRuntime.getUnreliableMessagingService().sendAsync(
+					if (log.isDebugEnabled()) {
+						log.debug("{} => Delivering device output to overlay node {}: {}", new String[]{
 								wsnDeviceAppConfiguration.getNodeUrn(),
-								nodeMessageListener,
-								WSNApp.MSG_TYPE_LISTENER_MESSAGE,
-								message.toByteArray(),
-								UnreliableMessagingService.PRIORITY_NORMAL
+								wsnDeviceAppConfiguration.getPortalNodeUrn(),
+								WSNAppMessageTools.toString(message, false, 200)
+						}
 						);
 					}
+
+					testbedRuntime.getUnreliableMessagingService().sendAsync(
+							wsnDeviceAppConfiguration.getNodeUrn(),
+							wsnDeviceAppConfiguration.getPortalNodeUrn(),
+							WSNApp.MSG_TYPE_LISTENER_MESSAGE,
+							message.toByteArray(),
+							UnreliableMessagingService.PRIORITY_NORMAL
+					);
 				}
 
 				@Override
@@ -241,25 +206,23 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 							.setMessage(notificationString)
 							.build();
 
-					for (String nodeMessageListener : nodeMessageListeners) {
 
-						if (log.isDebugEnabled()) {
-							log.debug("{} => Delivering notification to {}: {}", new String[]{
-									wsnDeviceAppConfiguration.getNodeUrn(),
-									nodeMessageListener,
-									notificationString
-							}
-							);
-						}
-
-						testbedRuntime.getUnreliableMessagingService().sendAsync(
+					if (log.isDebugEnabled()) {
+						log.debug("{} => Delivering notification to {}: {}", new String[]{
 								wsnDeviceAppConfiguration.getNodeUrn(),
-								nodeMessageListener,
-								WSNApp.MSG_TYPE_LISTENER_NOTIFICATION,
-								message.toByteArray(),
-								UnreliableMessagingService.PRIORITY_NORMAL
+								wsnDeviceAppConfiguration.getPortalNodeUrn(),
+								notificationString
+						}
 						);
 					}
+
+					testbedRuntime.getUnreliableMessagingService().sendAsync(
+							wsnDeviceAppConfiguration.getNodeUrn(),
+							wsnDeviceAppConfiguration.getPortalNodeUrn(),
+							WSNApp.MSG_TYPE_LISTENER_NOTIFICATION,
+							message.toByteArray(),
+							UnreliableMessagingService.PRIORITY_NORMAL
+					);
 				}
 			};
 
@@ -277,25 +240,17 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 	private TestbedRuntime testbedRuntime;
 
 	@Inject
-	public WSNDeviceAppImpl(@Assisted @Nonnull final TestbedRuntime testbedRuntime,
-							@Assisted @Nonnull final DeviceFactory deviceFactory,
-							@Assisted @Nonnull final WSNDeviceAppConfiguration wsnDeviceAppConfiguration,
-							@Assisted
-							@Nonnull
-							final WSNDeviceAppConnectorConfiguration wsnDeviceAppConnectorConfiguration,
-							@Nonnull final WSNDeviceAppConnectorFactory wsnDeviceAppConnectorFactory) {
+	public WSNDeviceAppImpl(@Assisted final TestbedRuntime testbedRuntime,
+							@Assisted final DeviceFactory deviceFactory,
+							@Assisted final WSNDeviceAppConfiguration wsnDeviceAppConfiguration,
+							@Assisted final WSNDeviceAppConnectorConfiguration wsnDeviceAppConnectorConfiguration,
+							final WSNDeviceAppConnectorFactory wsnDeviceAppConnectorFactory) {
 
-		checkNotNull(testbedRuntime);
-		checkNotNull(deviceFactory);
-		checkNotNull(wsnDeviceAppConfiguration);
-		checkNotNull(wsnDeviceAppConnectorConfiguration);
-		checkNotNull(wsnDeviceAppConnectorFactory);
-
-		this.testbedRuntime = testbedRuntime;
-		this.deviceFactory = deviceFactory;
-		this.wsnDeviceAppConfiguration = wsnDeviceAppConfiguration;
-		this.wsnDeviceAppConnectorFactory = wsnDeviceAppConnectorFactory;
-		this.wsnDeviceAppConnectorConfiguration = wsnDeviceAppConnectorConfiguration;
+		this.testbedRuntime = checkNotNull(testbedRuntime);
+		this.deviceFactory = checkNotNull(deviceFactory);
+		this.wsnDeviceAppConfiguration = checkNotNull(wsnDeviceAppConfiguration);
+		this.wsnDeviceAppConnectorFactory = checkNotNull(wsnDeviceAppConnectorFactory);
+		this.wsnDeviceAppConnectorConfiguration = checkNotNull(wsnDeviceAppConnectorConfiguration);
 
 		try {
 			this.datatypeFactory = DatatypeFactory.newInstance();
@@ -499,26 +454,6 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 		}
 
-	}
-
-	/**
-	 * Executes registering and un-registering for sensor node outputs.
-	 *
-	 * @param management
-	 * 		the message containing the (un)register command
-	 */
-	private void executeManagement(WSNAppMessages.ListenerManagement management) {
-		if (WSNAppMessages.ListenerManagement.Operation.REGISTER == management.getOperation()) {
-			log.debug("{} => Overlay node {} registered for device outputs",
-					wsnDeviceAppConfiguration.getNodeUrn(), management.getNodeName()
-			);
-			nodeMessageListeners.add(management.getNodeName());
-		} else {
-			log.debug("{} => Overlay node {} unregistered from device outputs",
-					wsnDeviceAppConfiguration.getNodeUrn(), management.getNodeName()
-			);
-			nodeMessageListeners.remove(management.getNodeName());
-		}
 	}
 
 	private void executeSetDefaultChannelPipeline(final ReplyingNodeApiCallback callback) {

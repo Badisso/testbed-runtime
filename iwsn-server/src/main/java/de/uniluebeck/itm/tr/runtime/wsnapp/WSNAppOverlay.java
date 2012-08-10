@@ -7,7 +7,6 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.*;
 import de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter;
@@ -15,7 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convert;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertToStringSet;
@@ -76,11 +77,14 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 	private final WSNApp wsnApp;
 
+	private final RequestFactory requestFactory;
+
 	@Inject
 	@VisibleForTesting
-	WSNAppOverlay(final OverlayEventBus eventBus, final WSNApp wsnApp) {
-		this.eventBus = eventBus;
-		this.wsnApp = wsnApp;
+	WSNAppOverlay(final OverlayEventBus eventBus, final WSNApp wsnApp, final RequestFactory requestFactory) {
+		this.eventBus = checkNotNull(eventBus);
+		this.wsnApp = checkNotNull(wsnApp);
+		this.requestFactory = checkNotNull(requestFactory);
 	}
 
 	@Override
@@ -287,14 +291,18 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 			@Override
 			public void run() {
 				try {
-					request.getFuture().set(TypeConverter.convert(wsnAppDownstreamMessage.getFuture().get(),
-							request.getRequestId()
-					));
+					request.getFuture().set(
+							TypeConverter.convert(
+									wsnAppDownstreamMessage.getFuture().get(),
+									request.getRequestId()
+							)
+					);
 				} catch (Exception e) {
 					request.getFuture().setException(e);
 				}
 			}
-		}, MoreExecutors.sameThreadExecutor());
+		}, MoreExecutors.sameThreadExecutor()
+		);
 
 		wsnApp.getEventBus().post(wsnAppDownstreamMessage);
 	}
@@ -306,6 +314,32 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		log.debug("WSNAppOverlay.onMessageUpstreamRequest({})", request);
 
 		throw new RuntimeException("This method should never be invoked on the portal host!");
+	}
+
+	@Subscribe
+	@VisibleForTesting
+	void onWSNAppUpstreamMessageRequest(final WSNAppUpstreamMessage request) {
+
+		log.debug("WSNAppOverlay.onWSNAppUpstreamMessageRequest({})", request);
+
+		final MessageUpstreamRequest overlayRequest = TypeConverter.convert(request, requestFactory);
+
+		overlayRequest.getFuture().addListener(new Runnable() {
+			@Override
+			public void run() {
+				try {
+
+					overlayRequest.getFuture().get();
+					request.getFuture().set(null);
+
+				} catch (Exception e) {
+					request.getFuture().setException(e);
+				}
+			}
+		}, MoreExecutors.sameThreadExecutor()
+		);
+
+		eventBus.post(overlayRequest);
 	}
 
 	@Subscribe

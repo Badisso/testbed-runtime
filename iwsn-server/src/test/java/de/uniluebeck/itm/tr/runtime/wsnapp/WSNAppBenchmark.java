@@ -458,7 +458,7 @@ public class WSNAppBenchmark {
 			//nodeConfiguration.put("UART_LATENCY", "10");
 			nodeConfiguration.put("ECHO", "true");
 
-			final WSNDeviceAppConfiguration configuration = new WSNDeviceAppConfiguration(nodeUrn, null);
+			final WSNDeviceAppConfiguration configuration = new WSNDeviceAppConfiguration(nodeUrn, URN_PORTAL, null);
 			final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
 					nodeUrn,
 					DeviceType.MOCK.toString(),

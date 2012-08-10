@@ -97,16 +97,12 @@ public class SocketServer extends SimpleChannelUpstreamHandler {
 	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
 		log.debug("SocketServer.channelOpen({}, {})", ctx, e);
 		allChannels.add(e.getChannel());
-		socketConnectorApplication.registerAsNodeOutputListener();
 		ctx.sendUpstream(e);
 	}
 
 	@Override
 	public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 		log.debug("SocketServer.channelClosed({}, {})", ctx, e);
-		if (allChannels.size() == 1) {
-			socketConnectorApplication.unregisterAsNodeOutputListener();
-		}
 		ctx.sendUpstream(e);
 	}
 

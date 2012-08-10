@@ -150,6 +150,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 		return new WSNDeviceAppConfiguration(
 				wsnDevice.getUrn(),
+				wsnDevice.getPortalurn(),
 				wsnDevice.getDefaultImage() != null ? new File(wsnDevice.getDefaultImage()) : null
 		);
 	}

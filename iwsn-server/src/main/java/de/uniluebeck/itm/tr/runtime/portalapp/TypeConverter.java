@@ -7,9 +7,12 @@ import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageDownstreamRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageUpstreamRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestFactory;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppDownstreamMessage;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppUpstreamMessage;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.controller.RequestStatus;
@@ -276,5 +279,14 @@ public class TypeConverter {
 		);
 		resultMap.put(nodeUrn, status);
 		return new RequestResult(requestId, resultMap.build());
+	}
+
+	public static MessageUpstreamRequest convert(final WSNAppUpstreamMessage request, RequestFactory requestFactory) {
+		MessageUpstreamRequest overlayRequest = requestFactory.createMessageUpstreamRequest(
+				new NodeUrn(request.getFrom()),
+				request.getTimestamp(),
+				request.getMessageBytes()
+		);
+		return overlayRequest;
 	}
 }

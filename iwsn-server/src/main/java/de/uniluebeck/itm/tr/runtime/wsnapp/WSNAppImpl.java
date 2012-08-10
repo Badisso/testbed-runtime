@@ -195,8 +195,6 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 	private ImmutableSet<String> reservedNodes;
 
-	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
-
 	private HandlerFactoryRegistry handlerFactoryRegistry;
 
 	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
@@ -211,24 +209,10 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 	private ExecutorService executor;
 
-	private Runnable unregisterNodeMessageReceiverRunnable = new Runnable() {
-		@Override
-		public void run() {
-			registerNodeMessageReceiver(false);
-		}
-	};
-
 	private final ChannelPipeline pipeline = pipeline();
 
 	@SuppressWarnings("unused")
 	private final Channel channel = new EmbeddedChannel(pipeline, new EmbeddedChannelSink());
-
-	private Runnable registerNodeMessageReceiverRunnable = new Runnable() {
-		@Override
-		public void run() {
-			registerNodeMessageReceiver(true);
-		}
-	};
 
 	private final EventBus eventBus = new EventBus("WSNApp-EventBus");
 
@@ -477,16 +461,6 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			// start listening to sensor node output messages
 			testbedRuntime.getMessageEventService().addListener(messageEventListener);
 
-			// periodically register at the node counterpart as listener to receive output from the nodes
-			registerNodeMessageReceiverFuture = scheduler.scheduleWithFixedDelay(
-					registerNodeMessageReceiverRunnable,
-					30,
-					30,
-					TimeUnit.SECONDS
-			);
-
-			registerNodeMessageReceiverRunnable.run();
-
 			eventBus.register(this);
 
 		} catch (Exception e) {
@@ -508,16 +482,6 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			setDefaultPipelineOnReservedNodes();
 			setDefaultPipelineLocally();
 			flashDefaultImageToReservedNodes();
-
-			// stop sending 'register'-messages to node counterpart
-			registerNodeMessageReceiverFuture.cancel(false);
-
-			// unregister with all nodes once
-			try {
-				executor.submit(unregisterNodeMessageReceiverRunnable).get();
-			} catch (Exception e) {
-				log.error("Exception while un-registering as node message receiver during shutdown: {}", e);
-			}
 
 			// stop listening for messages from the nodes
 			testbedRuntime.getMessageEventService().removeListener(messageEventListener);
@@ -1030,43 +994,6 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			String msg =
 					"Ignoring request as the following node URNs are unknown: " + Joiner.on(", ").join(unknownNodeUrns);
 			throw new UnknownNodeUrnsException(unknownNodeUrns, msg);
-		}
-
-	}
-
-	private void registerNodeMessageReceiver(boolean register) {
-
-		final WSNAppMessages.ListenerManagement.Operation operation = register ?
-				WSNAppMessages.ListenerManagement.Operation.REGISTER :
-				WSNAppMessages.ListenerManagement.Operation.UNREGISTER;
-
-		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
-				.setNodeName(getLocalNodeName())
-				.setOperation(operation)
-				.build();
-
-		Map<String, Future<byte[]>> futures = new HashMap<String, Future<byte[]>>();
-		for (String destinationNodeName : reservedNodes) {
-
-			futures.put(
-					destinationNodeName,
-					testbedRuntime.getReliableMessagingService().sendAsync(
-							getLocalNodeName(),
-							destinationNodeName,
-							WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
-							management.toByteArray(),
-							UnreliableMessagingService.PRIORITY_LOW,
-							10, TimeUnit.SECONDS
-					)
-			);
-		}
-
-		for (Map.Entry<String, Future<byte[]>> entry : futures.entrySet()) {
-			try {
-				entry.getValue().get();
-			} catch (Exception e) {
-				log.error("Exception while registering for node outputs of {}: {}", entry.getKey(), e);
-			}
 		}
 
 	}

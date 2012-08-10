@@ -233,6 +233,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@VisibleForTesting
 	public void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
 
+		log.debug("WSNServiceImpl.onMessageUpstreamRequest({})", request);
+
 		Message message = new Message();
 		message.setSourceNodeId(request.getFrom().toString());
 		message.setTimestamp(DATATYPE_FACTORY.newXMLGregorianCalendar(request.getTimestamp()));

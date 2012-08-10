@@ -37,8 +37,6 @@ public interface WSNApp extends TestbedApplication {
 	// =================================================================================================================
 	// = Constants used by WSNApp implementation and the SocketConnector                                               =
 	// =================================================================================================================
-	public static final String MSG_TYPE_LISTENER_MANAGEMENT = WSNApp.class.getCanonicalName() + "/LISTENER_MANAGEMENT";
-
 	public static final String MSG_TYPE_LISTENER_MESSAGE = WSNApp.class.getCanonicalName() + "/LISTENER_MESSAGE";
 
 	public static final String MSG_TYPE_LISTENER_NOTIFICATION =

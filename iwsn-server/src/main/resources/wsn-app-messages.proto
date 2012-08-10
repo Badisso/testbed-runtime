@@ -27,21 +27,6 @@ option java_outer_classname = "WSNAppMessages";
 option java_multiple_files = false;
 
 
-// ==== Listener Messages ====
-message ListenerManagement {
-
-	enum Operation {
-	    REGISTER = 1;
-	    UNREGISTER = 2;
-	}
-
-	required Operation operation = 1;
-	required string nodeName = 2; 
-
-}
-
-
-
 // ==== asynchronous RequestStatus ====
 message RequestStatus {
 

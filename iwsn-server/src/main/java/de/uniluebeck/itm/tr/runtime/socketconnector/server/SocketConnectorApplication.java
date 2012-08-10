@@ -24,25 +24,16 @@
 package de.uniluebeck.itm.tr.runtime.socketconnector.server;
 
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
-import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 
 public class SocketConnectorApplication extends AbstractService implements TestbedApplication {
@@ -52,8 +43,6 @@ public class SocketConnectorApplication extends AbstractService implements Testb
 	private TestbedRuntime testbedRuntime;
 
 	private SocketServer socketServer;
-
-	private ScheduledExecutorService scheduler;
 
 	public SocketConnectorApplication(TestbedRuntime testbedRuntime, int port) {
 		this.testbedRuntime = testbedRuntime;
@@ -74,31 +63,12 @@ public class SocketConnectorApplication extends AbstractService implements Testb
 		}
 	};
 
-	public void registerAsNodeOutputListener() {
-		log.debug("SocketConnectorApplication.registerAsNodeOutputListener()");
-		if (registerNodeMessageReceiverFuture == null || registerNodeMessageReceiverFuture.isCancelled()) {
-
-			// periodically register at the node counterpart as listener to receive output from the nodes
-			registerNodeMessageReceiverFuture = scheduler.scheduleWithFixedDelay(
-					registerNodeMessageReceiverRunnable,
-					0,
-					30,
-					TimeUnit.SECONDS
-			);
-		}
-	}
-
 	@Override
 	protected void doStart() {
 
 		try {
 
 			log.debug("SocketConnectorApplication.start()");
-
-			scheduler = Executors.newScheduledThreadPool(
-					1,
-					new ThreadFactoryBuilder().setNameFormat("SocketConnector-Thread %d").build()
-			);
 
 			// start the server socket application
 			socketServer.startUp();
@@ -131,65 +101,6 @@ public class SocketConnectorApplication extends AbstractService implements Testb
 		}
 
 		notifyStopped();
-	}
-
-	public void unregisterAsNodeOutputListener() {
-		log.debug("SocketConnectorApplication.unregisterAsNodeOutputListener()");
-		registerNodeMessageReceiverFuture.cancel(true);
-		scheduler.execute(unregisterNodeMessageReceiverRunnable);
-	}
-
-	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
-
-	private Runnable registerNodeMessageReceiverRunnable = new Runnable() {
-		public void run() {
-			registerNodeMessageReceiver(true);
-		}
-	};
-
-	private Runnable unregisterNodeMessageReceiverRunnable = new Runnable() {
-		@Override
-		public void run() {
-			registerNodeMessageReceiver(false);
-		}
-	};
-
-	private void registerNodeMessageReceiver(boolean register) {
-
-		ImmutableMap<String, String> map = testbedRuntime.getRoutingTableService().getEntries();
-
-		final String localNodeName = testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next();
-
-		final WSNAppMessages.ListenerManagement.Operation operation = register ?
-				WSNAppMessages.ListenerManagement.Operation.REGISTER :
-				WSNAppMessages.ListenerManagement.Operation.UNREGISTER;
-
-		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
-				.setNodeName(localNodeName)
-				.setOperation(operation)
-				.build();
-
-		for (String destinationNodeName : map.keySet()) {
-
-			testbedRuntime.getUnreliableMessagingService().sendAsync(
-					localNodeName,
-					destinationNodeName,
-					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
-					management.toByteArray(),
-					UnreliableMessagingService.PRIORITY_NORMAL
-			);
-		}
-
-		// also register ourselves for all local node names
-		for (String currentLocalNodeName : testbedRuntime.getLocalNodeNameManager().getLocalNodeNames()) {
-			testbedRuntime.getUnreliableMessagingService().sendAsync(
-					localNodeName,
-					currentLocalNodeName,
-					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
-					management.toByteArray(),
-					UnreliableMessagingService.PRIORITY_NORMAL
-			);
-		}
 	}
 
 	public void sendToNode(Messages.Msg msg) {
