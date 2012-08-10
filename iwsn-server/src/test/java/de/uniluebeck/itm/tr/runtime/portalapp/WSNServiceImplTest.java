@@ -6,12 +6,14 @@ import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.*;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppOverlayModule;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
+import de.uniluebeck.itm.tr.util.ForwardingScheduledExecutorService;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.Message;
@@ -32,15 +34,14 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -88,21 +89,41 @@ public class WSNServiceImplTest {
 	@Mock
 	private WSNPreconditions preconditions;
 
+	@Mock
+	private Overlay overlay;
+
+	@Mock
+	private RequestIdProvider requestIdProvider;
+
 	private WSNServiceImpl wsnService;
 
 	private RequestFactory requestFactory;
 
+	private ForwardingScheduledExecutorService scheduler;
+
+	private class TestOverlayModule extends OverlayModule {
+
+		@Override
+		protected void configure() {
+			super.configure();
+			bind(Overlay.class).toInstance(overlay);
+		}
+	}
+
 	@Before
 	public void setUp() throws Exception {
 
+		scheduler = new ForwardingScheduledExecutorService(
+				Executors.newSingleThreadScheduledExecutor(),
+				Executors.newCachedThreadPool()
+		);
+
 		final Injector injector = Guice.createInjector(
-				new OverlayModule(),
-				new WSNServiceModule()
+				new TestOverlayModule(),
+				new PortalServerModule(scheduler)
 		);
 
 		requestFactory = injector.getInstance(RequestFactory.class);
-
-		final Provider<Long> requestIdProvider = injector.getProvider(Long.class);
 
 		wsnService = new WSNServiceImpl(
 				eventBus,
@@ -132,6 +153,8 @@ public class WSNServiceImplTest {
 		wsnService.stopAndWait();
 
 		verify(eventBus).unregister(wsnService);
+
+		ExecutorUtils.shutdown(scheduler, 0, TimeUnit.SECONDS);
 	}
 
 	@Test

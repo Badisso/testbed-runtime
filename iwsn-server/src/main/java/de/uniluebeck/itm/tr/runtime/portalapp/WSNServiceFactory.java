@@ -4,7 +4,8 @@ import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 
 public interface WSNServiceFactory {
 
-	WSNService create(WSNServiceConfig config,
-					  WSNPreconditions preconditions);
+	WSNService createWSNService(WSNServiceConfig config, WSNPreconditions preconditions);
+
+	WSNSoapService createWSNSoapService(WSNServiceConfig config, WSNService wsnService);
 
 }

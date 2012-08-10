@@ -14,7 +14,7 @@ public class DestroyVirtualLinkRequest extends Request {
 	private final NodeUrn to;
 
 	@Inject
-	DestroyVirtualLinkRequest(final Provider<Long> requestIdProvider,
+	DestroyVirtualLinkRequest(final RequestIdProvider requestIdProvider,
 							  @Assisted("from") final NodeUrn from,
 							  @Assisted("to") final NodeUrn to) {
 

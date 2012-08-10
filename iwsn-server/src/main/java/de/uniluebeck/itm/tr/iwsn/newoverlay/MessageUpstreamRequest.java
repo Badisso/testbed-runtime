@@ -16,7 +16,7 @@ public class MessageUpstreamRequest extends Request {
 	private final byte[] messageBytes;
 
 	@Inject
-	MessageUpstreamRequest(final Provider<Long> requestIdProvider,
+	MessageUpstreamRequest(final RequestIdProvider requestIdProvider,
 						   @Assisted final NodeUrn from,
 						   @Assisted final String timestamp,
 						   @Assisted final byte[] messageBytes) {

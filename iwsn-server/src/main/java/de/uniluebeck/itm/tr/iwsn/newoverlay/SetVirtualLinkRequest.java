@@ -14,7 +14,7 @@ public class SetVirtualLinkRequest extends Request {
 	private final NodeUrn to;
 
 	@Inject
-	SetVirtualLinkRequest(final Provider<Long> requestIdProvider,
+	SetVirtualLinkRequest(final RequestIdProvider requestIdProvider,
 						  @Assisted("from") final NodeUrn from,
 						  @Assisted("to") final NodeUrn to) {
 

@@ -17,7 +17,7 @@ public class SetChannelPipelineRequest extends Request {
 	private final ImmutableList<Tuple<String, ImmutableMap<String, String>>> pipeline;
 
 	@Inject
-	SetChannelPipelineRequest(final Provider<Long> requestIdProvider,
+	SetChannelPipelineRequest(final RequestIdProvider requestIdProvider,
 							  @Assisted final ImmutableSet<NodeUrn> nodeUrns,
 							  @Assisted final ImmutableList<Tuple<String, ImmutableMap<String, String>>> pipeline) {
 

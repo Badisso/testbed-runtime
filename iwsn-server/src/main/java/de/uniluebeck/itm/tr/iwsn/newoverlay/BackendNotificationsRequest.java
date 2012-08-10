@@ -12,7 +12,7 @@ public class BackendNotificationsRequest extends Request {
 	private final ImmutableSet<String> notifications;
 
 	@Inject
-	BackendNotificationsRequest(final Provider<Long> requestIdProvider,
+	BackendNotificationsRequest(final RequestIdProvider requestIdProvider,
 								@Assisted final ImmutableSet<String> notifications) {
 		super(requestIdProvider, ImmutableSet.<NodeUrn>of());
 		this.notifications = notifications;

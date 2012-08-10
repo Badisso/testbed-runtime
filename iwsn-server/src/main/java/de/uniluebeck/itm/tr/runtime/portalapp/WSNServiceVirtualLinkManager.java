@@ -110,8 +110,8 @@ public class WSNServiceVirtualLinkManager extends AbstractService {
 	private final ScheduledExecutorService scheduledExecutorService;
 
 	@Inject
-	public WSNServiceVirtualLinkManager(final EventBus eventBus,
-										final ScheduledExecutorService scheduledExecutorService) {
+	WSNServiceVirtualLinkManager(final EventBus eventBus,
+								 final ScheduledExecutorService scheduledExecutorService) {
 
 		this.eventBus = checkNotNull(eventBus);
 		this.scheduledExecutorService = checkNotNull(scheduledExecutorService);

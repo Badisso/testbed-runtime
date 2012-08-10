@@ -11,7 +11,7 @@ import javax.inject.Provider;
 public class DevicesDetachedEventRequest extends Request {
 
 	@Inject
-	DevicesDetachedEventRequest(final Provider<Long> requestIdProvider,
+	DevicesDetachedEventRequest(final RequestIdProvider requestIdProvider,
 								@Assisted final ImmutableSet<NodeUrn> nodeUrns) {
 
 		super(requestIdProvider, nodeUrns);

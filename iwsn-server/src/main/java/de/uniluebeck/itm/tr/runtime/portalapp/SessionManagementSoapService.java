@@ -74,9 +74,9 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	private final RequestFactory requestFactory;
 
 	@Inject
-	SessionManagementSoapService(final SessionManagementService sm,
-								 final Overlay overlay,
+	SessionManagementSoapService(final Overlay overlay,
 								 final RequestFactory requestFactory,
+								 @Assisted final SessionManagementService sm,
 								 @Assisted final SessionManagementServiceConfig config,
 								 @Assisted final SessionManagementPreconditions preconditions,
 								 @Assisted final DeliveryManager deliveryManager,

@@ -9,24 +9,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class OverlayModule extends AbstractModule {
 
-	private long lastRequestId = 0;
-
-	private final Lock lastRequestIdLock = new ReentrantLock();
-
 	@Override
 	protected void configure() {
+		bind(RequestIdProvider.class).to(RequestIdProviderImpl.class);
 		install(new FactoryModuleBuilder().build(RequestFactory.class));
 	}
-
-	@Provides
-	public long getNextRequestId() {
-		lastRequestIdLock.lock();
-		try {
-			lastRequestId = lastRequestId == Long.MAX_VALUE ? 0 : ++lastRequestId;
-			return lastRequestId;
-		} finally {
-			lastRequestIdLock.unlock();
-		}
-	}
-
 }

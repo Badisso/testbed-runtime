@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
@@ -13,6 +14,7 @@ import eu.wisebed.api.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -59,9 +61,12 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 
 	private Endpoint endpoint;
 
-	WSNSoapService(final WSNService wsn, final WSNServiceConfig config) {
-		this.wsn = wsn;
+	@Inject
+	WSNSoapService(@Assisted final WSNServiceConfig config,
+				   @Assisted final WSNService wsn) {
+
 		this.config = config;
+		this.wsn = wsn;
 	}
 
 	@Override

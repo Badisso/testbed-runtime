@@ -14,7 +14,7 @@ public class EnablePhysicalLinkRequest extends Request {
 	private final NodeUrn to;
 
 	@Inject
-	EnablePhysicalLinkRequest(final Provider<Long> requestIdProvider,
+	EnablePhysicalLinkRequest(final RequestIdProvider requestIdProvider,
 							  @Assisted("from") final NodeUrn from,
 							  @Assisted("to") final NodeUrn to) {
 

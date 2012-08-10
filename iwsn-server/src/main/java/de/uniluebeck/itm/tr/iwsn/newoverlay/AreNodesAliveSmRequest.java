@@ -9,7 +9,7 @@ import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 public class AreNodesAliveSmRequest extends Request {
 
 	@Inject
-	AreNodesAliveSmRequest(final Provider<Long> requestIdProvider,
+	AreNodesAliveSmRequest(final RequestIdProvider requestIdProvider,
 						   @Assisted final ImmutableSet<NodeUrn> nodeUrns) {
 
 		super(requestIdProvider, nodeUrns);

@@ -13,7 +13,7 @@ public class MessageDownstreamRequest extends Request {
 	private final byte[] messageBytes;
 
 	@Inject
-	MessageDownstreamRequest(final Provider<Long> requestIdProvider,
+	MessageDownstreamRequest(final RequestIdProvider requestIdProvider,
 							 @Assisted final ImmutableSet<NodeUrn> to,
 							 @Assisted final byte[] messageBytes) {
 

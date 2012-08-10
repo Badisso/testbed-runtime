@@ -7,7 +7,6 @@ import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 
 import javax.annotation.Nullable;
-import javax.inject.Provider;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -19,7 +18,7 @@ public class Request {
 
 	protected final SettableFuture<RequestResult> future;
 
-	protected Request(final Provider<Long> requestIdProvider,
+	protected Request(final RequestIdProvider requestIdProvider,
 					  @Nullable final ImmutableSet<NodeUrn> nodeUrns) {
 
 		checkNotNull(requestIdProvider);

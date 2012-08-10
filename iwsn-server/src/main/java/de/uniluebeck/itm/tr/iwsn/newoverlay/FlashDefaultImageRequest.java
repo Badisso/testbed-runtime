@@ -9,7 +9,7 @@ import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 public class FlashDefaultImageRequest extends Request {
 
 	@Inject
-	FlashDefaultImageRequest(final Provider<Long> requestIdProvider,
+	FlashDefaultImageRequest(final RequestIdProvider requestIdProvider,
 							 @Assisted final ImmutableSet<NodeUrn> nodeUrns) {
 
 		super(requestIdProvider, nodeUrns);

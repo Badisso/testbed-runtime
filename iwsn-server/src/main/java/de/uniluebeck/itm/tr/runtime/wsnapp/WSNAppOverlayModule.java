@@ -1,8 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayFactory;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayEventBus;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayModule;
 
 public class WSNAppOverlayModule extends OverlayModule {
@@ -18,11 +17,8 @@ public class WSNAppOverlayModule extends OverlayModule {
 
 		super.configure();
 
+		bind(Overlay.class).to(WSNAppOverlay.class);
+		bind(OverlayEventBus.class).toInstance(new OverlayEventBus());
 		bind(WSNApp.class).toInstance(wsnApp);
-
-		install(new FactoryModuleBuilder()
-				.implement(Overlay.class, WSNAppOverlay.class)
-				.build(OverlayFactory.class)
-		);
 	}
 }

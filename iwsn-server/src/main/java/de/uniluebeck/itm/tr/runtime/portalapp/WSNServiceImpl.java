@@ -168,7 +168,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	private final WSNServiceVirtualLinkManager virtualLinkManager;
 
-	private final Provider<Long> requestIdProvider;
+	private final RequestIdProvider requestIdProvider;
 
 	private final WSNServiceConfig config;
 
@@ -179,7 +179,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 				   final RequestFactory requestFactory,
 				   final DeliveryManager deliveryManager,
 				   final WSNServiceVirtualLinkManager virtualLinkManager,
-				   final Provider<Long> requestIdProvider,
+				   final RequestIdProvider requestIdProvider,
 				   @Assisted final WSNServiceConfig config,
 				   @Assisted final WSNPreconditions preconditions) {
 

@@ -10,7 +10,7 @@ import javax.inject.Provider;
 public class DevicesAttachedEventRequest extends Request {
 
 	@Inject
-	DevicesAttachedEventRequest(final Provider<Long> requestIdProvider,
+	DevicesAttachedEventRequest(final RequestIdProvider requestIdProvider,
 								@Assisted final ImmutableSet<NodeUrn> nodeUrns) {
 
 		super(requestIdProvider, nodeUrns);

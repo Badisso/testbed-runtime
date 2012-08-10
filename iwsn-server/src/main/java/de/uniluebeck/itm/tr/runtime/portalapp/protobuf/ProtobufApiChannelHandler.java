@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufApiTypeConverter.convert;
@@ -56,7 +57,12 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 
 			if (channel != null) {
 
-				// TODO send notification to client
+				try {
+					channel.write(createNotificationMessage("Experiment ended.")).await(1, TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					// nothing to do, channel is closed afterwards
+				}
+
 				channel.close().addListener(new ChannelFutureListener() {
 					@Override
 					public void operationComplete(final ChannelFuture future) throws Exception {
@@ -120,7 +126,7 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 		log.debug("Client disconnected: {}", e);
 
 		if (wsnServiceHandle != null) {
-			wsnServiceHandle.getWsnApp().getEventBus().unregister(this);
+			wsnServiceHandle.getOverlay().getEventBus().unregister(this);
 		}
 
 		channel = null;
@@ -214,7 +220,7 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 			log.debug("Sending message {} to nodeUrns {}", toPrintableString(messageBytes, 200), to);
 		}
 
-		wsnServiceHandle.getWsnApp().getEventBus().post(new WSNAppDownstreamMessage(to, messageBytes));
+		wsnServiceHandle.getOverlay().getEventBus().post(new WSNAppDownstreamMessage(to, messageBytes));
 	}
 
 	private void receivedSecretReservationKeys(final ChannelHandlerContext ctx, final MessageEvent e,
@@ -262,7 +268,7 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 
 		log.debug("Valid secret reservation key. Starting to listen for messages...");
 
-		wsnServiceHandle.getWsnApp().getEventBus().register(this);
+		wsnServiceHandle.getOverlay().getEventBus().register(this);
 		wsnServiceHandle.getWsnService().addListener(wsnServiceLifecycleListener, MoreExecutors.sameThreadExecutor());
 	}
 

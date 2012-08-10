@@ -7,7 +7,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public interface SessionManagementSoapServiceFactory {
 
-	SessionManagementSoapService create(SessionManagementServiceConfig config,
+	SessionManagementSoapService create(SessionManagementService service,
+										SessionManagementServiceConfig config,
 										SessionManagementPreconditions preconditions,
 										DeliveryManager deliveryManager,
 										ScheduledExecutorService scheduledExecutorService);

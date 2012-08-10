@@ -9,7 +9,7 @@ import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 public class ResetNodesRequest extends Request {
 
 	@Inject
-	ResetNodesRequest(final Provider<Long> requestIdProvider,
+	ResetNodesRequest(final RequestIdProvider requestIdProvider,
 					  @Assisted final ImmutableSet<NodeUrn> nodeUrns) {
 
 		super(requestIdProvider, nodeUrns);

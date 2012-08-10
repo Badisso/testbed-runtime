@@ -26,15 +26,12 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.AbstractService;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.ConfidentialReservationData;
@@ -72,6 +69,8 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	private final WSNServiceHandleFactory wsnServiceHandleFactory;
 
 	private final Overlay overlay;
+
+	private final WSNServiceFactory wsnServiceFactory;
 
 	/**
 	 * Job that is scheduled to clean up resources after a reservations end in time has been reached.
@@ -138,12 +137,14 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	@Inject
 	SessionManagementServiceImpl(final Overlay overlay,
 								 final WSNServiceHandleFactory wsnServiceHandleFactory,
+								 final WSNServiceFactory wsnServiceFactory,
 								 @Assisted final SessionManagementServiceConfig config,
 								 @Assisted final SessionManagementPreconditions preconditions,
 								 @Assisted final ScheduledExecutorService scheduler) throws MalformedURLException {
 
 		this.overlay = checkNotNull(overlay);
 		this.wsnServiceHandleFactory = checkNotNull(wsnServiceHandleFactory);
+		this.wsnServiceFactory = checkNotNull(wsnServiceFactory);
 		this.config = checkNotNull(config);
 		this.preconditions = checkNotNull(preconditions);
 		this.scheduler = checkNotNull(scheduler);
@@ -314,14 +315,11 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 		final ImmutableSet<String> servedUrnPrefixes =
 				ImmutableSet.<String>builder().add(config.getUrnPrefix()).build();
+
 		final WSNServiceConfig config = new WSNServiceConfig(reservedNodesSet, wsnInstanceEndpointUrl, wiseML);
 		final WSNPreconditions preconditions = new WSNPreconditions(servedUrnPrefixes, reservedNodes);
-
-		final Injector wsnServiceInjector = Guice.createInjector(new WSNServiceModule());
-		final WSNServiceFactory wsnServiceFactory = wsnServiceInjector.getInstance(WSNServiceFactory.class);
-		final WSNService wsnService = wsnServiceFactory.create(config, preconditions);
-
-		final WSNSoapService wsnSoapService = new WSNSoapService(wsnService, config);
+		final WSNService wsnService = wsnServiceFactory.createWSNService(config, preconditions);
+		final WSNSoapService wsnSoapService = wsnServiceFactory.createWSNSoapService(config, wsnService);
 
 		return wsnServiceHandleFactory.create(overlay, wsnService, wsnSoapService);
 	}

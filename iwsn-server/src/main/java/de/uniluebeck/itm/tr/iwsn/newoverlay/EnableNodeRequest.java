@@ -10,7 +10,7 @@ import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 public class EnableNodeRequest extends Request {
 
 	@Inject
-	EnableNodeRequest(final Provider<Long> requestIdProvider,
+	EnableNodeRequest(final RequestIdProvider requestIdProvider,
 					  @Assisted final NodeUrn nodeUrn) {
 
 		super(requestIdProvider, ImmutableSet.of(nodeUrn));

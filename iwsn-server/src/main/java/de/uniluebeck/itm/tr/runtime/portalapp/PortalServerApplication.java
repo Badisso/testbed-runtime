@@ -25,14 +25,12 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayEventBus;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayFactory;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufApiService;
@@ -73,8 +71,6 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 
 	private ProtobufApiService protobufService;
 
-	private OverlayEventBus overlayEventBus;
-
 	private Overlay overlay;
 
 	private WSNApp wsnApp;
@@ -90,7 +86,6 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		this.preconditions.addKnownNodeUrns(this.config.getNodeUrnsServed());
 
 		this.deliveryManager = new DeliveryManager();
-		this.overlayEventBus = new OverlayEventBus();
 	}
 
 	@Override
@@ -120,11 +115,9 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 
 		try {
 
-			final OverlayFactory overlayFactory = Guice
+			overlay = Guice
 					.createInjector(new WSNAppOverlayModule(wsnApp))
-					.getInstance(OverlayFactory.class);
-
-			overlay = overlayFactory.create(overlayEventBus);
+					.getInstance(Overlay.class);
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -132,14 +125,8 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		}
 
 		final Injector injector = Guice.createInjector(
-				new AbstractModule() {
-					@Override
-					protected void configure() {
-						bind(TestbedRuntime.class).toInstance(testbedRuntime);
-						bind(OverlayEventBus.class).toInstance(overlayEventBus);
-					}
-				},
-				new PortalServerModule()
+				new WSNAppOverlayModule(wsnApp),
+				new PortalServerModule(scheduler)
 		);
 
 		final SessionManagementServiceFactory smServiceFactory =
@@ -166,6 +153,7 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		try {
 
 			sessionManagementSoapService = smSoapServiceFactory.create(
+					sessionManagementService,
 					config,
 					preconditions,
 					deliveryManager,

@@ -9,7 +9,7 @@ import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 public class SetDefaultChannelPipelineRequest extends Request {
 
 	@Inject
-	SetDefaultChannelPipelineRequest(final Provider<Long> requestIdProvider,
+	SetDefaultChannelPipelineRequest(final RequestIdProvider requestIdProvider,
 									 @Assisted final ImmutableSet<NodeUrn> nodeUrns) {
 		super(requestIdProvider, nodeUrns);
 	}

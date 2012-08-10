@@ -22,6 +22,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 
+import static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufApiTypeConverter.convert;
+
 
 public class ProtobufDeliveryManager extends DeliveryManager {
 

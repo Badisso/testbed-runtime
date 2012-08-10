@@ -10,7 +10,7 @@ import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 public class DisableNodeRequest extends Request {
 
 	@Inject
-	DisableNodeRequest(final Provider<Long> requestIdProvider,
+	DisableNodeRequest(final RequestIdProvider requestIdProvider,
 					   @Assisted final NodeUrn nodeUrn) {
 
 		super(requestIdProvider, ImmutableSet.of(nodeUrn));

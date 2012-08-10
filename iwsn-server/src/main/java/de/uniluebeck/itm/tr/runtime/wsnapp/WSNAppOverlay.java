@@ -78,7 +78,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 	@Inject
 	@VisibleForTesting
-	WSNAppOverlay(@Assisted final OverlayEventBus eventBus, final WSNApp wsnApp) {
+	WSNAppOverlay(final OverlayEventBus eventBus, final WSNApp wsnApp) {
 		this.eventBus = eventBus;
 		this.wsnApp = wsnApp;
 	}

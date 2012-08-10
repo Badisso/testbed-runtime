@@ -16,7 +16,7 @@ public class FlashImageRequest extends Request {
 	private final byte[] image;
 
 	@Inject
-	FlashImageRequest(final Provider<Long> requestIdProvider,
+	FlashImageRequest(final RequestIdProvider requestIdProvider,
 					  @Assisted final ImmutableSet<NodeUrn> nodeUrns,
 					  @Assisted byte[] image) {
 
