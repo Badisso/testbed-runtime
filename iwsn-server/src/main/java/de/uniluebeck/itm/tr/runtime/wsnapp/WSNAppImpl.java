@@ -501,7 +501,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	}
 
 	@Subscribe
-	void onDownstreamMessage(final WSNAppDownstreamMessage message) {
+	public void onDownstreamMessage(final WSNAppDownstreamMessage message) {
 
 		try {
 			assertNodeUrnsKnown(message.getTo());

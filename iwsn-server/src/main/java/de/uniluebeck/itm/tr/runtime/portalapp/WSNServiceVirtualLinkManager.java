@@ -139,7 +139,7 @@ public class WSNServiceVirtualLinkManager extends AbstractService {
 	}
 
 	@Subscribe
-	void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
+	public void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
 
 		log.trace("WSNServiceVirtualLinkManager.onMessageUpstreamRequest({})", request);
 

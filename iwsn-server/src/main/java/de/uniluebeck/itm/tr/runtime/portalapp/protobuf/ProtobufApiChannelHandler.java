@@ -16,6 +16,8 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppDownstreamMessage;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +158,7 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Subscribe
-	void onBackendNotificationsRequest(final BackendNotificationsRequest request) {
+	public void onBackendNotificationsRequest(final BackendNotificationsRequest request) {
 
 		if (log.isTraceEnabled()) {
 			log.trace(
@@ -176,7 +178,7 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Subscribe
-	void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
+	public void onMessageUpstreamRequest(final MessageUpstreamRequest request) {
 
 		if (log.isTraceEnabled()) {
 			log.trace(
@@ -312,6 +314,7 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 				.setText(text);
 
 		WisebedMessages.Message.Builder messageBuilder = WisebedMessages.Message.newBuilder()
+				.setTimestamp(new DateTime().toString())
 				.setType(WisebedMessages.Message.Type.BACKEND)
 				.setBackend(backendBuilder);
 
