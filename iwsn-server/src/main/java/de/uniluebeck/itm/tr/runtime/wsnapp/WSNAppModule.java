@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 

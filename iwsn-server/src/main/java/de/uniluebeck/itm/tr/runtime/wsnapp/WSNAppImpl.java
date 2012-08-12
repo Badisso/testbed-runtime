@@ -214,7 +214,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	@SuppressWarnings("unused")
 	private final Channel channel = new EmbeddedChannel(pipeline, new EmbeddedChannelSink());
 
-	private final EventBus eventBus = new EventBus("WSNApp-EventBus");
+	private final WSNAppEventBus eventBus;
 
 	private MessageEventListener messageEventListener = new MessageEventAdapter() {
 
@@ -291,9 +291,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	};
 
 	@Inject
-	WSNAppImpl(@Assisted final TestbedRuntime testbedRuntime,
+	WSNAppImpl(final WSNAppEventBus eventBus,
+			   @Assisted final TestbedRuntime testbedRuntime,
 			   @Assisted final ImmutableSet<String> reservedNodes) {
 
+		this.eventBus = eventBus;
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = reservedNodes;
 
@@ -637,7 +639,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	}
 
 	@Override
-	public EventBus getEventBus() {
+	public WSNAppEventBus getEventBus() {
 		return eventBus;
 	}
 

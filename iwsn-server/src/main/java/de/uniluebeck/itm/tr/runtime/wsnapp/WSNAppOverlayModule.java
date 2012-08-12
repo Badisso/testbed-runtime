@@ -19,6 +19,8 @@ public class WSNAppOverlayModule extends OverlayModule {
 
 		bind(Overlay.class).to(WSNAppOverlay.class);
 		bind(OverlayEventBus.class).toInstance(new OverlayEventBus());
+
 		bind(WSNApp.class).toInstance(wsnApp);
+		bind(WSNAppEventBus.class).toInstance(wsnApp.getEventBus());
 	}
 }

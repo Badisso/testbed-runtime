@@ -51,7 +51,7 @@ public interface WSNApp extends TestbedApplication {
 	// =================================================================================================================
 	// = Event bus to receive notifications and exchange messages with sensor nodes                                    =
 	// =================================================================================================================
-	EventBus getEventBus();
+	WSNAppEventBus getEventBus();
 
 	// =================================================================================================================
 	// = Interface definitions                                                                                         =
