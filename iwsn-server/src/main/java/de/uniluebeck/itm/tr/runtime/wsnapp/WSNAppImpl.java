@@ -175,8 +175,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			if (log.isTraceEnabled()) {
 				log.trace(
-						"Received {} bytes from {}: {}. Current listeners: {}",
-						new Object[]{bytes.length, sourceNodeId, StringUtils.toHexString(bytes)}
+						"{} => {}",
+						new Object[]{sourceNodeId, StringUtils.toHexString(bytes)}
 				);
 			}
 
@@ -300,8 +300,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		this.handlerFactoryRegistry = new HandlerFactoryRegistry();
 		ProtocolCollection.registerProtocols(this.handlerFactoryRegistry);
 
-		abovePipelineLogger = new AbovePipelineLogger("portal");
-		belowPipelineLogger = new BelowPipelineLogger("portal");
+		abovePipelineLogger = new AbovePipelineLogger();
+		belowPipelineLogger = new BelowPipelineLogger();
 	}
 
 	private String getLocalNodeName() {

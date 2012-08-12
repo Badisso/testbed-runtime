@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp.pipeline;
 
+import com.google.common.base.Joiner;
 import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WisebedMulticastAddress;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
@@ -8,15 +10,12 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.Set;
+
 public class BelowPipelineLogger extends SimpleChannelHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(BelowPipelineLogger.class);
-
-	private final String nodeUrn;
-
-	public BelowPipelineLogger(final String nodeUrn) {
-		this.nodeUrn = nodeUrn;
-	}
 
 	@Override
 	public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
@@ -24,11 +23,13 @@ public class BelowPipelineLogger extends SimpleChannelHandler {
 
 		if (log.isTraceEnabled()) {
 
-			log.trace("{} => Downstream to device below FilterPipeline: {}",
-					nodeUrn,
-					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
-			);
+			final Set<String> nodeUrns = ((WisebedMulticastAddress) e.getRemoteAddress()).getNodeUrns();
+			final String nodeUrnsString = Joiner.on(", ").join(nodeUrns);
+			final String msg = ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200);
+
+			log.trace("{} => Downstream to device below channel pipeline: {}", nodeUrnsString, msg);
 		}
+
 		super.writeRequested(ctx, e);
 	}
 
@@ -38,11 +39,13 @@ public class BelowPipelineLogger extends SimpleChannelHandler {
 
 		if (log.isTraceEnabled()) {
 
-			log.trace("{} => Upstream from device below FilterPipeline: {}",
-					nodeUrn,
-					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
-			);
+			final Set<String> nodeUrns = ((WisebedMulticastAddress) e.getRemoteAddress()).getNodeUrns();
+			final String nodeUrnsString = Joiner.on(", ").join(nodeUrns);
+			final String msg = ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200);
+
+			log.trace("{} => Upstream from device below channel pipeline: {}", nodeUrnsString, msg);
 		}
+
 		super.messageReceived(ctx, e);
 	}
 }

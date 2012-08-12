@@ -107,27 +107,28 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 					.getInstance(WSNAppFactory.class);
 
 			wsnApp = wsnAppFactory.create(testbedRuntime, config.getNodeUrnsServed());
+			wsnApp.startAndWait();
 
 		} catch (Exception e) {
 			notifyFailed(e);
 			return;
 		}
 
-		try {
-
-			overlay = Guice
-					.createInjector(new WSNAppOverlayModule(wsnApp))
-					.getInstance(Overlay.class);
-
-		} catch (Exception e) {
-			notifyFailed(e);
-			return;
-		}
 
 		final Injector injector = Guice.createInjector(
 				new WSNAppOverlayModule(wsnApp),
 				new PortalServerModule(scheduler)
 		);
+
+		try {
+
+			overlay = injector.getInstance(Overlay.class);
+			overlay.startAndWait();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+			return;
+		}
 
 		final SessionManagementServiceFactory smServiceFactory =
 				injector.getInstance(SessionManagementServiceFactory.class);

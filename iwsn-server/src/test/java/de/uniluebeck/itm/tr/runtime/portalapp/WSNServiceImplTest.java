@@ -72,7 +72,7 @@ public class WSNServiceImplTest {
 	}
 
 	@Mock
-	private EventBus eventBus;
+	private OverlayEventBus eventBus;
 
 	@Mock
 	private TestbedRuntime testbedRuntime;

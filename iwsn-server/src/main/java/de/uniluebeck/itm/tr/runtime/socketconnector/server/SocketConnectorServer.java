@@ -23,37 +23,96 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.tr.runtime.socketconnector.server;
 
+
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
-import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
-import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
-import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
+import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.ChannelGroupFuture;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
+import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.jboss.netty.channel.Channels.pipeline;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
 
 
-public class SocketServerPipelineFactory implements ChannelPipelineFactory {
+@ChannelHandler.Sharable
+public class SocketConnectorServer extends SimpleChannelUpstreamHandler {
 
-	SocketServer socketServer;
+	private static final Logger log = LoggerFactory.getLogger(SocketConnectorServer.class);
 
-	public SocketServerPipelineFactory(SocketServer socketServer) {
-		this.socketServer = socketServer;
+	private final ChannelGroup allChannels = new DefaultChannelGroup("SensorMessage-Server");
+
+	private ChannelFactory channelFactory;
+
+	private SocketConnectorApplication socketConnectorApplication;
+
+	private int port;
+
+	public SocketConnectorServer(final SocketConnectorApplication socketConnectorApplication, final int port) {
+		this.socketConnectorApplication = socketConnectorApplication;
+		this.port = port;
 	}
 
-	public ChannelPipeline getPipeline() throws Exception {
+	public void startUp() {
 
-		ChannelPipeline p = pipeline();
+		// set up server socket
+		channelFactory = new NioServerSocketChannelFactory(
+				Executors.newCachedThreadPool(),
+				Executors.newCachedThreadPool()
+		);
 
-		p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(1048576, 0, 4, 0, 4));
-		p.addLast("protobufEnvelopeMessageDecoder", new ProtobufDecoder(Messages.Msg.getDefaultInstance()));
+		ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
 
-		p.addLast("frameEncoder", new LengthFieldPrepender(4));
-		p.addLast("protobufEncoder", new ProtobufEncoder());
+		// Set up the event pipeline channelFactory.
+		bootstrap.setPipelineFactory(new SocketConnectorServerPipelineFactory(this));
 
-		p.addLast("handler", socketServer);
-
-		return p;
+		// Bind and startUp to accept incoming connections.
+		allChannels.add(bootstrap.bind(new InetSocketAddress(port)));
 	}
+
+	public void shutdown() {
+		ChannelGroupFuture future = allChannels.close();
+		future.awaitUninterruptibly();
+		channelFactory.releaseExternalResources();
+	}
+
+	public void sendToClients(Messages.Msg message) {
+		log.debug("{} => Forwarding message to {} connected clients", message.getFrom(), allChannels.size());
+		allChannels.write(message);
+	}
+
+	@Override
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+		log.debug("SocketConnectorServer.messageReceived({}, {})", ctx, e);
+		if (e.getMessage() instanceof Messages.Msg) {
+			Messages.Msg msg = (Messages.Msg) e.getMessage();
+			socketConnectorApplication.sendToNode(msg);
+		} else {
+			log.debug("Socket server received unknown msg");
+		}
+		ctx.sendUpstream(e);
+	}
+
+	@Override
+	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
+		log.debug("SocketConnectorServer.channelOpen({}, {})", ctx, e);
+		allChannels.add(e.getChannel());
+		ctx.sendUpstream(e);
+	}
+
+	@Override
+	public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+		log.debug("SocketConnectorServer.channelClosed({}, {})", ctx, e);
+		ctx.sendUpstream(e);
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+		log.error("Caught Exception during socket communication!", e);
+		ctx.sendUpstream(e);
+	}
+
 }

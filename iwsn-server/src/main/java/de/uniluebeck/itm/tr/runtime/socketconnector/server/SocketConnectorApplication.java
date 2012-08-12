@@ -42,11 +42,11 @@ public class SocketConnectorApplication extends AbstractService implements Testb
 
 	private TestbedRuntime testbedRuntime;
 
-	private SocketServer socketServer;
+	private SocketConnectorServer socketConnectorServer;
 
 	public SocketConnectorApplication(TestbedRuntime testbedRuntime, int port) {
 		this.testbedRuntime = testbedRuntime;
-		this.socketServer = new SocketServer(this, port);
+		this.socketConnectorServer = new SocketConnectorServer(this, port);
 	}
 
 	public String getName() {
@@ -57,8 +57,7 @@ public class SocketConnectorApplication extends AbstractService implements Testb
 		@Override
 		public void messageReceived(Messages.Msg msg) {
 			if (WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(msg.getMsgType())) {
-				log.debug("Forwarding message from node {} to connected clients", msg.getFrom());
-				socketServer.sendToClients(msg);
+				socketConnectorServer.sendToClients(msg);
 			}
 		}
 	};
@@ -71,7 +70,7 @@ public class SocketConnectorApplication extends AbstractService implements Testb
 			log.debug("SocketConnectorApplication.start()");
 
 			// start the server socket application
-			socketServer.startUp();
+			socketConnectorServer.startUp();
 
 			// register for incoming messages
 			testbedRuntime.getMessageEventService().addListener(messageEventListener);
@@ -94,7 +93,7 @@ public class SocketConnectorApplication extends AbstractService implements Testb
 			testbedRuntime.getMessageEventService().removeListener(messageEventListener);
 
 			// close server socket
-			socketServer.shutdown();
+			socketConnectorServer.shutdown();
 
 		} catch (Exception e) {
 			notifyFailed(e);

@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.AsyncEventBus;
@@ -215,8 +216,8 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 			throw new RuntimeException(e);
 		}
 
-		abovePipelineLogger = new AbovePipelineLogger(this.configuration.getNodeUrn());
-		belowPipelineLogger = new BelowPipelineLogger(this.configuration.getNodeUrn());
+		abovePipelineLogger = new AbovePipelineLogger();
+		belowPipelineLogger = new BelowPipelineLogger();
 	}
 
 	@Subscribe
@@ -1007,20 +1008,27 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		LinkedList<Tuple<String, ChannelHandler>> handlers = newLinkedList();
 
 		handlers.addFirst(new Tuple<String, ChannelHandler>("forwardingHandler", forwardingHandler));
-
-		boolean doLogging = log.isTraceEnabled() && !innerHandlers.isEmpty();
-
-		if (doLogging) {
-			handlers.addFirst(new Tuple<String, ChannelHandler>("aboveFilterPipelineLogger", abovePipelineLogger));
-		}
+		handlers.addFirst(new Tuple<String, ChannelHandler>("aboveFilterPipelineLogger", abovePipelineLogger));
 
 		for (Tuple<String, ChannelHandler> innerHandler : innerHandlers) {
 			handlers.addFirst(innerHandler);
 		}
 
-		if (doLogging) {
-			handlers.addFirst(new Tuple<String, ChannelHandler>("belowFilterPipelineLogger", belowPipelineLogger));
+		handlers.addFirst(new Tuple<String, ChannelHandler>("belowFilterPipelineLogger", belowPipelineLogger));
+		handlers.addFirst(new Tuple<String, ChannelHandler>("nodeUrnAppender", new SimpleChannelUpstreamHandler() {
+			@Override
+			public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
+				ctx.sendUpstream(
+						new UpstreamMessageEvent(
+								ctx.getChannel(),
+								e.getMessage(),
+								new WisebedMulticastAddress(ImmutableSet.of(configuration.getNodeUrn()))
+						)
+				);
+			}
 		}
+		)
+		);
 
 		return handlers;
 

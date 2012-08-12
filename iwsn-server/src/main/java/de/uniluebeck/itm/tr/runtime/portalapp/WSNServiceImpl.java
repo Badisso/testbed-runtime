@@ -160,7 +160,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			.expireAfterWrite(10, TimeUnit.MINUTES)
 			.build();
 
-	private final EventBus eventBus;
+	private final OverlayEventBus eventBus;
 
 	private final RequestFactory requestFactory;
 
@@ -175,7 +175,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	private final WSNPreconditions preconditions;
 
 	@Inject
-	WSNServiceImpl(final EventBus eventBus,
+	WSNServiceImpl(final OverlayEventBus eventBus,
 				   final RequestFactory requestFactory,
 				   final DeliveryManager deliveryManager,
 				   final WSNServiceVirtualLinkManager virtualLinkManager,
