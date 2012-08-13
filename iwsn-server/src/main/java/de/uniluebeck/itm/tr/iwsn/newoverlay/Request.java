@@ -2,9 +2,12 @@ package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
+import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
 
 import javax.annotation.Nullable;
 
@@ -14,9 +17,7 @@ public class Request {
 
 	protected final long requestId;
 
-	protected final ImmutableSet<NodeUrn> nodeUrns;
-
-	protected final SettableFuture<RequestResult> future;
+	protected final ImmutableMap<NodeUrn, ProgressSettableFuture<Void>> futureMap;
 
 	protected Request(final RequestIdProvider requestIdProvider,
 					  @Nullable final ImmutableSet<NodeUrn> nodeUrns) {
@@ -29,29 +30,37 @@ public class Request {
 			}
 		}
 
-		this.nodeUrns = nodeUrns;
+		final ImmutableMap.Builder<NodeUrn, ProgressSettableFuture<Void>> futureMapBuilder = ImmutableMap.builder();
+
+		if (nodeUrns != null) {
+
+			for (NodeUrn nodeUrn : nodeUrns) {
+				futureMapBuilder.put(nodeUrn, ProgressSettableFuture.<Void>create());
+			}
+		}
+
+		this.futureMap = futureMapBuilder.build();
 		this.requestId = requestIdProvider.get();
-		this.future = SettableFuture.create();
 	}
 
 	@VisibleForTesting
 	public ImmutableSet<NodeUrn> getNodeUrns() {
-		return nodeUrns;
+		return futureMap.keySet();
 	}
 
 	public long getRequestId() {
 		return requestId;
 	}
 
-	public SettableFuture<RequestResult> getFuture() {
-		return future;
+	public ImmutableMap<NodeUrn, ProgressSettableFuture<Void>> getFutureMap() {
+		return futureMap;
 	}
 
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this)
 				.add("requestId", requestId)
-				.add("nodeUrns", nodeUrns)
+				.add("nodeUrns", getNodeUrns())
 				.toString();
 	}
 }

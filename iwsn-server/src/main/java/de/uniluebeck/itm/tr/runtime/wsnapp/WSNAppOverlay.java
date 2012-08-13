@@ -332,7 +332,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onWSNAppUpstreamMessageRequest(final WSNAppUpstreamMessage request) {
 
-			log.debug("WSNAppOverlay.onWSNAppUpstreamMessageRequest({})", request);
+			log.trace("WSNAppOverlay.onWSNAppUpstreamMessageRequest({})", request);
 
 			final MessageUpstreamRequest overlayRequest = TypeConverter.convert(request, requestFactory);
 
@@ -386,7 +386,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 	@Override
 	protected void doStart() {
 
-		log.trace("WSNAppOverlay.doStart()");
+		log.trace("Starting WSNAppOverlay...");
 
 		try {
 
@@ -403,7 +403,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 	@Override
 	protected void doStop() {
 
-		log.trace("WSNAppOverlay.doStop()");
+		log.trace("Stopping WSNAppOverlay...");
 
 		try {
 

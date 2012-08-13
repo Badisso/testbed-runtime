@@ -33,7 +33,7 @@ public class SetChannelPipelineRequest extends Request {
 	}
 
 	public ImmutableSet<NodeUrn> getNodeUrns() {
-		return nodeUrns;
+		return futureMap.keySet();
 	}
 
 	public ImmutableList<Tuple<String, ImmutableMap<String, String>>> getPipeline() {
@@ -44,7 +44,7 @@ public class SetChannelPipelineRequest extends Request {
 	public String toString() {
 		return Objects.toStringHelper(this)
 				.add("requestId", requestId)
-				.add("nodeUrns", nodeUrns)
+				.add("nodeUrns", futureMap.keySet())
 				.add("pipeline", pipeline)
 				.toString();
 	}

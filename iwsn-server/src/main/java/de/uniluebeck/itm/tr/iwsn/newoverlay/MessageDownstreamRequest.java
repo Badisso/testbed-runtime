@@ -27,13 +27,13 @@ public class MessageDownstreamRequest extends Request {
 	}
 
 	public ImmutableSet<NodeUrn> getTo() {
-		return nodeUrns;
+		return futureMap.keySet();
 	}
 
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this)
-				.add("to", nodeUrns)
+				.add("to", futureMap.keySet())
 				.add("messageBytes", messageBytes.length + " bytes")
 				.toString();
 	}

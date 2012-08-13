@@ -709,30 +709,32 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 			);
 		}
 
-		deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
+		deviceChannel
+				.write(buffer, new WisebedMulticastAddress(ImmutableSet.of(configuration.getNodeUrn())))
+				.addListener(new ChannelFutureListener() {
 
-			@Override
-			public void operationComplete(final ChannelFuture future) throws Exception {
+					@Override
+					public void operationComplete(final ChannelFuture future) throws Exception {
 
-				if (future.isSuccess()) {
+						if (future.isSuccess()) {
 
-					callback.success(null);
+							callback.success(null);
 
-				} else if (future.isCancelled()) {
+						} else if (future.isCancelled()) {
 
-					String msg = "Sending message was canceled.";
-					log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-					callback.failure((byte) -3, msg.getBytes());
+							String msg = "Sending message was canceled.";
+							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+							callback.failure((byte) -3, msg.getBytes());
 
-				} else {
+						} else {
 
-					String msg = "Failed sending message. Reason: " + future.getCause();
-					log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-					callback.failure((byte) -2, msg.getBytes());
+							String msg = "Failed sending message. Reason: " + future.getCause();
+							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+							callback.failure((byte) -2, msg.getBytes());
+						}
+					}
 				}
-			}
-		}
-		);
+				);
 	}
 
 	@Override

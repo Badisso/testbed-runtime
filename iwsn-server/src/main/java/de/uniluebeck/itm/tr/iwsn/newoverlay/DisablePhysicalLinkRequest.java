@@ -23,7 +23,7 @@ public class DisablePhysicalLinkRequest extends Request {
 	}
 
 	public NodeUrn getFrom() {
-		return nodeUrns.iterator().next();
+		return futureMap.keySet().iterator().next();
 	}
 
 	public NodeUrn getTo() {
@@ -34,7 +34,7 @@ public class DisablePhysicalLinkRequest extends Request {
 	public String toString() {
 		return Objects.toStringHelper(this)
 				.add("requestId", requestId)
-				.add("from", nodeUrns.iterator().next())
+				.add("from", futureMap.keySet().iterator().next())
 				.add("to", to)
 				.toString();
 	}

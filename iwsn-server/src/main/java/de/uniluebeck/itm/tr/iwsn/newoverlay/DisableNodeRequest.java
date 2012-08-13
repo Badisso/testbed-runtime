@@ -17,14 +17,14 @@ public class DisableNodeRequest extends Request {
 	}
 
 	public NodeUrn getNodeUrn() {
-		return nodeUrns.iterator().next();
+		return futureMap.keySet().iterator().next();
 	}
 
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this)
 				.add("requestId", requestId)
-				.add("nodeUrn", nodeUrns.iterator().next())
+				.add("nodeUrn", futureMap.keySet().iterator().next())
 				.toString();
 	}
 }

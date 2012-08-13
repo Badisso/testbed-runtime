@@ -18,6 +18,6 @@ public class DevicesDetachedEventRequest extends Request {
 	}
 
 	public ImmutableSet<NodeUrn> getNodeUrns() {
-		return nodeUrns;
+		return futureMap.keySet();
 	}
 }

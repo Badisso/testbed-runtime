@@ -28,7 +28,7 @@ public class MessageUpstreamRequest extends Request {
 	}
 
 	public NodeUrn getFrom() {
-		return nodeUrns.iterator().next();
+		return futureMap.keySet().iterator().next();
 	}
 
 	public byte[] getMessageBytes() {
@@ -42,7 +42,7 @@ public class MessageUpstreamRequest extends Request {
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this)
-				.add("from", nodeUrns.iterator().next())
+				.add("from", futureMap.keySet().iterator().next())
 				.add("timestamp", timestamp)
 				.add("messageBytes", messageBytes.length + " bytes")
 				.toString();

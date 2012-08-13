@@ -16,6 +16,6 @@ public class ResetNodesRequest extends Request {
 	}
 
 	public ImmutableSet<NodeUrn> getNodeUrns() {
-		return nodeUrns;
+		return futureMap.keySet();
 	}
 }

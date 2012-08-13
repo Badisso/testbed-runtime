@@ -7,10 +7,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageDownstreamRequest;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageUpstreamRequest;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayModule;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestFactory;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.*;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntimeModule;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
@@ -45,10 +42,8 @@ public class WSNAppBenchmark {
 	private static final Logger log = LoggerFactory.getLogger(WSNAppBenchmark.class);
 
 	static {
-		Logging.setLoggingDefaults(Level.INFO);
+		Logging.setLoggingDefaults(Level.TRACE);
 	}
-
-	private RequestFactory portalRequestFactory;
 
 	private static class FutureMessageReceiver {
 
@@ -58,7 +53,7 @@ public class WSNAppBenchmark {
 
 		private final int messageNumber;
 
-		private final WSNApp wsnApp;
+		private final OverlayEventBus overlayEventBus;
 
 		private final SettableFuture<byte[]> future;
 
@@ -70,12 +65,12 @@ public class WSNAppBenchmark {
 
 		private FutureMessageReceiver(final ImmutableSet<NodeUrn> nodeUrns,
 									  final int messageNumber,
-									  final WSNApp wsnApp,
+									  final OverlayEventBus overlayEventBus,
 									  final RequestFactory requestFactory) {
 
 			this.nodeUrns = nodeUrns;
 			this.messageNumber = messageNumber;
-			this.wsnApp = wsnApp;
+			this.overlayEventBus = overlayEventBus;
 			this.requestFactory = requestFactory;
 
 			this.future = SettableFuture.create();
@@ -102,7 +97,7 @@ public class WSNAppBenchmark {
 			if (decodedMessage.getInt(1) == messageNumber) {
 				log.debug("Received response for messageNumber={}", messageNumber);
 				duration = timeDiff.ms();
-				wsnApp.getEventBus().unregister(this);
+				overlayEventBus.unregister(this);
 				future.set(bytes);
 			}
 		}
@@ -114,7 +109,7 @@ public class WSNAppBenchmark {
 			buffer.writeInt(messageNumber);
 
 			timeDiff.touch();
-			wsnApp.getEventBus().register(this);
+			overlayEventBus.register(this);
 
 			final MessageDownstreamRequest request = requestFactory.createMessageDownstreamRequest(
 					nodeUrns,
@@ -133,7 +128,7 @@ public class WSNAppBenchmark {
 			}, MoreExecutors.sameThreadExecutor()
 			);
 
-			wsnApp.getEventBus().post(request);
+			overlayEventBus.post(request);
 		}
 
 		public synchronized long getDuration() {
@@ -188,6 +183,7 @@ public class WSNAppBenchmark {
 	private static final ImmutableSet<NodeUrn> NODES_5 =
 			ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4);
 
+	@SuppressWarnings("unchecked")
 	private static final ImmutableSet<NodeUrn> NODES_6 =
 			ImmutableSet.of(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5);
 
@@ -237,6 +233,12 @@ public class WSNAppBenchmark {
 	private TestbedRuntime portalTR;
 
 	private Map<String, WSNDeviceApp> wsnDeviceApps;
+
+	private RequestFactory portalRequestFactory;
+
+	private OverlayEventBus portalOverlayEventBus;
+
+	private Overlay portalOverlay;
 
 	@Before
 	public void setUp() throws Exception {
@@ -291,10 +293,7 @@ public class WSNAppBenchmark {
 
 		gatewayTR.getMessageServerService().addMessageServer("tcp", TCP_GATEWAY);
 
-		Injector portalTRInjector = Guice.createInjector(
-				new TestbedRuntimeModule(scheduler, scheduler, scheduler),
-				new OverlayModule()
-		);
+		Injector portalTRInjector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
 
 		portalTR = portalTRInjector.getInstance(TestbedRuntime.class);
 
@@ -342,12 +341,17 @@ public class WSNAppBenchmark {
 
 		wsnApp.startAndWait();
 
-		portalRequestFactory = portalTRInjector.getInstance(RequestFactory.class);
+		final Injector portalOverlayInjector = Guice.createInjector(new WSNAppOverlayModule(wsnApp));
+		portalRequestFactory = portalOverlayInjector.getInstance(RequestFactory.class);
+		portalOverlay = portalOverlayInjector.getInstance(Overlay.class);
+		portalOverlay.startAndWait();
+		portalOverlayEventBus = portalOverlay.getEventBus();
 	}
 
 	@After
 	public void tearDown() throws Exception {
 
+		portalOverlay.stopAndWait();
 		wsnApp.stopAndWait();
 		stopWSNDeviceApps();
 
@@ -403,7 +407,7 @@ public class WSNAppBenchmark {
 		// fork
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
-			receiver = new FutureMessageReceiver(NODES_1, messageNumber, wsnApp, portalRequestFactory);
+			receiver = new FutureMessageReceiver(NODES_1, messageNumber, portalOverlayEventBus, portalRequestFactory);
 			receiver.start();
 			receivers.add(receiver);
 		}
@@ -433,7 +437,7 @@ public class WSNAppBenchmark {
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
 
 			final FutureMessageReceiver receiver;
-			receiver = new FutureMessageReceiver(NODES_10, messageNumber, wsnApp, portalRequestFactory);
+			receiver = new FutureMessageReceiver(NODES_10, messageNumber, portalOverlayEventBus, portalRequestFactory);
 			receiver.start();
 			try {
 				receiver.getFuture().get(5, TimeUnit.SECONDS);
@@ -506,7 +510,7 @@ public class WSNAppBenchmark {
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
 
-			receiver = new FutureMessageReceiver(nodeUrns, messageNumber, wsnApp, portalRequestFactory);
+			receiver = new FutureMessageReceiver(nodeUrns, messageNumber, portalOverlayEventBus, portalRequestFactory);
 			receiver.start();
 			receiver.getFuture().get(5, TimeUnit.SECONDS);
 			durations.add((float) receiver.getDuration());
