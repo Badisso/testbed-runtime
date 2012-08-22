@@ -29,6 +29,7 @@ import com.google.inject.Singleton;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.tr.iwsn.overlay.LocalNodeNameManager;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
@@ -40,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 
@@ -63,13 +63,9 @@ public class SingleRequestMultiResponseServiceImpl
 
 	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
-	private Random random = new Random();
-
 	private static final String SRMRS_MESSAGE_TYPE_REQUEST = "SRMRS_REQUEST";
 
 	private static final String SRMRS_MESSAGE_TYPE_RESPONSE = "SRMRS_RESPONSE";
-
-	private static final String SRMRS_MESSAGE_TYPE_ACK = "SRMRS_ACK";
 
 	private TimedCache<String, Tuple<Messages.SingleRequestMultipleResponseRequest, SingleRequestMultiResponseCallback>>
 			timedCache =
@@ -77,17 +73,15 @@ public class SingleRequestMultiResponseServiceImpl
 					1, TimeUnit.HOURS
 			);
 
-	private void send(Messages.Msg msg, int timeout, TimeUnit timeUnit,
-					  final SingleRequestMultiResponseCallback callback,
-					  boolean reliableRequest, boolean reliableResponses) {
+	@Override
+	public void sendUnreliableRequestUnreliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit,
+														SingleRequestMultiResponseCallback callback) {
 
 		String requestId = secureIdGenerator.getNextId();
 
 		Messages.SingleRequestMultipleResponseRequest request =
 				Messages.SingleRequestMultipleResponseRequest.newBuilder()
 						.setPayload(msg.toByteString())
-						.setReliableRequest(reliableRequest)
-						.setReliableResponses(reliableResponses)
 						.setRequestId(requestId).build();
 
 		Messages.Msg.Builder messageBuilder = Messages.Msg.newBuilder()
@@ -95,8 +89,7 @@ public class SingleRequestMultiResponseServiceImpl
 				.setFrom(msg.getFrom())
 				.setMsgType(SRMRS_MESSAGE_TYPE_REQUEST)
 				.setPayload(request.toByteString())
-				.setPriority(msg.getPriority())
-				.setValidUntil(msg.getValidUntil());
+				.setPriority(msg.getPriority());
 
 		// remember the request to match asynchronous replies later on
 		Tuple<Messages.SingleRequestMultipleResponseRequest, SingleRequestMultiResponseCallback> requestTuple =
@@ -106,49 +99,8 @@ public class SingleRequestMultiResponseServiceImpl
 
 		timedCache.put(requestId, requestTuple, timeout, timeUnit);
 
-		if (reliableRequest) {
+		unreliableMessagingService.sendAsync(messageBuilder.build());
 
-			messageBuilder.setReplyWith(msg.getFrom() + ":" + random.nextLong());
-			reliableMessagingService.sendAsync(
-					messageBuilder.build(),
-					new ReliableMessagingService.AsyncCallbackAdapter() {
-						@Override
-						public void failure(Exception exception) {
-							callback.failure(exception);
-						}
-					}
-			);
-
-		} else {
-
-			unreliableMessagingService.sendAsync(messageBuilder.build());
-
-		}
-
-	}
-
-	@Override
-	public void sendReliableRequestReliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit,
-													SingleRequestMultiResponseCallback callback) {
-		send(msg, timeout, timeUnit, callback, true, true);
-	}
-
-	@Override
-	public void sendReliableRequestUnreliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit,
-													  SingleRequestMultiResponseCallback callback) {
-		send(msg, timeout, timeUnit, callback, true, false);
-	}
-
-	@Override
-	public void sendUnreliableRequestReliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit,
-													  SingleRequestMultiResponseCallback callback) {
-		send(msg, timeout, timeUnit, callback, false, true);
-	}
-
-	@Override
-	public void sendUnreliableRequestUnreliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit,
-														SingleRequestMultiResponseCallback callback) {
-		send(msg, timeout, timeUnit, callback, false, false);
 	}
 
 	@Override
@@ -176,8 +128,6 @@ public class SingleRequestMultiResponseServiceImpl
 
 		private Messages.SingleRequestMultipleResponseRequest request;
 
-		private Random random = new Random();
-
 		public ResponderImpl(Messages.Msg requestMsg, Messages.SingleRequestMultipleResponseRequest request) {
 			this.requestMsg = requestMsg;
 			this.request = request;
@@ -196,32 +146,10 @@ public class SingleRequestMultiResponseServiceImpl
 					.setFrom(requestMsg.getTo())
 					.setMsgType(SRMRS_MESSAGE_TYPE_RESPONSE)
 					.setPriority(requestMsg.getPriority())
-					.setValidUntil(System.currentTimeMillis() + 60000)
 					.setPayload(responseBuilder.build().toByteString());
 
-			if (request.getReliableResponses()) {
-
-				Messages.Msg response =
-						messageBuilder.setReplyWith(requestMsg.getTo() + ":" + random.nextLong()).build();
-
-				reliableMessagingService.sendAsync(
-						response,
-						new ReliableMessagingService.AsyncCallbackAdapter() {
-							@Override
-							public void failure(Exception e) {
-								log.warn("Unable to deliver response: " + e, e);
-							}
-						}
-				);
-
-			} else {
-
-				unreliableMessagingService.sendAsync(messageBuilder.build());
-
-			}
-
+			unreliableMessagingService.sendAsync(messageBuilder.build());
 		}
-
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(SingleRequestMultiResponseService.class);
@@ -241,29 +169,13 @@ public class SingleRequestMultiResponseServiceImpl
 					if (log.isTraceEnabled()) {
 						log.trace("=== Request === {} ==== {}",
 								Arrays.toString(localNodeNameManager.getLocalNodeNames().toArray()),
-								msg
+								MessageTools.toString(msg)
 						);
 					}
 					// this happens on the request-receiver (server) side
 					Messages.SingleRequestMultipleResponseRequest request =
 							Messages.SingleRequestMultipleResponseRequest.newBuilder().mergeFrom(msg.getPayload())
 									.build();
-
-					// check if request has to be acknowledged
-					if (request.getReliableRequest()) {
-						Messages.Msg ack = Messages.Msg.newBuilder()
-								.setFrom(msg.getTo())
-								.setTo(msg.getFrom())
-								.setMsgType(SRMRS_MESSAGE_TYPE_ACK)
-								.setReplyTo(msg.getReplyWith())
-								.setPriority(msg.getPriority())
-								.setValidUntil(System.currentTimeMillis() + 5000).build();
-
-						unreliableMessagingService.sendAsync(ack);
-					}
-
-					// check if one of our listeners is interested
-					// TODO improve efficiency here
 
 					Messages.Msg originalMsg = Messages.Msg.newBuilder().mergeFrom(request.getPayload()).build();
 
@@ -287,7 +199,7 @@ public class SingleRequestMultiResponseServiceImpl
 
 						log.trace("*** Response *** {} *** {}",
 								Arrays.toString(localNodeNameManager.getLocalNodeNames().toArray()),
-								msg
+								MessageTools.toString(msg)
 						);
 					}
 
@@ -301,19 +213,6 @@ public class SingleRequestMultiResponseServiceImpl
 							timedCache.get(response.getRequestId());
 
 					if (requestTuple != null) {
-
-						// check if response has to be acknowledged
-						if (requestTuple.getFirst().getReliableResponses()) {
-							Messages.Msg ack = Messages.Msg.newBuilder()
-									.setFrom(msg.getTo())
-									.setTo(msg.getFrom())
-									.setMsgType(SRMRS_MESSAGE_TYPE_ACK)
-									.setReplyTo(msg.getReplyWith())
-									.setPriority(msg.getPriority())
-									.setValidUntil(System.currentTimeMillis() + 5000).build();
-
-							unreliableMessagingService.sendAsync(ack);
-						}
 
 						// notify callback of original requester
 						boolean done = requestTuple.getSecond().receive(response.getPayload().toByteArray());
