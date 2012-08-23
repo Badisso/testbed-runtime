@@ -2,6 +2,7 @@ package shiro;
 
 import static org.junit.Assert.fail;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
@@ -22,6 +23,8 @@ public class JustAJPATest {
 
         log.info("create EntityManager");
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("snaaPersistence");
+        EntityManager em =entityManagerFactory.createEntityManager();
+       // em.find(entityClass, primaryKey)
     }
 
     @Test

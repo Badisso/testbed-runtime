@@ -61,7 +61,7 @@ import de.uniluebeck.itm.tr.util.Logging;
  * 
  * @author massel
  */
-public class AuthorizationTest {
+public class JDBCRealmTest {
     static {
         Logging.setDebugLoggingDefaults();
     }
@@ -76,7 +76,8 @@ public class AuthorizationTest {
     private static final UsernamePasswordToken administrator_token = new UsernamePasswordToken(ADMINISTRATOR2,
             ADMINISTRATOR2_PASS);
 
-    private static AuthorizationTest instance;
+    //Configure in memory Derby DB for testing
+    private static JDBCRealmTest instance;
     private String framework = "embedded";
     private String driver = "org.apache.derby.jdbc.EmbeddedDriver";
     private String protocol = "jdbc:derby:memory:";
@@ -89,9 +90,9 @@ public class AuthorizationTest {
 
     @BeforeClass
     public static void setUp() {
-        instance = new AuthorizationTest();
+        instance = new JDBCRealmTest();
         instance.createDB();
-        // set up Shiro classes
+        // wire up Shiro classes
         instance.dataSource.setDatabaseName(instance.dataSourceDbName);
         instance.realm.setDataSource(instance.dataSource);
         instance.realm.setPermissionsLookupEnabled(true);
@@ -160,26 +161,7 @@ public class AuthorizationTest {
         /* load the JDBC driver */
         loadDriver();
 
-        /*
-         * We will be using Statement and PreparedStatement objects for executing SQL. These objects, as well as
-         * Connections and ResultSets, are resources that should be released explicitly after use, hence the
-         * try-catch-finally pattern used below. We are storing the Statement and Prepared statement object references
-         * in an array list for convenience.
-         */
-        // TODO FMA: try to create from within the SQL script and remove conn here
-        Connection conn = null;
         try {
-
-            // providing a user name and password is optional in the embedded
-            // and derby client frameworks
-            // props.put("user", "user1");
-            // props.put("password", "user1");
-
-            conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
-
-            // TODO FMA: change to logging
-            System.out.println("Connected to and created database " + dbName);
-
             ij.main(new String[] { "./src/test/resources/createTestDB.sql" });
 
             NetworkServerControl server = new NetworkServerControl(InetAddress.getByName("localhost"), 1527);
@@ -272,16 +254,7 @@ public class AuthorizationTest {
         }
     }
 
-    /**
-     * Reports a data verification failure to System.err with the given message.
-     * 
-     * @param message
-     *            A message describing what failed.
-     */
-    private void reportFailure(String message) {
-        System.err.println("\nData verification failed:");
-        System.err.println('\t' + message);
-    }
+   
 
     /**
      * Prints details of an SQLException chain to <code>System.err</code>. Details included are SQL State, Error code,
