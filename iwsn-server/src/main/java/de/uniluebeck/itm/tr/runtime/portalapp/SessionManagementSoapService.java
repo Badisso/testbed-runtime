@@ -11,12 +11,15 @@ import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.AreNodesAliveSmRequest;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Request;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestFactory;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
+import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.SessionManagement;
@@ -34,10 +37,11 @@ import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convert;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertNodeUrns;
 
 @WebService(
@@ -151,10 +155,60 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 		notifyStopped();
 	}
 
+	private static class StatusRunnable implements Runnable {
+
+		private final DeliveryManager deliveryManager;
+
+		private final Request request;
+
+		private final NodeUrn nodeUrn;
+
+		private StatusRunnable(final DeliveryManager deliveryManager, final Request request, final NodeUrn nodeUrn) {
+			this.deliveryManager = deliveryManager;
+			this.request = request;
+			this.nodeUrn = nodeUrn;
+		}
+
+		@Override
+		public void run() {
+
+			try {
+
+				request.getFutureMap().get(nodeUrn);
+				final RequestStatus requestStatus = new RequestStatus();
+				requestStatus.setRequestId(Long.toString(request.getRequestId()));
+				Status status = new Status();
+				status.setValue(1);
+				status.setNodeId(nodeUrn.toString());
+				requestStatus.getStatus().add(status);
+				deliveryManager.receiveStatus(requestStatus);
+
+			} catch (Exception exception) {
+
+				if (exception.getCause() instanceof UnknownNodeUrnsException) {
+
+					UnknownNodeUrnsException e = (UnknownNodeUrnsException) exception.getCause();
+					deliveryManager.receiveUnknownNodeUrnRequestStatus(
+							e.getNodeUrns(),
+							e.getMessage(),
+							Long.toString(request.getRequestId())
+					);
+
+				} else {
+
+					deliveryManager.receiveFailureStatusMessages(
+							convertNodeUrns(request.getNodeUrns()),
+							Long.toString(request.getRequestId()),
+							exception,
+							-1
+					);
+				}
+			}
+		}
+	}
+
 	@Override
-	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
-								String controllerEndpointUrl) {
+	public String areNodesAlive(final List<String> nodes, final String controllerEndpointUrl) {
 
 		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({})", nodes);
 
@@ -164,42 +218,28 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 
 		final ImmutableSet<NodeUrn> nodeUrns = convertNodeUrns(nodes);
 		final AreNodesAliveSmRequest request = requestFactory.createAreNodesAliveSmRequest(nodeUrns);
-		final String requestId = Long.toString(request.getRequestId());
+
+		for (Map.Entry<NodeUrn, ProgressSettableFuture<Void>> entry : request.getFutureMap().entrySet()) {
+			final StatusRunnable statusRunnable = new StatusRunnable(deliveryManager, request, entry.getKey());
+			request.getFuture().addListener(statusRunnable, MoreExecutors.sameThreadExecutor());
+		}
 
 		request.getFuture().addListener(new Runnable() {
 			@Override
 			public void run() {
-
-				try {
-
-					final RequestResult result = request.getFuture().get();
-					deliveryManager.receiveStatus(convert(result, requestId));
-
-				} catch (Exception e) {
-
-					if (e.getCause() instanceof UnknownNodeUrnsException) {
-
-						UnknownNodeUrnsException exception = (UnknownNodeUrnsException) e.getCause();
-						deliveryManager.receiveUnknownNodeUrnRequestStatus(
-								exception.getNodeUrns(),
-								exception.getMessage(),
-								requestId
-						);
-
-					} else {
-
-						deliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
+				scheduledExecutorService.schedule(new Runnable() {
+					@Override
+					public void run() {
+						deliveryManager.removeController(controllerEndpointUrl);
 					}
-				}
-
-				deliveryManager.removeController(controllerEndpointUrl);
+				}, 30, TimeUnit.SECONDS
+				);
 			}
-		}, MoreExecutors.sameThreadExecutor()
-		);
+		}, MoreExecutors.sameThreadExecutor());
 
 		overlay.getEventBus().post(request);
 
-		return requestId;
+		return Long.toString(request.getRequestId());
 	}
 
 	@Override

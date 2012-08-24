@@ -13,6 +13,7 @@ import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult;
 import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementService;
 import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppDownstreamMessage;
+import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -170,6 +172,10 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 
 		for (String notification : request.getNotifications()) {
 			channel.write(convert(notification)).addListener(notificationsFutureListener);
+		}
+
+		for (Map.Entry<NodeUrn, ProgressSettableFuture<Void>> entry : request.getFutureMap().entrySet()) {
+			entry.getValue().set(null);
 		}
 
 		if (!request.getFuture().isDone()) {

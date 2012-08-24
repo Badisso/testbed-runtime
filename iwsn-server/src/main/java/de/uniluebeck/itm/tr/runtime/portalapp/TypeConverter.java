@@ -9,7 +9,6 @@ import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageDownstreamRequest;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageUpstreamRequest;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestFactory;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppDownstreamMessage;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppUpstreamMessage;
@@ -81,31 +80,6 @@ public class TypeConverter {
 		return list;
 	}
 
-	public static List<RequestStatus> convert(final RequestResult result, final String requestId) {
-
-		List<RequestStatus> list = newArrayList();
-		final RequestStatus requestStatus = new RequestStatus();
-		list.add(requestStatus);
-
-		for (Map.Entry<NodeUrn, Tuple<Integer, String>> entry : result.getResult().entrySet()) {
-
-			requestStatus.setRequestId(requestId);
-
-			final NodeUrn nodeUrn = entry.getKey();
-			final Integer value = entry.getValue().getFirst();
-			final String msg = entry.getValue().getSecond();
-
-			final Status status = new Status();
-			status.setNodeId(nodeUrn.toString());
-			status.setValue(value);
-			status.setMsg(msg);
-
-			requestStatus.getStatus().add(status);
-		}
-
-		return list;
-	}
-
 	public static List<ChannelHandlerDescription> convert(
 			final List<HandlerFactoryRegistry.ChannelHandlerDescription> descriptions) {
 
@@ -131,6 +105,14 @@ public class TypeConverter {
 			target.getConfigurationOptions().add(keyValuePair);
 		}
 		return target;
+	}
+
+	public static List<String> convertNodeUrns(final ImmutableSet<NodeUrn> nodeUrns) {
+		final ArrayList<String> strings = newArrayList();
+		for (NodeUrn nodeUrn : nodeUrns) {
+			strings.add(nodeUrn.toString());
+		}
+		return strings;
 	}
 
 	public static ImmutableSet<NodeUrn> convertNodeUrns(final List<String> nodeIds) {
@@ -226,16 +208,6 @@ public class TypeConverter {
 		).setPlatform(metaData.getPlatform()).setVersion(metaData.getVersion()).build();
 	}
 
-	public static de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult convertToRequestResult(
-			final WSNAppMessages.RequestStatus requestStatus, final long requestId) {
-		return new de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult(requestId, buildResultMap(requestStatus));
-	}
-
-	public static de.uniluebeck.itm.tr.iwsn.newoverlay.RequestStatus convertToRequestStatus(
-			final WSNAppMessages.RequestStatus requestStatus, final long requestId) {
-		return new de.uniluebeck.itm.tr.iwsn.newoverlay.RequestStatus(requestId, buildResultMap(requestStatus));
-	}
-
 	private static ImmutableMap<NodeUrn, Tuple<Integer, String>> buildResultMap(
 			final WSNAppMessages.RequestStatus requestStatus) {
 		final ImmutableMap.Builder<NodeUrn, Tuple<Integer, String>> resultMap = ImmutableMap.builder();
@@ -267,18 +239,6 @@ public class TypeConverter {
 
 	public static WSNAppDownstreamMessage convert(final MessageDownstreamRequest request) {
 		return new WSNAppDownstreamMessage(convertToStringSet(request.getTo()), request.getMessageBytes());
-	}
-
-	public static RequestResult convert(final WSNAppMessages.RequestStatus requestStatus, long requestId) {
-
-		final ImmutableMap.Builder<NodeUrn, Tuple<Integer, String>> resultMap = ImmutableMap.builder();
-		final NodeUrn nodeUrn = new NodeUrn(requestStatus.getStatus().getNodeId());
-		final Tuple<Integer, String> status = new Tuple<Integer, String>(
-				requestStatus.getStatus().getValue(),
-				requestStatus.getStatus().getMsg()
-		);
-		resultMap.put(nodeUrn, status);
-		return new RequestResult(requestId, resultMap.build());
 	}
 
 	public static MessageUpstreamRequest convert(final WSNAppUpstreamMessage request, RequestFactory requestFactory) {

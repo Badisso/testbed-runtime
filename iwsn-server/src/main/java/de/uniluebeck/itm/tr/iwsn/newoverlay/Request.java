@@ -5,11 +5,15 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
 
 import javax.annotation.Nullable;
+
+import java.util.concurrent.Future;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -50,6 +54,17 @@ public class Request {
 
 	public long getRequestId() {
 		return requestId;
+	}
+
+	public ListenableFuture<ImmutableMap<NodeUrn, ProgressSettableFuture<Void>>> getFuture() {
+		final SettableFuture<ImmutableMap<NodeUrn, ProgressSettableFuture<Void>>> future = SettableFuture.create();
+		Futures.allAsList(getFutureMap().values()).addListener(new Runnable() {
+			@Override
+			public void run() {
+				future.set(futureMap);
+			}
+		}, MoreExecutors.sameThreadExecutor());
+		return future;
 	}
 
 	public ImmutableMap<NodeUrn, ProgressSettableFuture<Void>> getFutureMap() {
