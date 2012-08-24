@@ -161,7 +161,11 @@ public class JDBCRealmTest {
         /* load the JDBC driver */
         loadDriver();
 
+        @SuppressWarnings("unused") // test will fail without this
+        Connection conn = null;
         try {
+            conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
+            
             ij.main(new String[] { "./src/test/resources/createTestDB.sql" });
 
             NetworkServerControl server = new NetworkServerControl(InetAddress.getByName("localhost"), 1527);
