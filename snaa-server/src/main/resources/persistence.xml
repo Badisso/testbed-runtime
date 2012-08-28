@@ -11,10 +11,10 @@
         <class>de.uniluebeck.itm.tr.snaa.shiro.UsersEntity</class>
         <class>de.uniluebeck.itm.tr.snaa.shiro.UsersRolesEntity</class>
         <properties>
-            <property name="hibernate.connection.url" value="jdbc:mysql://enterprise-it.corona.itm.uni-luebeck.de/enterprise_it_eit_books"/>
+            <property name="hibernate.connection.url" value=""/>
             <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
-            <property name="hibernate.connection.username" value="florian"/>
-            <property name="hibernate.connection.password" value="dbpass1"/>
+            <property name="hibernate.connection.username" value=""/>
+            <property name="hibernate.connection.password" value=""/>
             <property name="hibernate.archive.autodetection" value="class"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
