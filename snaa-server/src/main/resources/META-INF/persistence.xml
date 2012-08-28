@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" version="1.0">
+
+        <!-- A JPA Persistence Unit -->
+        <persistence-unit name="Default" transaction-type="RESOURCE_LOCAL">
+                <provider>org.hibernate.ejb.HibernatePersistence</provider>
+ 
+                <!-- JPA entities must be registered here -->
+		        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.Actions</class>
+		        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.Permissions</class>
+		        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.Resourcegroups</class>
+		        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.Roles</class>
+		        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourcegroups</class>
+		        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.Users</class>
+		        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.UsersRoles</class>
+
+                <properties>
+                        <!-- vendor-specific properties go here -->
+                        <!-- Load these properties from hibernate.properties when
+                        	 setting up the jpa persistence module to prevent inconsistencies
+                    <property name="hibernate.bytecode.use_reflection_optimizer" value="false"/>
+			        <property name="hibernate.connection.driver_class" value="org.gjt.mm.mysql.Driver"/>
+			        <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/trauth"/>
+			        <property name="hibernate.connection.username" value="yourUsername"/>
+			        <property name="hibernate.connection.password" value="yourPasswd"/>
+			        <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+			        <property name="hibernate.hbm2ddl.auto" value="validate"/> -->
+                </properties>
+
+        </persistence-unit>
+
+</persistence>

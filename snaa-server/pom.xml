@@ -68,6 +68,11 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
@@ -138,12 +143,19 @@
 			<artifactId>hibernate-entitymanager</artifactId>
 		</dependency>
 
+		
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>4.1.5.SP1</version>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 			<version>3.2.1</version>
 		</dependency>
-
+<!-- 
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-c3p0</artifactId>
@@ -169,16 +181,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 			<version>3.5.5-Final</version>
 		</dependency>
+-->		
 	</dependencies>
 
 	<build>
@@ -205,6 +212,59 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>hibernate3-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<components>
+						<component>
+							<name>hbm2cfgxml</name>
+							<outputDirectory>src/main/resources</outputDirectory>
+							<implementation>jdbcconfiguration</implementation>
+						</component>
+						<component>
+							<name>hbm2java</name>
+							<outputDirectory>src/main/java</outputDirectory>
+							<implementation>jdbcconfiguration</implementation>
+						</component>
+						<component>
+							<name>hbm2dao</name>
+							<implementation>jdbcconfiguration</implementation>
+							<outputDirectory>src/main/java</outputDirectory>
+						</component>
+						<component>
+							<name>hbm2ddl</name>
+							<implementation>jpaconfiguration</implementation>
+						</component>
+					</components>
+					<componentProperties>
+						<revengfile>/src/main/resources/hibernate.reveng.xml</revengfile>
+						<!-- <reversestrategy>MyReverseEngineeringStrategy</reversestrategy> -->
+						<persistenceunit>Default</persistenceunit>
+						<propertyfile>/src/main/resources/META-INF/hibernate.properties</propertyfile>
+						<jdk5>true</jdk5>
+						<ejb3>true</ejb3>
+						<!-- properties for hbm2ddl -->
+						<drop>true</drop>
+						<create>true</create>
+						<export>true</export>
+						<outputfilename>myapp.sql</outputfilename>
+					</componentProperties>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>mysql</groupId>
+						<artifactId>mysql-connector-java</artifactId>
+						<version>5.0.8</version>
+					</dependency>
+					<dependency>
+						<groupId>cglib</groupId>
+						<artifactId>cglib-nodep</artifactId>
+						<version>2.1_3</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
