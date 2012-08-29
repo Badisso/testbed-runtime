@@ -23,18 +23,31 @@
 
 package de.uniluebeck.itm.tr.snaa.shiro;
 
+import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertAuthenticationCount;
+import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertUrnPrefixServed;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.realm.Realm;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Factory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +63,7 @@ import eu.wisebed.api.snaa.Action;
 import eu.wisebed.api.snaa.AuthenticationExceptionException;
 import eu.wisebed.api.snaa.AuthenticationTriple;
 import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.snaa.SNAAException;
 import eu.wisebed.api.snaa.SNAAExceptionException;
 import eu.wisebed.api.snaa.SecretAuthenticationKey;
 
@@ -64,7 +78,11 @@ public class ShiroSNAA implements SNAA {
     static {
         Logging.setDebugLoggingDefaults();
     }
+
+	protected String urnPrefix;
     
+	private final String realmName;
+	
 	private Random r = new SecureRandom();
 
 	public ShiroSNAA(String shiroConfigPath, String ehCachePath) {
@@ -72,6 +90,12 @@ public class ShiroSNAA implements SNAA {
 	    Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(shiroConfigPath);
 	    org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
 	    SecurityUtils.setSecurityManager(securityManager);
+	    Collection<Realm> realms = ((RealmSecurityManager)securityManager).getRealms();
+	    if (realms.size() != 1){
+	    	throw new RuntimeException("Too many realms configured in "+shiroConfigPath);
+	    }
+		realmName = realms.iterator().next().getName();
+	    
 	    
     }
 
@@ -79,16 +103,27 @@ public class ShiroSNAA implements SNAA {
 	public List<SecretAuthenticationKey> authenticate(
 			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
 			throws AuthenticationExceptionException, SNAAExceptionException {
+    	
+    	assertAuthenticationCount(authenticationData, 1, 1);
+		assertUrnPrefixServed(urnPrefix, authenticationData);
 
-		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
-
-		for (AuthenticationTriple triple : authenticationData) {
-			SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
-			secretAuthenticationKey.setUrnPrefix(triple.getUrnPrefix());
-			secretAuthenticationKey.setSecretAuthenticationKey(Long.toString(r.nextLong()));
-			secretAuthenticationKey.setUsername(triple.getUsername());
-			keys.add(secretAuthenticationKey);
+		AuthenticationTriple authenticationTriple = authenticationData.get(0);
+		
+		Subject currentUser = SecurityUtils.getSubject();
+		try{
+			currentUser.login(new UsernamePasswordToken(authenticationTriple.getUsername(), authenticationTriple.getPassword()));
+			currentUser.logout();
+		}catch(AuthenticationException e){
+			throw new SNAAExceptionException("The user could not be authenticated: Wrong username and/or password.", new SNAAException(),e);
 		}
+		
+		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(1);
+		SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
+		secretAuthenticationKey.setUrnPrefix(authenticationTriple.getUrnPrefix());
+		secretAuthenticationKey.setSecretAuthenticationKey(Long.toString(r.nextLong()));
+		secretAuthenticationKey.setUsername(authenticationTriple.getUsername());
+		keys.add(secretAuthenticationKey);
+		
 
 		return keys;
 	}
@@ -100,5 +135,13 @@ public class ShiroSNAA implements SNAA {
 			throws SNAAExceptionException {
 
 		return true;
+	}
+	
+
+	
+	private Subject createSubject(String username) {
+		PrincipalCollection principals = new SimplePrincipalCollection(username, realmName);
+		Subject subject = new Subject.Builder().principals(principals).buildSubject();
+		return subject;
 	}
 }
