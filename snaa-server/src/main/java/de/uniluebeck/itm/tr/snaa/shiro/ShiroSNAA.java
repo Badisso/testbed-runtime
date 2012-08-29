@@ -65,8 +65,6 @@ public class ShiroSNAA implements SNAA {
     static {
         Logging.setDebugLoggingDefaults();
     }
-
-    private static final Logger log = LoggerFactory.getLogger(ShiroSNAA.class);
     
 	private Random r = new SecureRandom();
 
@@ -76,15 +74,7 @@ public class ShiroSNAA implements SNAA {
 	    org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
 	    SecurityUtils.setSecurityManager(securityManager);
 	    
-	    Properties properties = new Properties();
-		try {
-			properties.load(this.getClass().getClassLoader()
-			        .getResourceAsStream("META-INF/hibernate.properties"));
-			 Injector injector = Guice.createInjector(new JpaPersistModule("Default").properties(properties));
-			    injector.getInstance(PersistService.class).start();
-		} catch (IOException e) {
-			log.error(e.getMessage(),e);
-		}
+	   
 	    
 	   
 	    
