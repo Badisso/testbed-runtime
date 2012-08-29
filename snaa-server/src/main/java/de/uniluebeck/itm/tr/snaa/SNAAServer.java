@@ -45,6 +45,11 @@ import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource;
 import org.apache.commons.cli.*;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.realm.Realm;
+import org.apache.shiro.util.Factory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -278,7 +283,17 @@ public class SNAAServer {
     }
 
     private static void startShiroSNAA(String path, String prefix, String shiroConfigPath, String ehCachePath) {
-        ShiroSNAA shiroSNAA = new ShiroSNAA(shiroConfigPath, ehCachePath);
+        
+    	// set up Shiro framework
+	    Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(shiroConfigPath);
+	    org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
+	    SecurityUtils.setSecurityManager(securityManager);
+	    Collection<Realm> realms = ((RealmSecurityManager)securityManager).getRealms();
+	    if (realms.size() != 1){
+	    	throw new RuntimeException("Too many realms configured in "+shiroConfigPath);
+	    }
+    	
+    	ShiroSNAA shiroSNAA = new ShiroSNAA(realms.iterator().next(), prefix);
 
         HttpContext context = server.createContext(path);
         Endpoint endpoint = Endpoint.create(shiroSNAA);

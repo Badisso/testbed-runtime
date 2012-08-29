@@ -25,16 +25,11 @@ package de.uniluebeck.itm.tr.snaa.shiro;
 
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertAuthenticationCount;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertUrnPrefixServed;
-import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
-import java.util.Set;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -42,22 +37,12 @@ import javax.jws.WebService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.config.IniSecurityManagerFactory;
-import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.Factory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.persist.PersistService;
-import com.google.inject.persist.jpa.JpaPersistModule;
-
-import de.uniluebeck.itm.tr.snaa.SNAAServer;
+import de.uniluebeck.itm.tr.snaa.SNAAHelper;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.snaa.Action;
 import eu.wisebed.api.snaa.AuthenticationExceptionException;
@@ -67,81 +52,105 @@ import eu.wisebed.api.snaa.SNAAException;
 import eu.wisebed.api.snaa.SNAAExceptionException;
 import eu.wisebed.api.snaa.SecretAuthenticationKey;
 
-@WebService(
-		endpointInterface = "eu.wisebed.api.snaa.SNAA",
-		portName = "SNAAPort",
-		serviceName = "SNAAService",
-		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
-)
+/**
+ * This authentication and authorization component is responsible for
+ * <ol>
+ * <li>authenticating users which intend to access nodes which urns' feature a certain prefix and
+ * <li>authorizing their access to the nodes.
+ * <li>
+ * </ol>
+ * The authentication and authorization is performed for a certain set of nodes. These nodes are
+ * grouped by a shared uniform resource locator prefix.
+ * 
+ */
+@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
 public class ShiroSNAA implements SNAA {
 
-    static {
-        Logging.setDebugLoggingDefaults();
-    }
+	static {
+		Logging.setDebugLoggingDefaults();
+	}
 
+	/**
+	 * Access authorization for users is performed for nodes which uniform resource locator starts
+	 * with this prefix.
+	 */
 	protected String urnPrefix;
-    
-	private final String realmName;
-	
+
+	/**
+	 * A security component that can access application-specific security entities such as users,
+	 * roles, and permissions to determine authentication and authorization operations.
+	 */
+	private final Realm realm;
+
+	/** Used to generate {@link SecretAuthenticationKey}s*/
 	private Random r = new SecureRandom();
 
-	public ShiroSNAA(String shiroConfigPath, String ehCachePath) {
-	    // set up Shiro framework
-	    Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(shiroConfigPath);
-	    org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
-	    SecurityUtils.setSecurityManager(securityManager);
-	    Collection<Realm> realms = ((RealmSecurityManager)securityManager).getRealms();
-	    if (realms.size() != 1){
-	    	throw new RuntimeException("Too many realms configured in "+shiroConfigPath);
-	    }
-		realmName = realms.iterator().next().getName();
-	    
-	    
-    }
+	// ------------------------------------------------------------------------
+	/**
+	 * Constructor
+	 * 
+	 * @param realm
+	 *            The security component that can access application-specific security entities such
+	 *            as users, roles, and permissions to determine authentication and authorization
+	 *            operations.
+	 * @param urnPrefix
+	 *            Access authorization for users is performed for nodes which uniform resource
+	 *            locator starts with this prefix.
+	 */
+	public ShiroSNAA(Realm realm, String urnPrefix) {
+		this.realm = realm;
+		this.urnPrefix = urnPrefix;
+	}
 
-    @Override
+	@Override
 	public List<SecretAuthenticationKey> authenticate(
 			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
 			throws AuthenticationExceptionException, SNAAExceptionException {
-    	
-    	assertAuthenticationCount(authenticationData, 1, 1);
+
+		assertAuthenticationCount(authenticationData, 1, 1);
 		assertUrnPrefixServed(urnPrefix, authenticationData);
 
 		AuthenticationTriple authenticationTriple = authenticationData.get(0);
-		
+
+		/* Authentication */
 		Subject currentUser = SecurityUtils.getSubject();
-		try{
+		try {
 			currentUser.login(new UsernamePasswordToken(authenticationTriple.getUsername(), authenticationTriple.getPassword()));
 			currentUser.logout();
-		}catch(AuthenticationException e){
-			throw new SNAAExceptionException("The user could not be authenticated: Wrong username and/or password.", new SNAAException(),e);
+		} catch (AuthenticationException e) {
+			throw new SNAAExceptionException("The user could not be authenticated: Wrong username and/or password.", new SNAAException(), e);
 		}
-		
-		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(1);
+
+		/* Create a secret authentication key for the authenticated user */
 		SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
 		secretAuthenticationKey.setUrnPrefix(authenticationTriple.getUrnPrefix());
 		secretAuthenticationKey.setSecretAuthenticationKey(Long.toString(r.nextLong()));
 		secretAuthenticationKey.setUsername(authenticationTriple.getUsername());
-		keys.add(secretAuthenticationKey);
 		
+		/* Return the single secret authentication key in a list (due to the federator) */
+		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(1);
+		keys.add(secretAuthenticationKey);
 
 		return keys;
 	}
 
 	@Override
-	public boolean isAuthorized(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "action", targetNamespace = "") Action action)
-			throws SNAAExceptionException {
+	public boolean isAuthorized(@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
+			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
 
-		return true;
-	}
-	
+		SNAAHelper.assertAuthenticationKeyCount(authenticationData, 1, 1);
+		SNAAHelper.assertSAKUrnPrefixServed(urnPrefix, authenticationData);
 
-	
-	private Subject createSubject(String username) {
-		PrincipalCollection principals = new SimplePrincipalCollection(username, realmName);
+		PrincipalCollection principals = new SimplePrincipalCollection(authenticationData.get(0).getUsername(), realm.getName());
 		Subject subject = new Subject.Builder().principals(principals).buildSubject();
-		return subject;
+
+		// TODO: After introducing wisebed API 3.0 node urns will be provided for an action.
+		// (1) Map the provided node urns to a node group (e.g., EXPERIMENT_NODES)
+		// (2) Concat the provided action and node type: "<action>:<node type>"
+		// subject.isPermittedAll("WSN_FLASH_PROGRAMS:EXPERIMENT_NODES"))
+		boolean isAuthorized = subject.isPermittedAll(action.getAction());
+		subject.logout();
+
+		return isAuthorized;
 	}
 }
