@@ -19,17 +19,7 @@ public class JustAJPATest {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(JustAJPATest.class);
 
     @Test
-    public void testDoGetAuthenticationInfoAuthenticationToken() {
-
-        log.info("create EntityManager");
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("snaaPersistence");
-        EntityManager em =entityManagerFactory.createEntityManager();
-       // em.find(entityClass, primaryKey)
-    }
-
-    @Test
     public void testDoGetAuthorizationInfoPrincipalCollection() {
         fail("Not yet implemented"); // TODO
     }
-
 }
