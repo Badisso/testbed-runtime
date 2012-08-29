@@ -1,7 +1,9 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -20,6 +22,7 @@ import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Permissions;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Roles;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Users;
 
@@ -41,9 +44,7 @@ public class TRJPARealm extends AuthorizingRealm {
 
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken) throws AuthenticationException {
 		UsernamePasswordToken token = (UsernamePasswordToken) authcToken;
-		// TODO: The entity manager has to be injected
-		GenericDao<Users, String> userDao = new GenericDaoImpl<Users, String>() {
-		};
+		GenericDao<Users, String> userDao = new GenericDaoImpl<Users, String>() {};
 		injector.injectMembers(userDao);
 		Users user = userDao.find(token.getUsername());
 		if (user != null) {
@@ -62,12 +63,26 @@ public class TRJPARealm extends AuthorizingRealm {
 			SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 			for (Roles role : user.getRoleses()) {
 				info.addRole(role.getName());
-				// info.addStringPermissions( role.getPermissionses() );
+				Set<Permissions> permissionses = role.getPermissionses();
+				Set<String> strPerm = toString(permissionses);
+				info.addStringPermissions(strPerm);
 			}
 			return info;
 		} else {
 			return null;
 		}
 	}
+
+	private Set<String> toString(Set<Permissions> permissionses) {
+		Set<String> result = new HashSet<String>();
+		for (Permissions permissions : permissionses) {
+			result.add(permissions.getActions().getName()+":"+permissions.getResourcegroups().getName());
+		}
+		return result;
+	}
+	
+	
+	
+	
 
 }

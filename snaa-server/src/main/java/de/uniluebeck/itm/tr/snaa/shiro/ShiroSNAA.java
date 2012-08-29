@@ -44,7 +44,6 @@ import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
-import de.uniluebeck.itm.tr.snaa.ApplicationInitializer;
 import de.uniluebeck.itm.tr.snaa.SNAAServer;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.snaa.Action;
@@ -73,12 +72,6 @@ public class ShiroSNAA implements SNAA {
 	    Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(shiroConfigPath);
 	    org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
 	    SecurityUtils.setSecurityManager(securityManager);
-	    
-	   
-	    
-	   
-	    
-	    
 	    
     }
 
