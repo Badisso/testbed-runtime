@@ -23,8 +23,12 @@
 
 package de.uniluebeck.itm.tr.snaa.shiro;
 
-import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.snaa.*;
+import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Random;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -32,11 +36,23 @@ import javax.jws.WebService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.util.Factory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.persist.PersistService;
+import com.google.inject.persist.jpa.JpaPersistModule;
+
+import de.uniluebeck.itm.tr.snaa.ApplicationInitializer;
+import de.uniluebeck.itm.tr.snaa.SNAAServer;
+import de.uniluebeck.itm.tr.util.Logging;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.AuthenticationExceptionException;
+import eu.wisebed.api.snaa.AuthenticationTriple;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.snaa.SNAAExceptionException;
+import eu.wisebed.api.snaa.SecretAuthenticationKey;
 
 @WebService(
 		endpointInterface = "eu.wisebed.api.snaa.SNAA",
@@ -49,6 +65,8 @@ public class ShiroSNAA implements SNAA {
     static {
         Logging.setDebugLoggingDefaults();
     }
+
+    private static final Logger log = LoggerFactory.getLogger(ShiroSNAA.class);
     
 	private Random r = new SecureRandom();
 
@@ -57,6 +75,20 @@ public class ShiroSNAA implements SNAA {
 	    Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(shiroConfigPath);
 	    org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
 	    SecurityUtils.setSecurityManager(securityManager);
+	    
+	    Properties properties = new Properties();
+		try {
+			properties.load(this.getClass().getClassLoader()
+			        .getResourceAsStream("META-INF/hibernate.properties"));
+			 Injector injector = Guice.createInjector(new JpaPersistModule("Default").properties(properties));
+			    injector.getInstance(PersistService.class).start();
+		} catch (IOException e) {
+			log.error(e.getMessage(),e);
+		}
+	    
+	   
+	    
+	    
 	    
     }
 
