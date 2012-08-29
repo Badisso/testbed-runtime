@@ -9,7 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
 
 import org.hibernate.Session;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.SessionImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
