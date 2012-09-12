@@ -138,10 +138,9 @@ public class SocketConnectorClient {
 
 	private void pingNode() {
 
-		WSNAppMessages.Message.Builder message = WSNAppMessages.Message.newBuilder()
+		WSNAppMessages.DownstreamMessage.Builder message = WSNAppMessages.DownstreamMessage.newBuilder()
 				.setBinaryData(ByteString.copyFrom("Hello World".getBytes()))
-				.setSourceNodeId("urn:wisebed:nodeconnector:client:1")
-				.setTimestamp("Nobody cares for this demo purpose");
+				.setTargetNodeUrn("urn:wisebed:nodeconnector:client:1");
 
 		WSNAppMessages.OperationInvocation.Builder oiBuilder = WSNAppMessages.OperationInvocation.newBuilder()
 				.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND)
@@ -174,7 +173,7 @@ public class SocketConnectorClient {
 
 			if (WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(message.getMsgType())) {
 
-				WSNAppMessages.Message wsnAppMessage = WSNAppMessages.Message.parseFrom(message.getPayload());
+				WSNAppMessages.UpstreamMessage wsnAppMessage = WSNAppMessages.UpstreamMessage.parseFrom(message.getPayload());
 				if (log.isInfoEnabled()) {
 					log.info(
 							"Received device output: \"{}\"",

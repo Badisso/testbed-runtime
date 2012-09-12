@@ -174,12 +174,12 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 							datatypeFactory
 									.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance());
 
-					WSNAppMessages.Message.Builder messageBuilder = WSNAppMessages.Message.newBuilder()
+					WSNAppMessages.UpstreamMessage.Builder messageBuilder = WSNAppMessages.UpstreamMessage.newBuilder()
 							.setSourceNodeId(wsnDeviceAppConfiguration.getNodeUrn())
 							.setTimestamp(now.toXMLFormat())
 							.setBinaryData(ByteString.copyFrom(bytes));
 
-					WSNAppMessages.Message message = messageBuilder.build();
+					WSNAppMessages.UpstreamMessage message = messageBuilder.build();
 
 					if (log.isDebugEnabled()) {
 						log.debug("{} => Delivering device output to overlay node {}: {}", new String[]{
@@ -389,7 +389,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> send()", wsnDeviceAppConfiguration.getNodeUrn());
 				try {
 
-					WSNAppMessages.Message message = WSNAppMessages.Message.parseFrom(invocation.getArguments());
+					WSNAppMessages.DownstreamMessage message = WSNAppMessages.DownstreamMessage.parseFrom(invocation.getArguments());
 					executeSendMessage(message, callback);
 
 				} catch (InvalidProtocolBufferException e) {
@@ -504,7 +504,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 		}
 	}
 
-	public void executeSendMessage(final WSNAppMessages.Message message, final ReplyingNodeApiCallback callback) {
+	public void executeSendMessage(final WSNAppMessages.DownstreamMessage message, final ReplyingNodeApiCallback callback) {
 
 		log.debug("{} => WSNDeviceAppImpl.executeSendMessage()", wsnDeviceAppConfiguration.getNodeUrn());
 
@@ -655,19 +655,16 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 	 */
 	private byte[] buildRequestStatus(int value, @Nullable String message) {
 
-		WSNAppMessages.RequestStatus.Status.Builder statusBuilder = WSNAppMessages.RequestStatus.Status.newBuilder()
-				.setNodeId(wsnDeviceAppConfiguration.getNodeUrn())
+		WSNAppMessages.RequestStatus.Builder requestStatusBuilder = WSNAppMessages.RequestStatus
+				.newBuilder()
+				.setNodeUrn(wsnDeviceAppConfiguration.getNodeUrn())
 				.setValue(value);
 
 		if (message != null) {
-			statusBuilder.setMsg(message);
+			requestStatusBuilder.setMsg(message);
 		}
 
-		WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
-				.setStatus(statusBuilder)
-				.build();
-
-		return requestStatus.toByteArray();
+		return requestStatusBuilder.build().toByteArray();
 
 	}
 

@@ -27,17 +27,11 @@ option java_outer_classname = "WSNAppMessages";
 option java_multiple_files = false;
 
 
-// ==== asynchronous RequestStatus ====
 message RequestStatus {
 
-    message Status {
-        required string nodeId = 1;
-        optional int32 value = 2;
-        optional string msg = 3;
-    }
-
-    required Status status = 1;
-    
+	required string nodeUrn = 1;
+	optional int32 value = 2;
+	optional string msg = 3;
 }
 
 
@@ -65,10 +59,15 @@ message Notification {
 
 
 // ==== send ====
-message Message {
+message UpstreamMessage {
     required string sourceNodeId = 1;
     required string timestamp = 2;
     required bytes binaryData = 3;
+}
+
+message DownstreamMessage {
+	required string targetNodeUrn = 1;
+	required bytes binaryData = 2;
 }
 
 

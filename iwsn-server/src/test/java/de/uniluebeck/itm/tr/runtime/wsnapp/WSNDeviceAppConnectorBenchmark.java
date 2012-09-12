@@ -72,19 +72,19 @@ public class WSNDeviceAppConnectorBenchmark {
 	@Before
 	public void setUp() throws Exception {
 
-		final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+		/*final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
 				NODE_URN,
 				DeviceType.ISENSE.toString(),
 				"/dev/tty.usbserial-001213FD",
 				null, null, null, null, null, null, null, null
-		);
+		);*/
 
-		/*final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+		final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
 				NODE_URN,
 				DeviceType.MOCK.toString(),
 				NODE_URN + ",10,SECONDS",
 				null, null, null, null, null, null, null, null
-		);*/
+		);
 
 		final Injector injector = Guice.createInjector(new WSNDeviceAppModule(), new DeviceFactoryModule());
 		final WSNDeviceAppConnectorFactory factory = injector.getInstance(WSNDeviceAppConnectorFactory.class);

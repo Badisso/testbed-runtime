@@ -42,7 +42,7 @@ public class WSNAppBenchmark {
 	private static final Logger log = LoggerFactory.getLogger(WSNAppBenchmark.class);
 
 	static {
-		Logging.setLoggingDefaults(Level.TRACE);
+		Logging.setLoggingDefaults(Level.DEBUG);
 	}
 
 	private static class FutureMessageReceiver {

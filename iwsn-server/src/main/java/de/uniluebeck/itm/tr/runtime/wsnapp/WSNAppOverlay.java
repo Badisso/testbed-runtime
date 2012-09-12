@@ -45,14 +45,14 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@Override
 		public synchronized void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 
-			final NodeUrn nodeUrn = new NodeUrn(requestStatus.getStatus().getNodeId());
+			final NodeUrn nodeUrn = new NodeUrn(requestStatus.getNodeUrn());
 			final ProgressSettableFuture<Void> nodeFuture = request.getFutureMap().get(nodeUrn);
-			final int value = requestStatus.getStatus().getValue();
+			final int value = requestStatus.getValue();
 
 			if (value >= successValue) {
 				nodeFuture.set(null);
 			} else if (value < errorValueLowerBoundExclusive) {
-				nodeFuture.setException(new Exception(requestStatus.getStatus().getMsg()));
+				nodeFuture.setException(new Exception(requestStatus.getMsg()));
 			} else {
 				nodeFuture.setProgress(((float) value / (float) 100));
 			}

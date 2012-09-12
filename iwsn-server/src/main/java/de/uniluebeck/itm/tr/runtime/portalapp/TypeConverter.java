@@ -72,14 +72,6 @@ public class TypeConverter {
 		return set.build();
 	}
 
-	public static List<String> convert(final ImmutableSet<NodeUrn> nodeUrns) {
-		final ArrayList<String> list = newArrayList();
-		for (NodeUrn nodeUrn : nodeUrns) {
-			list.add(nodeUrn.toString());
-		}
-		return list;
-	}
-
 	public static List<ChannelHandlerDescription> convert(
 			final List<HandlerFactoryRegistry.ChannelHandlerDescription> descriptions) {
 
@@ -148,14 +140,17 @@ public class TypeConverter {
 	}
 
 	public static RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
+
 		RequestStatus retRequestStatus = new RequestStatus();
 		retRequestStatus.setRequestId(requestId);
-		WSNAppMessages.RequestStatus.Status status = requestStatus.getStatus();
+
 		Status retStatus = new Status();
-		retStatus.setMsg(status.getMsg());
-		retStatus.setNodeId(status.getNodeId());
-		retStatus.setValue(status.getValue());
+		retStatus.setMsg(requestStatus.getMsg());
+		retStatus.setNodeId(requestStatus.getNodeUrn());
+		retStatus.setValue(requestStatus.getValue());
+
 		retRequestStatus.getStatus().add(retStatus);
+
 		return retRequestStatus;
 	}
 
@@ -210,12 +205,13 @@ public class TypeConverter {
 
 	private static ImmutableMap<NodeUrn, Tuple<Integer, String>> buildResultMap(
 			final WSNAppMessages.RequestStatus requestStatus) {
+
 		final ImmutableMap.Builder<NodeUrn, Tuple<Integer, String>> resultMap = ImmutableMap.builder();
-		final NodeUrn nodeUrn = new NodeUrn(requestStatus.getStatus().getNodeId());
+		final NodeUrn nodeUrn = new NodeUrn(requestStatus.getNodeUrn());
 
 		final Tuple<Integer, String> state = new Tuple<Integer, String>(
-				requestStatus.getStatus().getValue(),
-				requestStatus.getStatus().getMsg()
+				requestStatus.getValue(),
+				requestStatus.getMsg()
 		);
 
 		resultMap.put(nodeUrn, state);
@@ -242,11 +238,10 @@ public class TypeConverter {
 	}
 
 	public static MessageUpstreamRequest convert(final WSNAppUpstreamMessage request, RequestFactory requestFactory) {
-		MessageUpstreamRequest overlayRequest = requestFactory.createMessageUpstreamRequest(
+		return requestFactory.createMessageUpstreamRequest(
 				new NodeUrn(request.getFrom()),
 				request.getTimestamp(),
 				request.getMessageBytes()
 		);
-		return overlayRequest;
 	}
 }

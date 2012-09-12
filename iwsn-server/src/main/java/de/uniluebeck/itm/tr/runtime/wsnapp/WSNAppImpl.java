@@ -138,22 +138,19 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		private void callbackError(String msg, int code) {
 
-			WSNAppMessages.RequestStatus.Status.Builder statusBuilder = WSNAppMessages.RequestStatus.Status
+			WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
 					.newBuilder()
-					.setNodeId(nodeUrn)
+					.setNodeUrn(nodeUrn)
 					.setMsg(msg)
-					.setValue(code);
-
-			WSNAppMessages.RequestStatus.Builder requestStatusBuilder = WSNAppMessages.RequestStatus
-					.newBuilder()
-					.setStatus(statusBuilder);
+					.setValue(code)
+					.build();
 
 			log.debug("Received error after {} milliseconds from {}.",
 					(System.currentTimeMillis() - instantiation),
 					nodeUrn
 			);
 
-			callback.receivedRequestStatus(requestStatusBuilder.build());
+			callback.receivedRequestStatus(requestStatus);
 
 		}
 	}
@@ -240,7 +237,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			try {
 
-				WSNAppMessages.Message message = WSNAppMessages.Message.newBuilder()
+				WSNAppMessages.UpstreamMessage message = WSNAppMessages.UpstreamMessage.newBuilder()
 						.mergeFrom(msg.getPayload())
 						.build();
 
@@ -339,13 +336,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			SocketAddress socketAddress = e.getRemoteAddress();
 
 			Set<String> nodeUrns;
-			String timestamp;
 			final Callback callback;
 
 			if (socketAddress instanceof WisebedMulticastAddress) {
 
 				nodeUrns = ((WisebedMulticastAddress) socketAddress).getNodeUrns();
-				timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
 				callback = (Callback) ((WisebedMulticastAddress) socketAddress).getUserContext().get("callback");
 
 			} else {
@@ -358,11 +353,10 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			for (final String nodeUrn : nodeUrns) {
 
-				WSNAppMessages.Message message = WSNAppMessages.Message
+				WSNAppMessages.DownstreamMessage message = WSNAppMessages.DownstreamMessage
 						.newBuilder()
 						.setBinaryData(ByteString.copyFrom(buf.array(), buf.readerIndex(), buf.readableBytes()))
-						.setSourceNodeId(nodeUrn)
-						.setTimestamp(timestamp)
+						.setTargetNodeUrn(nodeUrn)
 						.build();
 
 				WSNAppMessages.OperationInvocation operationInvocation = WSNAppMessages.OperationInvocation
@@ -390,15 +384,10 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 								future.get();
 
-								WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
-										WSNAppMessages.RequestStatus.Status
-												.newBuilder()
-												.setNodeId(nodeUrn)
-												.setValue(1);
-
 								WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
 										.newBuilder()
-										.setStatus(statusBuilder)
+										.setNodeUrn(nodeUrn)
+										.setValue(1)
 										.build();
 
 								callback.receivedRequestStatus(requestStatus);
@@ -413,14 +402,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 				} catch (UnknownNameException e1) {
 
-					WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
-							WSNAppMessages.RequestStatus.Status.newBuilder()
-									.setNodeId(nodeUrn)
-									.setMsg("Unknown node URN \"" + nodeUrn + "\"")
-									.setValue(-1);
-
-					WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
-							.setStatus(statusBuilder)
+					WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
+							.newBuilder()
+							.setNodeUrn(nodeUrn)
+							.setMsg("Unknown node URN \"" + nodeUrn + "\"")
+							.setValue(-1)
 							.build();
 
 					callback.receivedRequestStatus(requestStatus);
@@ -519,6 +505,32 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getMessageBytes());
 		final WisebedMulticastAddress targetAddress = new WisebedMulticastAddress(message.getTo());
+		targetAddress.getUserContext().put("callback", new Callback() {
+
+			@Override
+			public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+
+				final String nodeUrn = requestStatus.getNodeUrn();
+
+				if (requestStatus.getValue() >= 1) {
+
+					message.getFutureMap().get(nodeUrn).set(null);
+
+				} else if (requestStatus.getValue() < 0) {
+
+					final Exception exception = new Exception(requestStatus.getValue() + ": " + requestStatus.getMsg());
+					message.getFutureMap().get(nodeUrn).setException(exception);
+				}
+			}
+
+			@Override
+			public void failure(final Exception e) {
+				for (SettableFuture<Void> future : message.getFutureMap().values()) {
+					future.setException(e);
+				}
+			}
+		}
+		);
 
 		final DownstreamMessageEvent downstreamMessageEvent = new DownstreamMessageEvent(
 				pipeline.getChannel(),
@@ -578,7 +590,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 				final WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
 						.newBuilder()
-						.setStatus(WSNAppMessages.RequestStatus.Status.newBuilder().setValue(1).setNodeId(""))
+						.setValue(1)
+						.setNodeUrn("")
 						.build();
 
 				callback.receivedRequestStatus(requestStatus);
@@ -749,7 +762,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 						callback.receivedRequestStatus(requestStatus);
 
 						// cancel the job if error or complete
-						return requestStatus.getStatus().getValue() < 0 || requestStatus.getStatus().getValue() >= 100;
+						return requestStatus.getValue() < 0 || requestStatus.getValue() >= 100;
 
 					} catch (InvalidProtocolBufferException e) {
 						log.error("Exception while parsing incoming request status: " + e, e);
@@ -761,15 +774,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				@Override
 				public void timeout() {
 
-					WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
-							WSNAppMessages.RequestStatus.Status.newBuilder()
-									.setValue(-1)
-									.setMsg("Flash node operation timed out!")
-									.setNodeId(nodeUrn);
-
 					WSNAppMessages.RequestStatus requestStatus =
 							WSNAppMessages.RequestStatus.newBuilder()
-									.setStatus(statusBuilder)
+									.setValue(-1)
+									.setMsg("Flash node operation timed out!")
+									.setNodeUrn(nodeUrn)
 									.build();
 
 					callback.receivedRequestStatus(requestStatus);
@@ -1059,14 +1068,14 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 							.mergeFrom(ByteString.copyFrom(response))
 							.build();
 
-					final int value = requestStatus.getStatus().getValue();
+					final int value = requestStatus.getValue();
 					final boolean done = value < 0 || value >= 100;
 					final boolean error = value < 0;
 
 					if (done) {
 						if (error) {
 							final String errorMsg = "Flashing node " + reservedNode +
-									" failed. Reason: " + requestStatus.getStatus().getMsg();
+									" failed. Reason: " + requestStatus.getMsg();
 							future.setException(new Exception(errorMsg));
 						} else {
 							future.set(true);

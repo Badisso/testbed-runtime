@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.server;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.EventBus;
@@ -51,7 +52,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
 
 
 @Singleton
@@ -407,17 +407,24 @@ class MessageServerServiceImpl extends AbstractService implements MessageServerS
 
 	private synchronized void closeConnections() {
 
-		final Collection<ServerConnection> serverConnections = newArrayList(this.serverConnections.values());
-		final Collection<Set<Connection>> clientConnections = newArrayList(openClientConnections.values());
+		final ImmutableSet.Builder<ServerConnection> serverConnectionsBuilder = ImmutableSet.builder();
+		for (ServerConnection serverConnection : serverConnections.values()) {
+			serverConnectionsBuilder.add(serverConnection);
+		}
+		final ImmutableSet<ServerConnection> serverConnections = serverConnectionsBuilder.build();
+
+		final ImmutableSet.Builder<Connection> clientConnectionsBuilder = ImmutableSet.builder();
+		for (Set<Connection> connectionSet : openClientConnections.values()) {
+			clientConnectionsBuilder.addAll(connectionSet);
+		}
+		final ImmutableSet<Connection> clientConnections = clientConnectionsBuilder.build();
 
 		for (ServerConnection serverConnection : serverConnections) {
 			serverConnection.unbind();
 		}
 
-		for (Set<Connection> set : clientConnections) {
-			for (Connection connection : set) {
-				connection.disconnect();
-			}
+		for (Connection connection : clientConnections) {
+			connection.disconnect();
 		}
 	}
 }
