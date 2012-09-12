@@ -39,6 +39,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -355,21 +356,24 @@ public class WSNServiceImplTest {
 			request.getFutureMap().get(nodeUrn).set(null);
 		}
 
-		final ArgumentCaptor<List> responseCaptor = ArgumentCaptor.forClass(List.class);
-		verify(deliveryManager).receiveStatus(responseCaptor.capture());
+		final ArgumentCaptor<RequestStatus> responseCaptor = ArgumentCaptor.forClass(RequestStatus.class);
+		verify(deliveryManager, times(request.getNodeUrns().size())).receiveStatus(responseCaptor.capture());
 
-		final List<RequestStatus> capturedStatusList = responseCaptor.getValue();
-		final RequestStatus capturedStatus = capturedStatusList.get(0);
-
-		assertEquals(issuedClientRequestId, capturedStatus.getRequestId());
-		assertEquals(1, capturedStatusList.size());
-		assertEquals(request.getNodeUrns().size(), capturedStatusList.get(0).getStatus().size());
+		final List<RequestStatus> capturedStatuses = responseCaptor.getAllValues();
 
 		Set<NodeUrn> receivedStatusNodeUrns = newHashSet();
-		for (Status status : capturedStatusList.get(0).getStatus()) {
-			receivedStatusNodeUrns.add(new NodeUrn(status.getNodeId()));
-			assertEquals("", status.getMsg());
-			assertEquals(1, (int) status.getValue());
+		for (RequestStatus capturedStatus : capturedStatuses) {
+
+			assertEquals(issuedClientRequestId, capturedStatus.getRequestId());
+			assertEquals(1, capturedStatus.getStatus().size());
+
+			for (Status status : capturedStatus.getStatus()) {
+
+				receivedStatusNodeUrns.add(new NodeUrn(status.getNodeId()));
+
+				assertEquals(null, status.getMsg());
+				assertEquals(1, (int) status.getValue());
+			}
 		}
 
 		assertTrue(Sets.difference(receivedStatusNodeUrns, request.getNodeUrns()).isEmpty());
