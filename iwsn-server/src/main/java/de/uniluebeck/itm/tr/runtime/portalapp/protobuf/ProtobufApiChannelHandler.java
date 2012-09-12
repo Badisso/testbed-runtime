@@ -7,7 +7,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.BackendNotificationsRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.FlashImageRequest;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageUpstreamRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Request;
 import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementService;
 import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppDownstreamMessage;
@@ -152,6 +154,92 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 				break;
 		}
 
+	}
+
+	@Subscribe
+	public void addListenersToRequestResults(final Request request) {
+
+		log.debug("ProtobufApiChannelHandler.addListenersToRequestResults({})", request);
+
+		for (Map.Entry<NodeUrn, ProgressSettableFuture<Void>> entry : request.getFutureMap().entrySet()) {
+
+			final NodeUrn nodeUrn = entry.getKey();
+			final ProgressSettableFuture<Void> nodeFuture = entry.getValue();
+
+			nodeFuture.addListener(new Runnable() {
+				@Override
+				public void run() {
+					try {
+
+						nodeFuture.get();
+
+						final WisebedMessages.RequestStatus requestStatus = WisebedMessages.RequestStatus
+								.newBuilder()
+								.setRequestId(Long.toString(request.getRequestId()))
+								.addStatus(WisebedMessages.RequestStatus.Status
+										.newBuilder()
+										.setValue(request instanceof FlashImageRequest ? 100 : 1)
+										.setMessage("")
+										.setNodeUrn(nodeUrn.toString())
+								).build();
+
+						final WisebedMessages.Envelope envelope = WisebedMessages.Envelope.newBuilder()
+								.setBodyType(WisebedMessages.Envelope.BodyType.REQUEST_STATUS)
+								.setRequestStatus(requestStatus)
+								.build();
+
+						channel.write(envelope);
+
+					} catch (Exception e) {
+
+						final WisebedMessages.RequestStatus requestStatus = WisebedMessages.RequestStatus
+								.newBuilder()
+								.setRequestId(Long.toString(request.getRequestId()))
+								.addStatus(WisebedMessages.RequestStatus.Status
+										.newBuilder()
+										.setValue(-1)
+										.setMessage(e.getMessage())
+										.setNodeUrn(nodeUrn.toString())
+								).build();
+
+						final WisebedMessages.Envelope envelope = WisebedMessages.Envelope.newBuilder()
+								.setBodyType(WisebedMessages.Envelope.BodyType.REQUEST_STATUS)
+								.setRequestStatus(requestStatus)
+								.build();
+
+						channel.write(envelope);
+					}
+				}
+			}, MoreExecutors.sameThreadExecutor()
+			);
+
+			nodeFuture.addProgressListener(new Runnable() {
+				@Override
+				public void run() {
+
+					if (!request.getFutureMap().get(nodeUrn).isDone()) {
+
+						final WisebedMessages.RequestStatus requestStatus = WisebedMessages.RequestStatus
+								.newBuilder()
+								.setRequestId(Long.toString(request.getRequestId()))
+								.addStatus(WisebedMessages.RequestStatus.Status
+										.newBuilder()
+										.setValue((int) (nodeFuture.getProgress() * 100))
+										.setMessage("")
+										.setNodeUrn(nodeUrn.toString())
+								).build();
+
+						final WisebedMessages.Envelope envelope = WisebedMessages.Envelope.newBuilder()
+								.setBodyType(WisebedMessages.Envelope.BodyType.REQUEST_STATUS)
+								.setRequestStatus(requestStatus)
+								.build();
+
+						channel.write(envelope);
+					}
+				}
+			}, MoreExecutors.sameThreadExecutor()
+			);
+		}
 	}
 
 	@Subscribe

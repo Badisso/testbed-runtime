@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 
 import java.util.concurrent.ScheduledExecutorService;
 
