@@ -431,6 +431,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 						Status status = new Status();
 						status.setNodeId(nodeUrn.toString());
 						status.setValue(completionValue);
+						status.setMsg("");
 
 						requestStatus.getStatus().add(status);
 
