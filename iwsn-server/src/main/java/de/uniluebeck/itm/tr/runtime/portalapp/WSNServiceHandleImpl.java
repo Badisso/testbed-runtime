@@ -27,7 +27,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Testbed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,18 +37,18 @@ class WSNServiceHandleImpl extends AbstractService implements Service, WSNServic
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceHandleImpl.class);
 
-	private final Overlay overlay;
+	private final Testbed testbed;
 
 	private final WSNService wsnService;
 
 	private final WSNSoapService wsnSoapService;
 
 	@Inject
-	WSNServiceHandleImpl(@Assisted final Overlay overlay,
+	WSNServiceHandleImpl(@Assisted final Testbed testbed,
 						 @Assisted final WSNService wsnService,
 						 @Assisted final WSNSoapService wsnSoapService) {
 
-		this.overlay = checkNotNull(overlay);
+		this.testbed = checkNotNull(testbed);
 		this.wsnService = checkNotNull(wsnService);
 		this.wsnSoapService = checkNotNull(wsnSoapService);
 	}
@@ -99,7 +99,7 @@ class WSNServiceHandleImpl extends AbstractService implements Service, WSNServic
 	}
 
 	@Override
-	public Overlay getOverlay() {
-		return overlay;
+	public Testbed getTestbed() {
+		return testbed;
 	}
 }

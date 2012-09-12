@@ -79,7 +79,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			.expireAfterWrite(10, TimeUnit.MINUTES)
 			.build();
 
-	private final OverlayEventBus eventBus;
+	private final TestbedEventBus testbedEventBus;
 
 	private final RequestFactory requestFactory;
 
@@ -94,7 +94,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	private final WSNPreconditions preconditions;
 
 	@Inject
-	WSNServiceImpl(final OverlayEventBus eventBus,
+	WSNServiceImpl(final TestbedEventBus testbedEventBus,
 				   final RequestFactory requestFactory,
 				   final DeliveryManager deliveryManager,
 				   final WSNServiceVirtualLinkManager virtualLinkManager,
@@ -102,7 +102,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 				   @Assisted final WSNServiceConfig config,
 				   @Assisted final WSNPreconditions preconditions) {
 
-		this.eventBus = checkNotNull(eventBus);
+		this.testbedEventBus = checkNotNull(testbedEventBus);
 		this.requestFactory = checkNotNull(requestFactory);
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.virtualLinkManager = checkNotNull(virtualLinkManager);
@@ -119,7 +119,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		try {
 
 			log.info("Starting WSN service...");
-			eventBus.register(this);
+			testbedEventBus.register(this);
 			deliveryManager.startAndWait();
 			notifyStarted();
 
@@ -135,7 +135,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 			log.info("Stopping WSN service...");
 
-			eventBus.unregister(this);
+			testbedEventBus.unregister(this);
 
 			deliveryManager.experimentEnded();
 			deliveryManager.stopAndWait();
@@ -477,7 +477,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			);
 		}
 
-		eventBus.post(request);
+		testbedEventBus.post(request);
 		return requestId;
 	}
 }

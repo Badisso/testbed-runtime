@@ -2,8 +2,8 @@ package de.uniluebeck.itm.tr.iwsn.newoverlay;
 
 import com.google.common.util.concurrent.Service;
 
-public interface Overlay extends Service {
+public interface Testbed extends Service {
 
-	OverlayEventBus getEventBus();
+	TestbedEventBus getEventBus();
 
 }

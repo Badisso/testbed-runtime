@@ -1,10 +1,10 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Testbed;
 
 public interface WSNServiceHandleFactory {
 
-	WSNServiceHandle create(Overlay overlay,
+	WSNServiceHandle create(Testbed testbed,
 							WSNService wsnService,
 							WSNSoapService wsnSoapService);
 

@@ -31,7 +31,7 @@ import com.google.inject.Singleton;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Testbed;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.ConfidentialReservationData;
@@ -68,7 +68,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 	private final WSNServiceHandleFactory wsnServiceHandleFactory;
 
-	private final Overlay overlay;
+	private final Testbed testbed;
 
 	private final WSNServiceFactory wsnServiceFactory;
 
@@ -135,14 +135,14 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			new HashMap<String, ScheduledFuture<?>>();
 
 	@Inject
-	SessionManagementServiceImpl(final Overlay overlay,
+	SessionManagementServiceImpl(final Testbed testbed,
 								 final WSNServiceHandleFactory wsnServiceHandleFactory,
 								 final WSNServiceFactory wsnServiceFactory,
 								 @Assisted final SessionManagementServiceConfig config,
 								 @Assisted final SessionManagementPreconditions preconditions,
 								 @Assisted final ScheduledExecutorService scheduler) throws MalformedURLException {
 
-		this.overlay = checkNotNull(overlay);
+		this.testbed = checkNotNull(testbed);
 		this.wsnServiceHandleFactory = checkNotNull(wsnServiceHandleFactory);
 		this.wsnServiceFactory = checkNotNull(wsnServiceFactory);
 		this.config = checkNotNull(config);
@@ -321,7 +321,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 		final WSNService wsnService = wsnServiceFactory.createWSNService(config, preconditions);
 		final WSNSoapService wsnSoapService = wsnServiceFactory.createWSNSoapService(config, wsnService);
 
-		return wsnServiceHandleFactory.create(overlay, wsnService, wsnSoapService);
+		return wsnServiceHandleFactory.create(testbed, wsnService, wsnSoapService);
 	}
 
 	/**

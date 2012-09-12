@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.Service;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Testbed;
 
 public interface WSNServiceHandle extends Service {
 
@@ -9,5 +9,5 @@ public interface WSNServiceHandle extends Service {
 
 	WSNSoapService getWsnSoapService();
 
-	Overlay getOverlay();
+	Testbed getTestbed();
 }

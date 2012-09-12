@@ -69,7 +69,7 @@ public class WSNServiceImplTest {
 	}
 
 	@Mock
-	private OverlayEventBus eventBus;
+	private TestbedEventBus eventBus;
 
 	@Mock
 	private TestbedRuntime testbedRuntime;
@@ -87,7 +87,7 @@ public class WSNServiceImplTest {
 	private WSNPreconditions preconditions;
 
 	@Mock
-	private Overlay overlay;
+	private Testbed testbed;
 
 	@Mock
 	private RequestIdProvider requestIdProvider;
@@ -98,12 +98,12 @@ public class WSNServiceImplTest {
 
 	private ForwardingScheduledExecutorService scheduler;
 
-	private class TestOverlayModule extends OverlayModule {
+	private class TestTestbedModule extends TestbedModule {
 
 		@Override
 		protected void configure() {
 			super.configure();
-			bind(Overlay.class).toInstance(overlay);
+			bind(Testbed.class).toInstance(testbed);
 		}
 	}
 
@@ -116,7 +116,7 @@ public class WSNServiceImplTest {
 		);
 
 		final Injector injector = Guice.createInjector(
-				new TestOverlayModule(),
+				new TestTestbedModule(),
 				new PortalServerModule(scheduler)
 		);
 

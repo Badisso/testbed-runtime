@@ -159,7 +159,7 @@ public class OverlayStatsApplication extends AbstractService implements TestbedA
 					if (log.isInfoEnabled()) {
 						DecimalFormat formatter = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH));
 						log.info(
-								"Overlay messages in [10,60,300] seconds: sent [{},{},{}], received [{},{},{}], dropped [{},{},{}]",
+								"Testbed messages in [10,60,300] seconds: sent [{},{},{}], received [{},{},{}], dropped [{},{},{}]",
 								new Object[]{
 										formatter.format(messagesSentMovingAverage10Seconds.getAvg()),
 										formatter.format(messagesSentMovingAverage60Seconds.getAvg()),

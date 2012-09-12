@@ -125,7 +125,7 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 		log.debug("Client disconnected: {}", e);
 
 		if (wsnServiceHandle != null) {
-			wsnServiceHandle.getOverlay().getEventBus().unregister(this);
+			wsnServiceHandle.getTestbed().getEventBus().unregister(this);
 		}
 
 		channel = null;
@@ -221,7 +221,7 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 			log.debug("Sending message {} to nodeUrns {}", toPrintableString(messageBytes, 200), to);
 		}
 
-		wsnServiceHandle.getOverlay().getEventBus().post(new WSNAppDownstreamMessage(to, messageBytes));
+		wsnServiceHandle.getTestbed().getEventBus().post(new WSNAppDownstreamMessage(to, messageBytes));
 	}
 
 	private void receivedSecretReservationKeys(final ChannelHandlerContext ctx, final MessageEvent e,
@@ -269,7 +269,7 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 
 		log.debug("Valid secret reservation key. Starting to listen for messages...");
 
-		wsnServiceHandle.getOverlay().getEventBus().register(this);
+		wsnServiceHandle.getTestbed().getEventBus().register(this);
 		wsnServiceHandle.getWsnService().addListener(wsnServiceLifecycleListener, MoreExecutors.sameThreadExecutor());
 	}
 

@@ -10,7 +10,7 @@ import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.AreNodesAliveSmRequest;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Testbed;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.Request;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
@@ -70,7 +70,7 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	private final ScheduledExecutorService scheduledExecutorService;
 
 	@Nonnull
-	private final Overlay overlay;
+	private final Testbed testbed;
 
 	@Nullable
 	private Endpoint endpoint;
@@ -78,7 +78,7 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	private final RequestFactory requestFactory;
 
 	@Inject
-	SessionManagementSoapService(final Overlay overlay,
+	SessionManagementSoapService(final Testbed testbed,
 								 final RequestFactory requestFactory,
 								 @Assisted final SessionManagementService sm,
 								 @Assisted final SessionManagementServiceConfig config,
@@ -87,7 +87,7 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 								 @Assisted final ScheduledExecutorService scheduledExecutorService) {
 
 		this.sm = checkNotNull(sm);
-		this.overlay = checkNotNull(overlay);
+		this.testbed = checkNotNull(testbed);
 		this.requestFactory = checkNotNull(requestFactory);
 		this.config = checkNotNull(config);
 		this.preconditions = checkNotNull(preconditions);
@@ -237,7 +237,7 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 			}
 		}, MoreExecutors.sameThreadExecutor());
 
-		overlay.getEventBus().post(request);
+		testbed.getEventBus().post(request);
 
 		return Long.toString(request.getRequestId());
 	}

@@ -29,8 +29,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.Overlay;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.OverlayEventBus;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.Testbed;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufApiService;
@@ -38,7 +37,7 @@ import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppOverlayModule;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppTestbedModule;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.ForwardingScheduledExecutorService;
 import org.slf4j.Logger;
@@ -71,7 +70,7 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 
 	private ProtobufApiService protobufService;
 
-	private Overlay overlay;
+	private Testbed testbed;
 
 	private WSNApp wsnApp;
 
@@ -116,14 +115,14 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 
 
 		final Injector injector = Guice.createInjector(
-				new WSNAppOverlayModule(wsnApp),
+				new WSNAppTestbedModule(wsnApp),
 				new PortalServerModule(scheduler)
 		);
 
 		try {
 
-			overlay = injector.getInstance(Overlay.class);
-			overlay.startAndWait();
+			testbed = injector.getInstance(Testbed.class);
+			testbed.startAndWait();
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -226,9 +225,9 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		}
 
 		try {
-			overlay.stopAndWait();
+			testbed.stopAndWait();
 		} catch (Exception e) {
-			log.error("Exception while shutting down Overlay: {}", e);
+			log.error("Exception while shutting down Testbed: {}", e);
 			notifyFailed(e);
 		}
 

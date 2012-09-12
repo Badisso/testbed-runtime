@@ -7,7 +7,7 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class OverlayModule extends AbstractModule {
+public class TestbedModule extends AbstractModule {
 
 	@Override
 	protected void configure() {

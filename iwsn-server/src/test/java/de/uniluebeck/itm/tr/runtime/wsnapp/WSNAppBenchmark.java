@@ -53,7 +53,7 @@ public class WSNAppBenchmark {
 
 		private final int messageNumber;
 
-		private final OverlayEventBus overlayEventBus;
+		private final TestbedEventBus testbedEventBus;
 
 		private final SettableFuture<byte[]> future;
 
@@ -65,12 +65,12 @@ public class WSNAppBenchmark {
 
 		private FutureMessageReceiver(final ImmutableSet<NodeUrn> nodeUrns,
 									  final int messageNumber,
-									  final OverlayEventBus overlayEventBus,
+									  final TestbedEventBus testbedEventBus,
 									  final RequestFactory requestFactory) {
 
 			this.nodeUrns = nodeUrns;
 			this.messageNumber = messageNumber;
-			this.overlayEventBus = overlayEventBus;
+			this.testbedEventBus = testbedEventBus;
 			this.requestFactory = requestFactory;
 
 			this.future = SettableFuture.create();
@@ -97,7 +97,7 @@ public class WSNAppBenchmark {
 			if (decodedMessage.getInt(1) == messageNumber) {
 				log.debug("Received response for messageNumber={}", messageNumber);
 				duration = timeDiff.ms();
-				overlayEventBus.unregister(this);
+				testbedEventBus.unregister(this);
 				future.set(bytes);
 			}
 		}
@@ -109,7 +109,7 @@ public class WSNAppBenchmark {
 			buffer.writeInt(messageNumber);
 
 			timeDiff.touch();
-			overlayEventBus.register(this);
+			testbedEventBus.register(this);
 
 			final MessageDownstreamRequest request = requestFactory.createMessageDownstreamRequest(
 					nodeUrns,
@@ -128,7 +128,7 @@ public class WSNAppBenchmark {
 			}, MoreExecutors.sameThreadExecutor()
 			);
 
-			overlayEventBus.post(request);
+			testbedEventBus.post(request);
 		}
 
 		public synchronized long getDuration() {
@@ -236,9 +236,9 @@ public class WSNAppBenchmark {
 
 	private RequestFactory portalRequestFactory;
 
-	private OverlayEventBus portalOverlayEventBus;
+	private TestbedEventBus portalTestbedEventBus;
 
-	private Overlay portalOverlay;
+	private Testbed portalTestbed;
 
 	@Before
 	public void setUp() throws Exception {
@@ -341,17 +341,17 @@ public class WSNAppBenchmark {
 
 		wsnApp.startAndWait();
 
-		final Injector portalOverlayInjector = Guice.createInjector(new WSNAppOverlayModule(wsnApp));
+		final Injector portalOverlayInjector = Guice.createInjector(new WSNAppTestbedModule(wsnApp));
 		portalRequestFactory = portalOverlayInjector.getInstance(RequestFactory.class);
-		portalOverlay = portalOverlayInjector.getInstance(Overlay.class);
-		portalOverlay.startAndWait();
-		portalOverlayEventBus = portalOverlay.getEventBus();
+		portalTestbed = portalOverlayInjector.getInstance(Testbed.class);
+		portalTestbed.startAndWait();
+		portalTestbedEventBus = portalTestbed.getEventBus();
 	}
 
 	@After
 	public void tearDown() throws Exception {
 
-		portalOverlay.stopAndWait();
+		portalTestbed.stopAndWait();
 		wsnApp.stopAndWait();
 		stopWSNDeviceApps();
 
@@ -407,7 +407,7 @@ public class WSNAppBenchmark {
 		// fork
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
-			receiver = new FutureMessageReceiver(NODES_1, messageNumber, portalOverlayEventBus, portalRequestFactory);
+			receiver = new FutureMessageReceiver(NODES_1, messageNumber, portalTestbedEventBus, portalRequestFactory);
 			receiver.start();
 			receivers.add(receiver);
 		}
@@ -437,7 +437,7 @@ public class WSNAppBenchmark {
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
 
 			final FutureMessageReceiver receiver;
-			receiver = new FutureMessageReceiver(NODES_10, messageNumber, portalOverlayEventBus, portalRequestFactory);
+			receiver = new FutureMessageReceiver(NODES_10, messageNumber, portalTestbedEventBus, portalRequestFactory);
 			receiver.start();
 			try {
 				receiver.getFuture().get(5, TimeUnit.SECONDS);
@@ -510,7 +510,7 @@ public class WSNAppBenchmark {
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
 
-			receiver = new FutureMessageReceiver(nodeUrns, messageNumber, portalOverlayEventBus, portalRequestFactory);
+			receiver = new FutureMessageReceiver(nodeUrns, messageNumber, portalTestbedEventBus, portalRequestFactory);
 			receiver.start();
 			receiver.getFuture().get(5, TimeUnit.SECONDS);
 			durations.add((float) receiver.getDuration());

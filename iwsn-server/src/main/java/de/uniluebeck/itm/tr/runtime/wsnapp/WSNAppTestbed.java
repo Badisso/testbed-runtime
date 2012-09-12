@@ -19,11 +19,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convert;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertToStringSet;
 
-class WSNAppOverlay extends AbstractService implements Overlay {
+class WSNAppTestbed extends AbstractService implements Testbed {
 
-	private WSNAppOverlay.OverlayEventBusSubscriber overlayEventBusSubscriber = new OverlayEventBusSubscriber();
+	private TestbedEventBusSubscriber testbedEventBusSubscriber = new TestbedEventBusSubscriber();
 
-	private WSNAppOverlay.WSNAppEventBusSubscriber wsnAppEventBusSubscriber = new WSNAppEventBusSubscriber();
+	private WSNAppTestbed.WSNAppEventBusSubscriber wsnAppEventBusSubscriber = new WSNAppEventBusSubscriber();
 
 	private static class WSNAppCallback implements WSNApp.Callback {
 
@@ -66,15 +66,15 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		}
 	}
 
-	private class OverlayEventBusSubscriber {
+	private class TestbedEventBusSubscriber {
 
-		private final Logger log = LoggerFactory.getLogger(OverlayEventBusSubscriber.class);
+		private final Logger log = LoggerFactory.getLogger(TestbedEventBusSubscriber.class);
 
 		@Subscribe
 		@VisibleForTesting
 		public void onAreNodesAliveRequest(final AreNodesAliveRequest request) {
 
-			log.debug("WSNAppOverlay.onAreNodesAliveRequest({})", request);
+			log.debug("WSNAppTestbed.onAreNodesAliveRequest({})", request);
 
 			try {
 
@@ -101,7 +101,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onAreNodesAliveSmRequest(final AreNodesAliveSmRequest request) {
 
-			log.debug("WSNAppOverlay.onAreNodesAliveSmRequest({})", request);
+			log.debug("WSNAppTestbed.onAreNodesAliveSmRequest({})", request);
 
 			try {
 
@@ -117,7 +117,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onDestroyVirtualLinkRequest(final DestroyVirtualLinkRequest request) {
 
-			log.debug("WSNAppOverlay.onDestroyVirtualLinkRequest({})", request);
+			log.debug("WSNAppTestbed.onDestroyVirtualLinkRequest({})", request);
 
 			try {
 
@@ -136,7 +136,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onDevicesAttachedEventRequest(final DevicesAttachedEventRequest request) {
 
-			log.debug("WSNAppOverlay.onDevicesAttachedEventRequest({})", request);
+			log.debug("WSNAppTestbed.onDevicesAttachedEventRequest({})", request);
 
 			// TODO implement
 			throw new RuntimeException("Not yet implemented!");
@@ -146,7 +146,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onDevicesDetachedEventRequest(final DevicesDetachedEventRequest request) {
 
-			log.debug("WSNAppOverlay.onDevicesDetachedEventRequest({})", request);
+			log.debug("WSNAppTestbed.onDevicesDetachedEventRequest({})", request);
 
 			// TODO implement
 			throw new RuntimeException("Not yet implemented!");
@@ -156,7 +156,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onDisableNodeRequest(final DisableNodeRequest request) {
 
-			log.debug("WSNAppOverlay.onDisableNodeRequest({})", request);
+			log.debug("WSNAppTestbed.onDisableNodeRequest({})", request);
 
 			try {
 
@@ -172,7 +172,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onDisablePhysicalLinkRequest(final DisablePhysicalLinkRequest request) {
 
-			log.debug("WSNAppOverlay.onDisablePhysicalLinkRequest({})", request);
+			log.debug("WSNAppTestbed.onDisablePhysicalLinkRequest({})", request);
 
 			try {
 
@@ -188,7 +188,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onEnableNodeRequest(final EnableNodeRequest request) {
 
-			log.debug("WSNAppOverlay.onEnableNodeRequest({})", request);
+			log.debug("WSNAppTestbed.onEnableNodeRequest({})", request);
 
 			try {
 
@@ -204,7 +204,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onEnablePhysicalLinkRequest(final EnablePhysicalLinkRequest request) {
 
-			log.debug("WSNAppOverlay.onEnablePhysicalLinkRequest({})", request);
+			log.debug("WSNAppTestbed.onEnablePhysicalLinkRequest({})", request);
 
 			try {
 
@@ -220,7 +220,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onFlashDefaultImageRequest(final FlashDefaultImageRequest request) {
 
-			log.debug("WSNAppOverlay.onFlashDefaultImageRequest({})", request);
+			log.debug("WSNAppTestbed.onFlashDefaultImageRequest({})", request);
 
 			// TODO implement
 			throw new RuntimeException("Not yet implemented!");
@@ -230,7 +230,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onFlashImageRequest(final FlashImageRequest request) {
 
-			log.debug("WSNAppOverlay.onFlashImageRequest({})", request);
+			log.debug("WSNAppTestbed.onFlashImageRequest({})", request);
 
 			try {
 
@@ -246,7 +246,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onMessageDownstreamRequest(final MessageDownstreamRequest request) {
 
-			log.debug("WSNAppOverlay.onMessageDownstreamRequest({})", request);
+			log.debug("WSNAppTestbed.onMessageDownstreamRequest({})", request);
 
 			final WSNAppDownstreamMessage wsnAppMessage = TypeConverter.convert(request);
 
@@ -276,7 +276,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onResetNodesRequest(final ResetNodesRequest request) {
 
-			log.debug("WSNAppOverlay.onResetNodesRequest({})", request);
+			log.debug("WSNAppTestbed.onResetNodesRequest({})", request);
 
 			try {
 
@@ -292,7 +292,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onSetChannelPipelineRequest(final SetChannelPipelineRequest request) {
 
-			log.debug("WSNAppOverlay.onSetChannelPipelineRequest({})", request);
+			log.debug("WSNAppTestbed.onSetChannelPipelineRequest({})", request);
 
 			try {
 
@@ -308,7 +308,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onSetDefaultChannelPipelineRequest(final SetDefaultChannelPipelineRequest request) {
 
-			log.debug("WSNAppOverlay.onSetDefaultChannelPipelineRequest({})", request);
+			log.debug("WSNAppTestbed.onSetDefaultChannelPipelineRequest({})", request);
 
 			// TODO implement
 			throw new RuntimeException("Not yet implemented!");
@@ -318,7 +318,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onSetVirtualLinkRequest(final SetVirtualLinkRequest request) {
 
-			log.debug("WSNAppOverlay.onSetVirtualLinkRequest({})", request);
+			log.debug("WSNAppTestbed.onSetVirtualLinkRequest({})", request);
 
 			try {
 
@@ -339,7 +339,7 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 		@VisibleForTesting
 		public void onWSNAppUpstreamMessageRequest(final WSNAppUpstreamMessage request) {
 
-			log.trace("WSNAppOverlay.onWSNAppUpstreamMessageRequest({})", request);
+			log.trace("WSNAppTestbed.onWSNAppUpstreamMessageRequest({})", request);
 
 			final MessageUpstreamRequest overlayRequest = TypeConverter.convert(request, requestFactory);
 
@@ -358,13 +358,13 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 			}, MoreExecutors.sameThreadExecutor()
 			);
 
-			overlayEventBus.post(overlayRequest);
+			testbedEventBus.post(overlayRequest);
 		}
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(WSNAppOverlay.class);
+	private static final Logger log = LoggerFactory.getLogger(WSNAppTestbed.class);
 
-	private final OverlayEventBus overlayEventBus;
+	private final TestbedEventBus testbedEventBus;
 
 	private final WSNAppEventBus wsnAppEventBus;
 
@@ -374,30 +374,30 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 	@Inject
 	@VisibleForTesting
-	WSNAppOverlay(final OverlayEventBus overlayEventBus,
+	WSNAppTestbed(final TestbedEventBus testbedEventBus,
 				  final WSNApp wsnApp,
 				  final WSNAppEventBus wsnAppEventBus,
 				  final RequestFactory requestFactory) {
 
-		this.overlayEventBus = checkNotNull(overlayEventBus);
+		this.testbedEventBus = checkNotNull(testbedEventBus);
 		this.wsnApp = checkNotNull(wsnApp);
 		this.wsnAppEventBus = checkNotNull(wsnAppEventBus);
 		this.requestFactory = checkNotNull(requestFactory);
 	}
 
 	@Override
-	public OverlayEventBus getEventBus() {
-		return overlayEventBus;
+	public TestbedEventBus getEventBus() {
+		return testbedEventBus;
 	}
 
 	@Override
 	protected void doStart() {
 
-		log.trace("Starting WSNAppOverlay...");
+		log.trace("Starting WSNAppTestbed...");
 
 		try {
 
-			overlayEventBus.register(overlayEventBusSubscriber);
+			testbedEventBus.register(testbedEventBusSubscriber);
 			wsnAppEventBus.register(wsnAppEventBusSubscriber);
 
 			notifyStarted();
@@ -410,11 +410,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 	@Override
 	protected void doStop() {
 
-		log.trace("Stopping WSNAppOverlay...");
+		log.trace("Stopping WSNAppTestbed...");
 
 		try {
 
-			overlayEventBus.unregister(overlayEventBusSubscriber);
+			testbedEventBus.unregister(testbedEventBusSubscriber);
 			wsnAppEventBus.unregister(wsnAppEventBusSubscriber);
 
 			notifyStopped();
