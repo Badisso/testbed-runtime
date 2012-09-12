@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -9,16 +8,12 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.BackendNotificationsRequest;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageUpstreamRequest;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestResult;
 import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementService;
 import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppDownstreamMessage;
 import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,7 +174,9 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 		}
 
 		if (!request.getFuture().isDone()) {
-			request.getFuture().set(new RequestResult(request.getRequestId(), null));
+			for (ProgressSettableFuture<Void> future : request.getFutureMap().values()) {
+				future.set(null);
+			}
 		}
 	}
 
@@ -197,13 +194,9 @@ public class ProtobufApiChannelHandler extends SimpleChannelHandler {
 		channel.write(convert(request));
 
 		if (!request.getFuture().isDone()) {
-
-			final RequestResult result = new RequestResult(
-					request.getRequestId(),
-					ImmutableMap.of(request.getFrom(), new Tuple<Integer, String>(1, ""))
-			);
-
-			request.getFuture().set(result);
+			for (ProgressSettableFuture<Void> future : request.getFutureMap().values()) {
+				future.set(null);
+			}
 		}
 	}
 

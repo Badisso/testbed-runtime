@@ -1,9 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
@@ -11,11 +9,9 @@ import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.*;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppOverlayModule;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.ForwardingScheduledExecutorService;
 import de.uniluebeck.itm.tr.util.Logging;
-import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
@@ -355,7 +351,9 @@ public class WSNServiceImplTest {
 
 		verify(deliveryManager, never()).receiveStatus(Matchers.<RequestStatus>any());
 
-		request.getFuture().set(buildSuccessRequestResult(request));
+		for (NodeUrn nodeUrn : request.getNodeUrns()) {
+			request.getFutureMap().get(nodeUrn).set(null);
+		}
 
 		final ArgumentCaptor<List> responseCaptor = ArgumentCaptor.forClass(List.class);
 		verify(deliveryManager).receiveStatus(responseCaptor.capture());
@@ -375,13 +373,5 @@ public class WSNServiceImplTest {
 		}
 
 		assertTrue(Sets.difference(receivedStatusNodeUrns, request.getNodeUrns()).isEmpty());
-	}
-
-	private RequestResult buildSuccessRequestResult(final Request request) {
-		final ImmutableMap.Builder<NodeUrn, Tuple<Integer, String>> resultMapBuilder = ImmutableMap.builder();
-		for (NodeUrn nodeUrn : request.getNodeUrns()) {
-			resultMapBuilder.put(nodeUrn, new Tuple<Integer, String>(1, ""));
-		}
-		return new RequestResult(request.getRequestId(), resultMapBuilder.build());
 	}
 }

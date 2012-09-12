@@ -1,21 +1,21 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.*;
 import de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter;
+import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convert;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convertToStringSet;
 
@@ -27,49 +27,42 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 	private static class WSNAppCallback implements WSNApp.Callback {
 
-		private final Set<NodeUrn> responsesPending;
-
 		private final int successValue;
 
-		private final int errorValue;
-
-		private final EventBus eventBus;
+		private final int errorValueLowerBoundExclusive;
 
 		private final Request request;
 
-		private WSNAppCallback(final EventBus eventBus,
-							   final Request request,
+		private WSNAppCallback(final Request request,
 							   final int successValue,
 							   final int errorValueLowerBoundExclusive) {
 
-			this.eventBus = eventBus;
 			this.request = request;
-
 			this.successValue = successValue;
-			this.errorValue = errorValueLowerBoundExclusive;
-
-			this.responsesPending = newHashSet(request.getNodeUrns());
+			this.errorValueLowerBoundExclusive = errorValueLowerBoundExclusive;
 		}
 
 		@Override
 		public synchronized void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 
+			final NodeUrn nodeUrn = new NodeUrn(requestStatus.getStatus().getNodeId());
+			final ProgressSettableFuture<Void> nodeFuture = request.getFutureMap().get(nodeUrn);
 			final int value = requestStatus.getStatus().getValue();
 
-			if (value >= successValue || value < errorValue) {
-				responsesPending.remove(new NodeUrn(requestStatus.getStatus().getNodeId()));
-			}
-
-			if (responsesPending.isEmpty()) {
-				eventBus.post(TypeConverter.convertToRequestResult(requestStatus, request.getRequestId()));
+			if (value >= successValue) {
+				nodeFuture.set(null);
+			} else if (value < errorValueLowerBoundExclusive) {
+				nodeFuture.setException(new Exception(requestStatus.getStatus().getMsg()));
 			} else {
-				eventBus.post(TypeConverter.convertToRequestStatus(requestStatus, request.getRequestId()));
+				nodeFuture.setProgress(((float) value / (float) 100));
 			}
 		}
 
 		@Override
 		public synchronized void failure(Exception e) {
-			request.getFuture().setException(e);
+			for (ProgressSettableFuture<Void> future : request.getFutureMap().values()) {
+				future.setException(e);
+			}
 		}
 	}
 
@@ -85,11 +78,22 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.areNodesAlive(convertToStringSet(request.getNodeUrns()), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
+			}
+		}
+
+		private void handleUnknownNodeUrnsException(final Request request, final UnknownNodeUrnsException e) {
+			for (Map.Entry<NodeUrn, ProgressSettableFuture<Void>> entry : request.getFutureMap().entrySet()) {
+
+				if (e.getNodeUrns().contains(entry.getKey().toString())) {
+					entry.getValue().setException(e);
+				} else {
+					entry.getValue().setException(new Exception("Cancelled operation"));
+				}
 			}
 		}
 
@@ -101,11 +105,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.areNodesAliveSm(convertToStringSet(request.getNodeUrns()), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 
@@ -119,12 +123,12 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 				final String sourceNodeUrn = request.getFrom().toString();
 				final String targetNodeUrn = request.getTo().toString();
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 
 				wsnApp.destroyVirtualLink(sourceNodeUrn, targetNodeUrn, callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 
@@ -156,11 +160,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.disableNode(request.getNodeUrn().toString(), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 
@@ -172,11 +176,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.disablePhysicalLink(request.getFrom().toString(), request.getTo().toString(), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 
@@ -188,11 +192,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.enableNode(request.getNodeUrn().toString(), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 
@@ -204,11 +208,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.enablePhysicalLink(request.getFrom().toString(), request.getTo().toString(), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 
@@ -230,11 +234,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.flashPrograms(convert(request.getNodeUrns(), request.getImage()), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 
@@ -244,25 +248,28 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			log.debug("WSNAppOverlay.onMessageDownstreamRequest({})", request);
 
-			final WSNAppDownstreamMessage wsnAppDownstreamMessage = TypeConverter.convert(request);
-			wsnAppDownstreamMessage.getFuture().addListener(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						request.getFuture().set(
-								TypeConverter.convert(
-										wsnAppDownstreamMessage.getFuture().get(),
-										request.getRequestId()
-								)
-						);
-					} catch (Exception e) {
-						request.getFuture().setException(e);
-					}
-				}
-			}, MoreExecutors.sameThreadExecutor()
-			);
+			final WSNAppDownstreamMessage wsnAppMessage = TypeConverter.convert(request);
 
-			wsnApp.getEventBus().post(wsnAppDownstreamMessage);
+			for (final Map.Entry<String, SettableFuture<Void>> entry : wsnAppMessage.getFutureMap().entrySet()) {
+
+				final SettableFuture<Void> wsnAppNodeFuture = entry.getValue();
+				final NodeUrn nodeUrn = new NodeUrn(entry.getKey());
+				final ProgressSettableFuture<Void> overlayNodeFuture = request.getFutureMap().get(nodeUrn);
+
+				wsnAppNodeFuture.addListener(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							overlayNodeFuture.set(wsnAppNodeFuture.get());
+						} catch (Exception e) {
+							overlayNodeFuture.setException(e);
+						}
+					}
+				}, MoreExecutors.sameThreadExecutor()
+				);
+			}
+
+			wsnApp.getEventBus().post(wsnAppMessage);
 		}
 
 		@Subscribe
@@ -273,11 +280,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.resetNodes(convertToStringSet(request.getNodeUrns()), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 
@@ -289,11 +296,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.resetNodes(convertToStringSet(request.getNodeUrns()), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 
@@ -315,11 +322,11 @@ class WSNAppOverlay extends AbstractService implements Overlay {
 
 			try {
 
-				final WSNAppCallback callback = new WSNAppCallback(overlayEventBus, request, 1, 0);
+				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
 				wsnApp.setVirtualLink(request.getFrom().toString(), request.getTo().toString(), callback);
 
 			} catch (UnknownNodeUrnsException e) {
-				request.getFuture().setException(e);
+				handleUnknownNodeUrnsException(request, e);
 			}
 		}
 	}

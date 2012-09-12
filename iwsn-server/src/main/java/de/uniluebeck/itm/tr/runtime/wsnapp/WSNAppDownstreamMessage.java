@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.SettableFuture;
 
@@ -10,12 +11,18 @@ public class WSNAppDownstreamMessage {
 
 	private final byte[] messageBytes;
 
-	private final SettableFuture<WSNAppMessages.RequestStatus> future;
+	private final ImmutableMap<String, SettableFuture<Void>> futureMap;
 
 	public WSNAppDownstreamMessage(final ImmutableSet<String> to, final byte[] messageBytes) {
+
 		this.to = to;
 		this.messageBytes = messageBytes;
-		this.future = SettableFuture.create();
+
+		final ImmutableMap.Builder<String, SettableFuture<Void>> futureMapBuilder = ImmutableMap.builder();
+		for (String t : to) {
+			futureMapBuilder.put(t, SettableFuture.<Void>create());
+		}
+		this.futureMap = futureMapBuilder.build();
 	}
 
 	public byte[] getMessageBytes() {
@@ -26,8 +33,8 @@ public class WSNAppDownstreamMessage {
 		return to;
 	}
 
-	public SettableFuture<WSNAppMessages.RequestStatus> getFuture() {
-		return future;
+	public ImmutableMap<String, SettableFuture<Void>> getFutureMap() {
+		return futureMap;
 	}
 
 	@Override

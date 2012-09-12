@@ -28,7 +28,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.*;
 import com.google.inject.Inject;
@@ -503,10 +502,19 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	@Subscribe
 	public void onDownstreamMessage(final WSNAppDownstreamMessage message) {
 
+		log.debug("WSNAppImpl.onDownstreamMessage({})", message);
+
 		try {
 			assertNodeUrnsKnown(message.getTo());
 		} catch (UnknownNodeUrnsException e) {
-			message.getFuture().setException(e);
+			for (String nodeUrn : message.getTo()) {
+				if (e.getNodeUrns().contains(nodeUrn)) {
+					message.getFutureMap().get(nodeUrn).setException(e);
+				} else {
+					message.getFutureMap().get(nodeUrn).setException(new Exception("Cancelled"));
+				}
+			}
+			return;
 		}
 
 		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getMessageBytes());
@@ -521,7 +529,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		pipeline.sendDownstream(downstreamMessageEvent);
 
-		message.getFuture().set(null);
+		for (SettableFuture<Void> future : message.getFutureMap().values()) {
+			future.set(null);
+		}
 	}
 
 	private void sendBackendNotificationsToUser(final String... messages) {
