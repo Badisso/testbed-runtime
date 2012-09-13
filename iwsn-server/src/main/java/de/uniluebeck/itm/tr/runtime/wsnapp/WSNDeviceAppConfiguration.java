@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class WSNDeviceAppConfiguration {
 
@@ -18,8 +19,8 @@ public class WSNDeviceAppConfiguration {
 									 final String portalNodeUrn,
 									 @Nullable final File defaultImageFile) {
 
-		this.nodeUrn = nodeUrn;
-		this.portalNodeUrn = portalNodeUrn;
+		this.nodeUrn = checkNotNull(nodeUrn, "nodeUrn must not be null!");
+		this.portalNodeUrn = checkNotNull(portalNodeUrn, "portalNodeUrn must not be null!");
 
 		final boolean defaultImageFileNullOrReadableFile = defaultImageFile == null ||
 				(defaultImageFile.exists() && defaultImageFile.isFile() && defaultImageFile.canRead());
