@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
@@ -234,16 +235,16 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		final String clientRequestId = Long.toString(requestIdProvider.get());
 
-		final ImmutableSet<Tuple<ImmutableSet<NodeUrn>, byte[]>> flashJobs = convert(
+		final ImmutableMap<byte[], ImmutableSet<NodeUrn>> flashJobs = convert(
 				nodeIds,
 				programIndices,
 				programs
 		);
 
-		for (Tuple<ImmutableSet<NodeUrn>, byte[]> flashJob : flashJobs) {
+		for (Map.Entry<byte[], ImmutableSet<NodeUrn>> entry : flashJobs.entrySet()) {
 
-			final ImmutableSet<NodeUrn> nodeUrns = flashJob.getFirst();
-			final byte[] image = flashJob.getSecond();
+			final ImmutableSet<NodeUrn> nodeUrns = entry.getValue();
+			final byte[] image = entry.getKey();
 
 			final FlashImageRequest request = requestFactory.createFlashImageRequest(nodeUrns, image);
 

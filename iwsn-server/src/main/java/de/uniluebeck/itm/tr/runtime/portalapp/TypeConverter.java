@@ -14,15 +14,15 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppUpstreamMessage;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.api.controller.Status;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
-import eu.wisebed.api.wsn.ProgramMetaData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -139,84 +139,31 @@ public class TypeConverter {
 		return list.build();
 	}
 
-	public static RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
+	public static ImmutableMap<byte[], ImmutableSet<NodeUrn>> convert(List<String> nodeIds,
+																	  List<Integer> programIndices,
+																	  List<Program> programs) {
 
-		RequestStatus retRequestStatus = new RequestStatus();
-		retRequestStatus.setRequestId(requestId);
+		final ImmutableMap.Builder<byte[], ImmutableSet<NodeUrn>> mapBuilder = ImmutableMap.builder();
 
-		Status retStatus = new Status();
-		retStatus.setMsg(requestStatus.getMsg());
-		retStatus.setNodeId(requestStatus.getNodeUrn());
-		retStatus.setValue(requestStatus.getValue());
+		for (int i = 0; i < programs.size(); i++) {
 
-		retRequestStatus.getStatus().add(retStatus);
+			final ImmutableSet.Builder<NodeUrn> nodeUrnSetBuilder = ImmutableSet.builder();
 
-		return retRequestStatus;
-	}
+			for (int j = 0; j < programIndices.size(); j++) {
 
-	public static ImmutableSet<Tuple<ImmutableSet<NodeUrn>, byte[]>> convert(List<String> nodeIds,
-																			 List<Integer> programIndices,
-																			 List<Program> programs) {
+				if (i == programIndices.get(j)) {
+					nodeUrnSetBuilder.add(new NodeUrn(nodeIds.get(j)));
+				}
+			}
 
-		throw new RuntimeException("Not yet implemented!");
-	}
+			final ImmutableSet<NodeUrn> nodeUrnSet = nodeUrnSetBuilder.build();
 
-	public static Map<String, WSNAppMessages.Program> convertFlashImage(List<String> nodeIds,
-																		List<Integer> programIndices,
-																		List<Program> programs) {
-
-		Map<String, WSNAppMessages.Program> programsMap = new HashMap<String, WSNAppMessages.Program>();
-
-		List<WSNAppMessages.Program> convertedPrograms = convertPrograms(programs);
-
-		for (int i = 0; i < nodeIds.size(); i++) {
-			programsMap.put(nodeIds.get(i), convertedPrograms.get(programIndices.get(i)));
+			if (!nodeUrnSet.isEmpty()) {
+				mapBuilder.put(programs.get(i).getProgram(), nodeUrnSet);
+			}
 		}
 
-		return programsMap;
-	}
-
-	public static List<WSNAppMessages.Program> convertPrograms(List<Program> programs) {
-		List<WSNAppMessages.Program> list = new ArrayList<WSNAppMessages.Program>(programs.size());
-		for (Program program : programs) {
-			list.add(convert(program));
-		}
-		return list;
-	}
-
-	public static WSNAppMessages.Program convert(Program program) {
-		return WSNAppMessages.Program.newBuilder().setMetaData(convert(program.getMetaData())).setProgram(
-				ByteString.copyFrom(program.getProgram())
-		).build();
-	}
-
-	public static WSNAppMessages.Program.ProgramMetaData convert(ProgramMetaData metaData) {
-		if (metaData == null) {
-			metaData = new ProgramMetaData();
-			metaData.setName("");
-			metaData.setOther("");
-			metaData.setPlatform("");
-			metaData.setVersion("");
-		}
-		return WSNAppMessages.Program.ProgramMetaData.newBuilder().setName(metaData.getName()).setOther(
-				metaData.getOther()
-		).setPlatform(metaData.getPlatform()).setVersion(metaData.getVersion()).build();
-	}
-
-	private static ImmutableMap<NodeUrn, Tuple<Integer, String>> buildResultMap(
-			final WSNAppMessages.RequestStatus requestStatus) {
-
-		final ImmutableMap.Builder<NodeUrn, Tuple<Integer, String>> resultMap = ImmutableMap.builder();
-		final NodeUrn nodeUrn = new NodeUrn(requestStatus.getNodeUrn());
-
-		final Tuple<Integer, String> state = new Tuple<Integer, String>(
-				requestStatus.getValue(),
-				requestStatus.getMsg()
-		);
-
-		resultMap.put(nodeUrn, state);
-
-		return resultMap.build();
+		return mapBuilder.build();
 	}
 
 	public static Map<String, WSNAppMessages.Program> convert(final ImmutableSet<NodeUrn> nodeUrns,

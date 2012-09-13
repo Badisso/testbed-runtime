@@ -15,6 +15,7 @@ import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.wsn.Program;
 import org.apache.log4j.Level;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -29,6 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -38,9 +40,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WSNServiceImplTest {
@@ -49,9 +49,27 @@ public class WSNServiceImplTest {
 
 	private static final NodeUrn NODE_URN_2 = new NodeUrn("urn:wisebed:uzl1:0x0002");
 
+	private static final NodeUrn NODE_URN_3 = new NodeUrn("urn:wisebed:uzl1:0x0003");
+
+	private static final NodeUrn NODE_URN_4 = new NodeUrn("urn:wisebed:uzl1:0x0004");
+
+	private static final NodeUrn NODE_URN_5 = new NodeUrn("urn:wisebed:uzl1:0x0005");
+
 	private static final String NODE_URN_1_STRING = NODE_URN_1.toString();
 
 	private static final String NODE_URN_2_STRING = NODE_URN_2.toString();
+
+	private static final String NODE_URN_3_STRING = NODE_URN_3.toString();
+
+	private static final String NODE_URN_4_STRING = NODE_URN_4.toString();
+
+	private static final String NODE_URN_5_STRING = NODE_URN_5.toString();
+
+	private static final Program PROGRAM_1 = new Program();
+
+	private static final Program PROGRAM_2 = new Program();
+
+	private static final Program PROGRAM_3 = new Program();
 
 	private static final ImmutableSet<NodeUrn> TWO_NODE_URNS = ImmutableSet.of(NODE_URN_1, NODE_URN_2);
 
@@ -66,10 +84,14 @@ public class WSNServiceImplTest {
 		} catch (DatatypeConfigurationException e) {
 			throw propagate(e);
 		}
+
+		PROGRAM_1.setProgram(new byte[]{1, 2, 3});
+		PROGRAM_2.setProgram(new byte[]{2, 3, 4});
+		PROGRAM_3.setProgram(new byte[]{4, 5, 6});
 	}
 
 	@Mock
-	private TestbedEventBus eventBus;
+	private TestbedEventBus testbedEventBus;
 
 	@Mock
 	private TestbedRuntime testbedRuntime;
@@ -123,7 +145,7 @@ public class WSNServiceImplTest {
 		requestFactory = injector.getInstance(RequestFactory.class);
 
 		wsnService = new WSNServiceImpl(
-				eventBus,
+				testbedEventBus,
 				requestFactory,
 				deliveryManager,
 				virtualLinkManager,
@@ -132,24 +154,26 @@ public class WSNServiceImplTest {
 				preconditions
 		);
 
-		verify(eventBus, never()).register(wsnService);
-		verify(eventBus, never()).unregister(wsnService);
+		verify(testbedEventBus, never()).register(wsnService);
+		verify(testbedEventBus, never()).unregister(wsnService);
 
 		wsnService.startAndWait();
 
-		verify(eventBus).register(wsnService);
-		verify(eventBus, never()).unregister(wsnService);
+		verify(testbedEventBus).register(wsnService);
+		verify(testbedEventBus, never()).unregister(wsnService);
+
+		when(requestIdProvider.get()).thenReturn(new Random().nextLong());
 	}
 
 	@After
 	public void tearDown() throws Exception {
 
-		verify(eventBus).register(wsnService);
-		verify(eventBus, never()).unregister(wsnService);
+		verify(testbedEventBus).register(wsnService);
+		verify(testbedEventBus, never()).unregister(wsnService);
 
 		wsnService.stopAndWait();
 
-		verify(eventBus).unregister(wsnService);
+		verify(testbedEventBus).unregister(wsnService);
 
 		ExecutorUtils.shutdown(scheduler, 0, TimeUnit.SECONDS);
 	}
@@ -197,12 +221,12 @@ public class WSNServiceImplTest {
 		final String requestId = wsnService.areNodesAlive(TWO_NODE_URNS_LIST);
 		final ArgumentCaptor<AreNodesAliveRequest> req = ArgumentCaptor.forClass(AreNodesAliveRequest.class);
 
-		verify(eventBus).post(req.capture());
+		verify(testbedEventBus).post(req.capture());
 
 		final AreNodesAliveRequest capReq = req.getValue();
 		assertEquals(TWO_NODE_URNS, capReq.getNodeUrns());
 
-		verifyThatResultIsForwardedCorrectlyOnSuccess(requestId, capReq);
+		verifyThatResultIsForwardedCorrectlyOnSuccess(requestId, capReq, 1);
 	}
 
 	@Test
@@ -211,13 +235,13 @@ public class WSNServiceImplTest {
 		final String reqId = wsnService.destroyVirtualLink(NODE_URN_1_STRING, NODE_URN_2_STRING);
 		final ArgumentCaptor<DestroyVirtualLinkRequest> req = ArgumentCaptor.forClass(DestroyVirtualLinkRequest.class);
 
-		verify(eventBus).post(req.capture());
+		verify(testbedEventBus).post(req.capture());
 
 		final DestroyVirtualLinkRequest capReq = req.getValue();
 		assertEquals(NODE_URN_1, capReq.getFrom());
 		assertEquals(NODE_URN_2, capReq.getTo());
 
-		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq);
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq, 1);
 
 		verify(virtualLinkManager).removeVirtualLink(NODE_URN_1_STRING, NODE_URN_2_STRING);
 	}
@@ -228,12 +252,12 @@ public class WSNServiceImplTest {
 		final String reqId = wsnService.disableNode(NODE_URN_1_STRING);
 		final ArgumentCaptor<DisableNodeRequest> req = ArgumentCaptor.forClass(DisableNodeRequest.class);
 
-		verify(eventBus).post(req.capture());
+		verify(testbedEventBus).post(req.capture());
 
 		final DisableNodeRequest capReq = req.getValue();
 		assertEquals(NODE_URN_1, capReq.getNodeUrn());
 
-		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq);
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq, 1);
 	}
 
 	@Test
@@ -243,13 +267,13 @@ public class WSNServiceImplTest {
 		final ArgumentCaptor<DisablePhysicalLinkRequest> req =
 				ArgumentCaptor.forClass(DisablePhysicalLinkRequest.class);
 
-		verify(eventBus).post(req.capture());
+		verify(testbedEventBus).post(req.capture());
 
 		final DisablePhysicalLinkRequest capReq = req.getValue();
 		assertEquals(NODE_URN_1, capReq.getFrom());
 		assertEquals(NODE_URN_2, capReq.getTo());
 
-		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq);
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq, 1);
 	}
 
 	@Test
@@ -258,12 +282,12 @@ public class WSNServiceImplTest {
 		final String reqId = wsnService.enableNode(NODE_URN_1_STRING);
 		final ArgumentCaptor<EnableNodeRequest> req = ArgumentCaptor.forClass(EnableNodeRequest.class);
 
-		verify(eventBus).post(req.capture());
+		verify(testbedEventBus).post(req.capture());
 
 		final EnableNodeRequest capReq = req.getValue();
 		assertEquals(NODE_URN_1, capReq.getNodeUrn());
 
-		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq);
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq, 1);
 	}
 
 	@Test
@@ -272,18 +296,51 @@ public class WSNServiceImplTest {
 		final String reqId = wsnService.enablePhysicalLink(NODE_URN_1_STRING, NODE_URN_2_STRING);
 		final ArgumentCaptor<EnablePhysicalLinkRequest> req = ArgumentCaptor.forClass(EnablePhysicalLinkRequest.class);
 
-		verify(eventBus).post(req.capture());
+		verify(testbedEventBus).post(req.capture());
 
 		final EnablePhysicalLinkRequest capReq = req.getValue();
 		assertEquals(NODE_URN_1, capReq.getFrom());
 		assertEquals(NODE_URN_2, capReq.getTo());
 
-		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq);
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq, 1);
 	}
 
 	@Test
 	public void testIfFlashImageWorks() throws Exception {
-		// TODO implement
+
+		final List<String> nodeIds = newArrayList(
+				NODE_URN_1_STRING,
+				NODE_URN_2_STRING,
+				NODE_URN_3_STRING,
+				NODE_URN_4_STRING,
+				NODE_URN_5_STRING
+		);
+
+		final List<Program> programs = newArrayList(PROGRAM_1, PROGRAM_2, PROGRAM_3);
+		final List<Integer> programIndices = newArrayList(0, 1, 1, 2, 0);
+
+		final String reqId = wsnService.flashPrograms(nodeIds, programIndices, programs);
+		final ArgumentCaptor<FlashImageRequest> req = ArgumentCaptor.forClass(FlashImageRequest.class);
+
+		verify(testbedEventBus, times(3)).post(req.capture());
+
+		final List<FlashImageRequest> capturedRequests = req.getAllValues();
+		assertEquals(3, capturedRequests.size());
+
+		assertEquals(ImmutableSet.of(NODE_URN_1, NODE_URN_5), capturedRequests.get(0).getNodeUrns());
+		assertEquals(ImmutableSet.of(NODE_URN_2, NODE_URN_3), capturedRequests.get(1).getNodeUrns());
+		assertEquals(ImmutableSet.of(NODE_URN_4), capturedRequests.get(2).getNodeUrns());
+
+		assertArrayEquals(PROGRAM_1.getProgram(), capturedRequests.get(0).getImage());
+		assertArrayEquals(PROGRAM_2.getProgram(), capturedRequests.get(1).getImage());
+		assertArrayEquals(PROGRAM_3.getProgram(), capturedRequests.get(2).getImage());
+
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capturedRequests.get(0), 100);
+		reset(deliveryManager);
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capturedRequests.get(1), 100);
+		reset(deliveryManager);
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capturedRequests.get(2), 100);
+		reset(deliveryManager);
 	}
 
 	@Test
@@ -335,20 +392,21 @@ public class WSNServiceImplTest {
 
 		final ArgumentCaptor<SetVirtualLinkRequest> req = ArgumentCaptor.forClass(SetVirtualLinkRequest.class);
 
-		verify(eventBus).post(req.capture());
+		verify(testbedEventBus).post(req.capture());
 
 		final SetVirtualLinkRequest capReq = req.getValue();
 		assertEquals(NODE_URN_1, capReq.getFrom());
 		assertEquals(NODE_URN_2, capReq.getTo());
 
-		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq);
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq, 1);
 
 		verify(virtualLinkManager).addVirtualLink(NODE_URN_1_STRING, NODE_URN_2_STRING, remoteServiceInstance);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void verifyThatResultIsForwardedCorrectlyOnSuccess(final String issuedClientRequestId,
-															   final Request request) {
+															   final Request request,
+															   final int expectedCompletionValue) {
 
 		verify(deliveryManager, never()).receiveStatus(Matchers.<RequestStatus>any());
 
@@ -371,8 +429,8 @@ public class WSNServiceImplTest {
 
 				receivedStatusNodeUrns.add(new NodeUrn(status.getNodeId()));
 
-				assertEquals(null, status.getMsg());
-				assertEquals(1, (int) status.getValue());
+				assertEquals("", status.getMsg());
+				assertEquals(expectedCompletionValue, (int) status.getValue());
 			}
 		}
 
