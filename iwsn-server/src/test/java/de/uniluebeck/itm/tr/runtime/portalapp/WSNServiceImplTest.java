@@ -20,6 +20,7 @@ import org.apache.log4j.Level;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -345,7 +347,23 @@ public class WSNServiceImplTest {
 
 	@Test
 	public void testIfMessageDownstreamRequestsAreForwardedToNodes() throws Exception {
-		// TODO implement
+
+		final byte[] messageBytes = {1, 2, 3};
+
+		final Message message = new Message();
+		message.setBinaryData(messageBytes);
+		message.setSourceNodeId("i:dont:care");
+		message.setTimestamp(DATATYPE_FACTORY.newXMLGregorianCalendar(new GregorianCalendar()));
+
+		wsnService.send(newArrayList(NODE_URN_1_STRING, NODE_URN_3_STRING), message);
+
+		final ArgumentCaptor<MessageDownstreamRequest> req = ArgumentCaptor.forClass(MessageDownstreamRequest.class);
+
+		verify(testbedEventBus).post(req.capture());
+
+		final MessageDownstreamRequest capReq = req.getValue();
+		assertEquals(ImmutableSet.of(NODE_URN_1, NODE_URN_3), capReq.getTo());
+		assertArrayEquals(messageBytes, capReq.getMessageBytes());
 	}
 
 	@Test
@@ -385,8 +403,8 @@ public class WSNServiceImplTest {
 	}
 
 	@Test
+	@Ignore("To be implemented...")
 	public void testIfSetChannelPipelineWorks() throws Exception {
-		// TODO implement
 	}
 
 	@Test
