@@ -370,7 +370,18 @@ public class WSNServiceImplTest {
 
 	@Test
 	public void testIfResetNodesWorks() throws Exception {
-		// TODO implement
+
+		final String reqId = wsnService.resetNodes(
+				newArrayList(NODE_URN_1_STRING, NODE_URN_3_STRING, NODE_URN_5_STRING)
+		);
+
+		final ArgumentCaptor<ResetNodesRequest> req = ArgumentCaptor.forClass(ResetNodesRequest.class);
+
+		verify(testbedEventBus).post(req.capture());
+
+		final ResetNodesRequest capReq = req.getValue();
+		assertEquals(ImmutableSet.of(NODE_URN_1, NODE_URN_3, NODE_URN_5), capReq.getNodeUrns());
+		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq, 1);
 	}
 
 	@Test
