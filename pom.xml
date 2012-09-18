@@ -125,7 +125,7 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.itmutils</groupId>
 				<artifactId>itmutils</artifactId>
-				<version>0.4.1-SNAPSHOT</version>
+				<version>0.4.1</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
@@ -434,7 +434,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.4</version>
+				<version>2.5.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
@@ -450,25 +450,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh-external</artifactId>
-				<version>1.0</version>
-			</extension>
-		</extensions>
 	</build>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>onejar-maven-plugin.googlecode.com</id>
-			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>onejar-maven-plugin-itm-patch</id>
-			<url>http://www.itm.uni-luebeck.de/projects/maven/releases/</url>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<repositories>
 		<repository>
