@@ -47,16 +47,17 @@ public class PipelineHelper {
 	}
 
 	@Nonnull
-	public static WSNAppMessages.SetChannelPipelineRequest.Builder convertToProtobuf(
+	public static WSNAppMessages.SetChannelPipelineRequest convertToProtobuf(
 			@Nonnull final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
-		WSNAppMessages.SetChannelPipelineRequest.Builder argumentBuilder =
+		WSNAppMessages.SetChannelPipelineRequest.Builder builder =
 				WSNAppMessages.SetChannelPipelineRequest.newBuilder();
 
 		for (ChannelHandlerConfiguration channelHandlerConfiguration : channelHandlerConfigurations) {
-			argumentBuilder.addChannelHandlerConfigurations(convertToProtobuf(channelHandlerConfiguration));
+			builder.addChannelHandlerConfigurations(convertToProtobuf(channelHandlerConfiguration));
 		}
-		return argumentBuilder;
+
+		return builder.build();
 	}
 
 	@Nonnull
@@ -85,7 +86,7 @@ public class PipelineHelper {
 
 	@Nonnull
 	public static ChannelPipeline setPipeline(@Nonnull final ChannelPipeline pipeline,
-									   @Nonnull final List<Tuple<String, ChannelHandler>> handlers) {
+											  @Nonnull final List<Tuple<String, ChannelHandler>> handlers) {
 
 		checkNotNull(pipeline);
 		checkNotNull(handlers);

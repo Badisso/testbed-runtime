@@ -34,11 +34,11 @@ public class WSNAppMessageTools {
 		StringBuilder builder = new StringBuilder();
 
 		if (prependSourceNodeId) {
-			builder.append(message.getSourceNodeId());
+			builder.append(message.getSourceNodeUrn());
 			builder.append(" => ");
 		}
 
-		final ByteString binaryData = message.getBinaryData();
+		final ByteString binaryData = message.getMessageBytes();
 
 		if (binaryData != null) {
 

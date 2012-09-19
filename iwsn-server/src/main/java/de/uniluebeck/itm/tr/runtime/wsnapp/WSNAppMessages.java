@@ -8,6 +8,337 @@ public final class WSNAppMessages {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
+  public static final class Link extends
+      com.google.protobuf.GeneratedMessage {
+    // Use Link.newBuilder() to construct.
+    private Link() {
+      initFields();
+    }
+    private Link(boolean noInit) {}
+    
+    private static final Link defaultInstance;
+    public static Link getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public Link getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Link_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Link_fieldAccessorTable;
+    }
+    
+    // required string sourceNodeUrn = 1;
+    public static final int SOURCENODEURN_FIELD_NUMBER = 1;
+    private boolean hasSourceNodeUrn;
+    private java.lang.String sourceNodeUrn_ = "";
+    public boolean hasSourceNodeUrn() { return hasSourceNodeUrn; }
+    public java.lang.String getSourceNodeUrn() { return sourceNodeUrn_; }
+    
+    // required string targetNodeUrn = 2;
+    public static final int TARGETNODEURN_FIELD_NUMBER = 2;
+    private boolean hasTargetNodeUrn;
+    private java.lang.String targetNodeUrn_ = "";
+    public boolean hasTargetNodeUrn() { return hasTargetNodeUrn; }
+    public java.lang.String getTargetNodeUrn() { return targetNodeUrn_; }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      if (!hasSourceNodeUrn) return false;
+      if (!hasTargetNodeUrn) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (hasSourceNodeUrn()) {
+        output.writeString(1, getSourceNodeUrn());
+      }
+      if (hasTargetNodeUrn()) {
+        output.writeString(2, getTargetNodeUrn());
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (hasSourceNodeUrn()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(1, getSourceNodeUrn());
+      }
+      if (hasTargetNodeUrn()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(2, getTargetNodeUrn());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.getDefaultInstance()) return this;
+        if (other.hasSourceNodeUrn()) {
+          setSourceNodeUrn(other.getSourceNodeUrn());
+        }
+        if (other.hasTargetNodeUrn()) {
+          setTargetNodeUrn(other.getTargetNodeUrn());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              setSourceNodeUrn(input.readString());
+              break;
+            }
+            case 18: {
+              setTargetNodeUrn(input.readString());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // required string sourceNodeUrn = 1;
+      public boolean hasSourceNodeUrn() {
+        return result.hasSourceNodeUrn();
+      }
+      public java.lang.String getSourceNodeUrn() {
+        return result.getSourceNodeUrn();
+      }
+      public Builder setSourceNodeUrn(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasSourceNodeUrn = true;
+        result.sourceNodeUrn_ = value;
+        return this;
+      }
+      public Builder clearSourceNodeUrn() {
+        result.hasSourceNodeUrn = false;
+        result.sourceNodeUrn_ = getDefaultInstance().getSourceNodeUrn();
+        return this;
+      }
+      
+      // required string targetNodeUrn = 2;
+      public boolean hasTargetNodeUrn() {
+        return result.hasTargetNodeUrn();
+      }
+      public java.lang.String getTargetNodeUrn() {
+        return result.getTargetNodeUrn();
+      }
+      public Builder setTargetNodeUrn(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasTargetNodeUrn = true;
+        result.targetNodeUrn_ = value;
+        return this;
+      }
+      public Builder clearTargetNodeUrn() {
+        result.hasTargetNodeUrn = false;
+        result.targetNodeUrn_ = getDefaultInstance().getTargetNodeUrn();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.Link)
+    }
+    
+    static {
+      defaultInstance = new Link(true);
+      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.Link)
+  }
+  
   public static final class RequestStatus extends
       com.google.protobuf.GeneratedMessage {
     // Use RequestStatus.newBuilder() to construct.
@@ -377,483 +708,56 @@ public final class WSNAppMessages {
     // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.RequestStatus)
   }
   
-  public static final class Program extends
+  public static final class AreNodesAliveRequest extends
       com.google.protobuf.GeneratedMessage {
-    // Use Program.newBuilder() to construct.
-    private Program() {
+    // Use AreNodesAliveRequest.newBuilder() to construct.
+    private AreNodesAliveRequest() {
       initFields();
     }
-    private Program(boolean noInit) {}
+    private AreNodesAliveRequest(boolean noInit) {}
     
-    private static final Program defaultInstance;
-    public static Program getDefaultInstance() {
+    private static final AreNodesAliveRequest defaultInstance;
+    public static AreNodesAliveRequest getDefaultInstance() {
       return defaultInstance;
     }
     
-    public Program getDefaultInstanceForType() {
+    public AreNodesAliveRequest getDefaultInstanceForType() {
       return defaultInstance;
     }
     
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_descriptor;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesAliveRequest_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_fieldAccessorTable;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesAliveRequest_fieldAccessorTable;
     }
     
-    public static final class ProgramMetaData extends
-        com.google.protobuf.GeneratedMessage {
-      // Use ProgramMetaData.newBuilder() to construct.
-      private ProgramMetaData() {
-        initFields();
-      }
-      private ProgramMetaData(boolean noInit) {}
-      
-      private static final ProgramMetaData defaultInstance;
-      public static ProgramMetaData getDefaultInstance() {
-        return defaultInstance;
-      }
-      
-      public ProgramMetaData getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-      
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_ProgramMetaData_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_ProgramMetaData_fieldAccessorTable;
-      }
-      
-      // required string version = 1;
-      public static final int VERSION_FIELD_NUMBER = 1;
-      private boolean hasVersion;
-      private java.lang.String version_ = "";
-      public boolean hasVersion() { return hasVersion; }
-      public java.lang.String getVersion() { return version_; }
-      
-      // required string name = 2;
-      public static final int NAME_FIELD_NUMBER = 2;
-      private boolean hasName;
-      private java.lang.String name_ = "";
-      public boolean hasName() { return hasName; }
-      public java.lang.String getName() { return name_; }
-      
-      // required string platform = 3;
-      public static final int PLATFORM_FIELD_NUMBER = 3;
-      private boolean hasPlatform;
-      private java.lang.String platform_ = "";
-      public boolean hasPlatform() { return hasPlatform; }
-      public java.lang.String getPlatform() { return platform_; }
-      
-      // required string other = 4;
-      public static final int OTHER_FIELD_NUMBER = 4;
-      private boolean hasOther;
-      private java.lang.String other_ = "";
-      public boolean hasOther() { return hasOther; }
-      public java.lang.String getOther() { return other_; }
-      
-      private void initFields() {
-      }
-      public final boolean isInitialized() {
-        if (!hasVersion) return false;
-        if (!hasName) return false;
-        if (!hasPlatform) return false;
-        if (!hasOther) return false;
-        return true;
-      }
-      
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (hasVersion()) {
-          output.writeString(1, getVersion());
-        }
-        if (hasName()) {
-          output.writeString(2, getName());
-        }
-        if (hasPlatform()) {
-          output.writeString(3, getPlatform());
-        }
-        if (hasOther()) {
-          output.writeString(4, getOther());
-        }
-        getUnknownFields().writeTo(output);
-      }
-      
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-      
-        size = 0;
-        if (hasVersion()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(1, getVersion());
-        }
-        if (hasName()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(2, getName());
-        }
-        if (hasPlatform()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(3, getPlatform());
-        }
-        if (hasOther()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(4, getOther());
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-      
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-      
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder> {
-        private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData result;
-        
-        // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.newBuilder()
-        private Builder() {}
-        
-        private static Builder create() {
-          Builder builder = new Builder();
-          builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData();
-          return builder;
-        }
-        
-        protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData internalGetResult() {
-          return result;
-        }
-        
-        public Builder clear() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "Cannot call clear() after build().");
-          }
-          result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData();
-          return this;
-        }
-        
-        public Builder clone() {
-          return create().mergeFrom(result);
-        }
-        
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.getDescriptor();
-        }
-        
-        public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData getDefaultInstanceForType() {
-          return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.getDefaultInstance();
-        }
-        
-        public boolean isInitialized() {
-          return result.isInitialized();
-        }
-        public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData build() {
-          if (result != null && !isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return buildPartial();
-        }
-        
-        private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData buildParsed()
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          if (!isInitialized()) {
-            throw newUninitializedMessageException(
-              result).asInvalidProtocolBufferException();
-          }
-          return buildPartial();
-        }
-        
-        public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData buildPartial() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "build() has already been called on this Builder.");
-          }
-          de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData returnMe = result;
-          result = null;
-          return returnMe;
-        }
-        
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData) {
-            return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-        
-        public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData other) {
-          if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.getDefaultInstance()) return this;
-          if (other.hasVersion()) {
-            setVersion(other.getVersion());
-          }
-          if (other.hasName()) {
-            setName(other.getName());
-          }
-          if (other.hasPlatform()) {
-            setPlatform(other.getPlatform());
-          }
-          if (other.hasOther()) {
-            setOther(other.getOther());
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-        
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder(
-              this.getUnknownFields());
-          while (true) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                this.setUnknownFields(unknownFields.build());
-                return this;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  this.setUnknownFields(unknownFields.build());
-                  return this;
-                }
-                break;
-              }
-              case 10: {
-                setVersion(input.readString());
-                break;
-              }
-              case 18: {
-                setName(input.readString());
-                break;
-              }
-              case 26: {
-                setPlatform(input.readString());
-                break;
-              }
-              case 34: {
-                setOther(input.readString());
-                break;
-              }
-            }
-          }
-        }
-        
-        
-        // required string version = 1;
-        public boolean hasVersion() {
-          return result.hasVersion();
-        }
-        public java.lang.String getVersion() {
-          return result.getVersion();
-        }
-        public Builder setVersion(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasVersion = true;
-          result.version_ = value;
-          return this;
-        }
-        public Builder clearVersion() {
-          result.hasVersion = false;
-          result.version_ = getDefaultInstance().getVersion();
-          return this;
-        }
-        
-        // required string name = 2;
-        public boolean hasName() {
-          return result.hasName();
-        }
-        public java.lang.String getName() {
-          return result.getName();
-        }
-        public Builder setName(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasName = true;
-          result.name_ = value;
-          return this;
-        }
-        public Builder clearName() {
-          result.hasName = false;
-          result.name_ = getDefaultInstance().getName();
-          return this;
-        }
-        
-        // required string platform = 3;
-        public boolean hasPlatform() {
-          return result.hasPlatform();
-        }
-        public java.lang.String getPlatform() {
-          return result.getPlatform();
-        }
-        public Builder setPlatform(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasPlatform = true;
-          result.platform_ = value;
-          return this;
-        }
-        public Builder clearPlatform() {
-          result.hasPlatform = false;
-          result.platform_ = getDefaultInstance().getPlatform();
-          return this;
-        }
-        
-        // required string other = 4;
-        public boolean hasOther() {
-          return result.hasOther();
-        }
-        public java.lang.String getOther() {
-          return result.getOther();
-        }
-        public Builder setOther(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasOther = true;
-          result.other_ = value;
-          return this;
-        }
-        public Builder clearOther() {
-          result.hasOther = false;
-          result.other_ = getDefaultInstance().getOther();
-          return this;
-        }
-        
-        // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.Program.ProgramMetaData)
-      }
-      
-      static {
-        defaultInstance = new ProgramMetaData(true);
-        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
-        defaultInstance.initFields();
-      }
-      
-      // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.Program.ProgramMetaData)
+    // repeated string nodeUrns = 1;
+    public static final int NODEURNS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.String> nodeUrns_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getNodeUrnsList() {
+      return nodeUrns_;
     }
-    
-    // required bytes program = 1;
-    public static final int PROGRAM_FIELD_NUMBER = 1;
-    private boolean hasProgram;
-    private com.google.protobuf.ByteString program_ = com.google.protobuf.ByteString.EMPTY;
-    public boolean hasProgram() { return hasProgram; }
-    public com.google.protobuf.ByteString getProgram() { return program_; }
-    
-    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.Program.ProgramMetaData metaData = 2;
-    public static final int METADATA_FIELD_NUMBER = 2;
-    private boolean hasMetaData;
-    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData metaData_;
-    public boolean hasMetaData() { return hasMetaData; }
-    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData getMetaData() { return metaData_; }
+    public int getNodeUrnsCount() { return nodeUrns_.size(); }
+    public java.lang.String getNodeUrns(int index) {
+      return nodeUrns_.get(index);
+    }
     
     private void initFields() {
-      metaData_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.getDefaultInstance();
     }
     public final boolean isInitialized() {
-      if (!hasProgram) return false;
-      if (hasMetaData()) {
-        if (!getMetaData().isInitialized()) return false;
-      }
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasProgram()) {
-        output.writeBytes(1, getProgram());
-      }
-      if (hasMetaData()) {
-        output.writeMessage(2, getMetaData());
+      for (java.lang.String element : getNodeUrnsList()) {
+        output.writeString(1, element);
       }
       getUnknownFields().writeTo(output);
     }
@@ -864,54 +768,55 @@ public final class WSNAppMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasProgram()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getProgram());
-      }
-      if (hasMetaData()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, getMetaData());
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getNodeUrnsList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getNodeUrnsList().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
     
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseFrom(byte[] data)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseDelimitedFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
@@ -920,7 +825,7 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseDelimitedFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -931,12 +836,12 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -946,25 +851,25 @@ public final class WSNAppMessages {
     
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program prototype) {
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
     
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> {
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program result;
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest result;
       
-      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.newBuilder()
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.newBuilder()
       private Builder() {}
       
       private static Builder create() {
         Builder builder = new Builder();
-        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest();
         return builder;
       }
       
-      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program internalGetResult() {
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest internalGetResult() {
         return result;
       }
       
@@ -973,7 +878,7 @@ public final class WSNAppMessages {
           throw new IllegalStateException(
             "Cannot call clear() after build().");
         }
-        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program();
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest();
         return this;
       }
       
@@ -983,24 +888,24 @@ public final class WSNAppMessages {
       
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.getDescriptor();
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.getDescriptor();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program getDefaultInstanceForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.getDefaultInstance();
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.getDefaultInstance();
       }
       
       public boolean isInitialized() {
         return result.isInitialized();
       }
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program build() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest build() {
         if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return buildPartial();
       }
       
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program buildParsed()
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
         if (!isInitialized()) {
           throw newUninitializedMessageException(
@@ -1009,32 +914,36 @@ public final class WSNAppMessages {
         return buildPartial();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program buildPartial() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest buildPartial() {
         if (result == null) {
           throw new IllegalStateException(
             "build() has already been called on this Builder.");
         }
-        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program returnMe = result;
+        if (result.nodeUrns_ != java.util.Collections.EMPTY_LIST) {
+          result.nodeUrns_ =
+            java.util.Collections.unmodifiableList(result.nodeUrns_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest returnMe = result;
         result = null;
         return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program) {
-          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program)other);
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
       
-      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program other) {
-        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.getDefaultInstance()) return this;
-        if (other.hasProgram()) {
-          setProgram(other.getProgram());
-        }
-        if (other.hasMetaData()) {
-          mergeMetaData(other.getMetaData());
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.getDefaultInstance()) return this;
+        if (!other.nodeUrns_.isEmpty()) {
+          if (result.nodeUrns_.isEmpty()) {
+            result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.nodeUrns_.addAll(other.nodeUrns_);
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1062,16 +971,7 @@ public final class WSNAppMessages {
               break;
             }
             case 10: {
-              setProgram(input.readBytes());
-              break;
-            }
-            case 18: {
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.newBuilder();
-              if (hasMetaData()) {
-                subBuilder.mergeFrom(getMetaData());
-              }
-              input.readMessage(subBuilder, extensionRegistry);
-              setMetaData(subBuilder.buildPartial());
+              addNodeUrns(input.readString());
               break;
             }
           }
@@ -1079,74 +979,1313 @@ public final class WSNAppMessages {
       }
       
       
-      // required bytes program = 1;
-      public boolean hasProgram() {
-        return result.hasProgram();
+      // repeated string nodeUrns = 1;
+      public java.util.List<java.lang.String> getNodeUrnsList() {
+        return java.util.Collections.unmodifiableList(result.nodeUrns_);
       }
-      public com.google.protobuf.ByteString getProgram() {
-        return result.getProgram();
+      public int getNodeUrnsCount() {
+        return result.getNodeUrnsCount();
       }
-      public Builder setProgram(com.google.protobuf.ByteString value) {
+      public java.lang.String getNodeUrns(int index) {
+        return result.getNodeUrns(index);
+      }
+      public Builder setNodeUrns(int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  result.hasProgram = true;
-        result.program_ = value;
+  result.nodeUrns_.set(index, value);
         return this;
       }
-      public Builder clearProgram() {
-        result.hasProgram = false;
-        result.program_ = getDefaultInstance().getProgram();
-        return this;
-      }
-      
-      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.Program.ProgramMetaData metaData = 2;
-      public boolean hasMetaData() {
-        return result.hasMetaData();
-      }
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData getMetaData() {
-        return result.getMetaData();
-      }
-      public Builder setMetaData(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData value) {
+      public Builder addNodeUrns(java.lang.String value) {
         if (value == null) {
-          throw new NullPointerException();
+    throw new NullPointerException();
+  }
+  if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
         }
-        result.hasMetaData = true;
-        result.metaData_ = value;
+        result.nodeUrns_.add(value);
         return this;
       }
-      public Builder setMetaData(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.Builder builderForValue) {
-        result.hasMetaData = true;
-        result.metaData_ = builderForValue.build();
-        return this;
-      }
-      public Builder mergeMetaData(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData value) {
-        if (result.hasMetaData() &&
-            result.metaData_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.getDefaultInstance()) {
-          result.metaData_ =
-            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.newBuilder(result.metaData_).mergeFrom(value).buildPartial();
-        } else {
-          result.metaData_ = value;
+      public Builder addAllNodeUrns(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
         }
-        result.hasMetaData = true;
+        super.addAll(values, result.nodeUrns_);
         return this;
       }
-      public Builder clearMetaData() {
-        result.hasMetaData = false;
-        result.metaData_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.getDefaultInstance();
+      public Builder clearNodeUrns() {
+        result.nodeUrns_ = java.util.Collections.emptyList();
         return this;
       }
       
-      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.Program)
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.AreNodesAliveRequest)
     }
     
     static {
-      defaultInstance = new Program(true);
+      defaultInstance = new AreNodesAliveRequest(true);
       de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
       defaultInstance.initFields();
     }
     
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.Program)
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.AreNodesAliveRequest)
+  }
+  
+  public static final class AreNodesConnectedRequest extends
+      com.google.protobuf.GeneratedMessage {
+    // Use AreNodesConnectedRequest.newBuilder() to construct.
+    private AreNodesConnectedRequest() {
+      initFields();
+    }
+    private AreNodesConnectedRequest(boolean noInit) {}
+    
+    private static final AreNodesConnectedRequest defaultInstance;
+    public static AreNodesConnectedRequest getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public AreNodesConnectedRequest getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesConnectedRequest_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesConnectedRequest_fieldAccessorTable;
+    }
+    
+    // repeated string nodeUrns = 1;
+    public static final int NODEURNS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.String> nodeUrns_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getNodeUrnsList() {
+      return nodeUrns_;
+    }
+    public int getNodeUrnsCount() { return nodeUrns_.size(); }
+    public java.lang.String getNodeUrns(int index) {
+      return nodeUrns_.get(index);
+    }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (java.lang.String element : getNodeUrnsList()) {
+        output.writeString(1, element);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getNodeUrnsList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getNodeUrnsList().size();
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.nodeUrns_ != java.util.Collections.EMPTY_LIST) {
+          result.nodeUrns_ =
+            java.util.Collections.unmodifiableList(result.nodeUrns_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.getDefaultInstance()) return this;
+        if (!other.nodeUrns_.isEmpty()) {
+          if (result.nodeUrns_.isEmpty()) {
+            result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.nodeUrns_.addAll(other.nodeUrns_);
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              addNodeUrns(input.readString());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // repeated string nodeUrns = 1;
+      public java.util.List<java.lang.String> getNodeUrnsList() {
+        return java.util.Collections.unmodifiableList(result.nodeUrns_);
+      }
+      public int getNodeUrnsCount() {
+        return result.getNodeUrnsCount();
+      }
+      public java.lang.String getNodeUrns(int index) {
+        return result.getNodeUrns(index);
+      }
+      public Builder setNodeUrns(int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.nodeUrns_.set(index, value);
+        return this;
+      }
+      public Builder addNodeUrns(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.nodeUrns_.add(value);
+        return this;
+      }
+      public Builder addAllNodeUrns(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.nodeUrns_);
+        return this;
+      }
+      public Builder clearNodeUrns() {
+        result.nodeUrns_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.AreNodesConnectedRequest)
+    }
+    
+    static {
+      defaultInstance = new AreNodesConnectedRequest(true);
+      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.AreNodesConnectedRequest)
+  }
+  
+  public static final class FlashImageRequest extends
+      com.google.protobuf.GeneratedMessage {
+    // Use FlashImageRequest.newBuilder() to construct.
+    private FlashImageRequest() {
+      initFields();
+    }
+    private FlashImageRequest(boolean noInit) {}
+    
+    private static final FlashImageRequest defaultInstance;
+    public static FlashImageRequest getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public FlashImageRequest getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashImageRequest_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashImageRequest_fieldAccessorTable;
+    }
+    
+    // repeated string nodeUrns = 1;
+    public static final int NODEURNS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.String> nodeUrns_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getNodeUrnsList() {
+      return nodeUrns_;
+    }
+    public int getNodeUrnsCount() { return nodeUrns_.size(); }
+    public java.lang.String getNodeUrns(int index) {
+      return nodeUrns_.get(index);
+    }
+    
+    // required bytes image = 2;
+    public static final int IMAGE_FIELD_NUMBER = 2;
+    private boolean hasImage;
+    private com.google.protobuf.ByteString image_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasImage() { return hasImage; }
+    public com.google.protobuf.ByteString getImage() { return image_; }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      if (!hasImage) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (java.lang.String element : getNodeUrnsList()) {
+        output.writeString(1, element);
+      }
+      if (hasImage()) {
+        output.writeBytes(2, getImage());
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getNodeUrnsList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getNodeUrnsList().size();
+      }
+      if (hasImage()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getImage());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.nodeUrns_ != java.util.Collections.EMPTY_LIST) {
+          result.nodeUrns_ =
+            java.util.Collections.unmodifiableList(result.nodeUrns_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.getDefaultInstance()) return this;
+        if (!other.nodeUrns_.isEmpty()) {
+          if (result.nodeUrns_.isEmpty()) {
+            result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.nodeUrns_.addAll(other.nodeUrns_);
+        }
+        if (other.hasImage()) {
+          setImage(other.getImage());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              addNodeUrns(input.readString());
+              break;
+            }
+            case 18: {
+              setImage(input.readBytes());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // repeated string nodeUrns = 1;
+      public java.util.List<java.lang.String> getNodeUrnsList() {
+        return java.util.Collections.unmodifiableList(result.nodeUrns_);
+      }
+      public int getNodeUrnsCount() {
+        return result.getNodeUrnsCount();
+      }
+      public java.lang.String getNodeUrns(int index) {
+        return result.getNodeUrns(index);
+      }
+      public Builder setNodeUrns(int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.nodeUrns_.set(index, value);
+        return this;
+      }
+      public Builder addNodeUrns(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.nodeUrns_.add(value);
+        return this;
+      }
+      public Builder addAllNodeUrns(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.nodeUrns_);
+        return this;
+      }
+      public Builder clearNodeUrns() {
+        result.nodeUrns_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // required bytes image = 2;
+      public boolean hasImage() {
+        return result.hasImage();
+      }
+      public com.google.protobuf.ByteString getImage() {
+        return result.getImage();
+      }
+      public Builder setImage(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasImage = true;
+        result.image_ = value;
+        return this;
+      }
+      public Builder clearImage() {
+        result.hasImage = false;
+        result.image_ = getDefaultInstance().getImage();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.FlashImageRequest)
+    }
+    
+    static {
+      defaultInstance = new FlashImageRequest(true);
+      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.FlashImageRequest)
+  }
+  
+  public static final class FlashDefaultImageRequest extends
+      com.google.protobuf.GeneratedMessage {
+    // Use FlashDefaultImageRequest.newBuilder() to construct.
+    private FlashDefaultImageRequest() {
+      initFields();
+    }
+    private FlashDefaultImageRequest(boolean noInit) {}
+    
+    private static final FlashDefaultImageRequest defaultInstance;
+    public static FlashDefaultImageRequest getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public FlashDefaultImageRequest getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashDefaultImageRequest_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashDefaultImageRequest_fieldAccessorTable;
+    }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.getDefaultInstance()) return this;
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.FlashDefaultImageRequest)
+    }
+    
+    static {
+      defaultInstance = new FlashDefaultImageRequest(true);
+      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.FlashDefaultImageRequest)
+  }
+  
+  public static final class ResetNodesRequest extends
+      com.google.protobuf.GeneratedMessage {
+    // Use ResetNodesRequest.newBuilder() to construct.
+    private ResetNodesRequest() {
+      initFields();
+    }
+    private ResetNodesRequest(boolean noInit) {}
+    
+    private static final ResetNodesRequest defaultInstance;
+    public static ResetNodesRequest getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public ResetNodesRequest getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_ResetNodesRequest_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_ResetNodesRequest_fieldAccessorTable;
+    }
+    
+    // repeated string nodeUrns = 1;
+    public static final int NODEURNS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.String> nodeUrns_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getNodeUrnsList() {
+      return nodeUrns_;
+    }
+    public int getNodeUrnsCount() { return nodeUrns_.size(); }
+    public java.lang.String getNodeUrns(int index) {
+      return nodeUrns_.get(index);
+    }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (java.lang.String element : getNodeUrnsList()) {
+        output.writeString(1, element);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getNodeUrnsList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getNodeUrnsList().size();
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.nodeUrns_ != java.util.Collections.EMPTY_LIST) {
+          result.nodeUrns_ =
+            java.util.Collections.unmodifiableList(result.nodeUrns_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.getDefaultInstance()) return this;
+        if (!other.nodeUrns_.isEmpty()) {
+          if (result.nodeUrns_.isEmpty()) {
+            result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.nodeUrns_.addAll(other.nodeUrns_);
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              addNodeUrns(input.readString());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // repeated string nodeUrns = 1;
+      public java.util.List<java.lang.String> getNodeUrnsList() {
+        return java.util.Collections.unmodifiableList(result.nodeUrns_);
+      }
+      public int getNodeUrnsCount() {
+        return result.getNodeUrnsCount();
+      }
+      public java.lang.String getNodeUrns(int index) {
+        return result.getNodeUrns(index);
+      }
+      public Builder setNodeUrns(int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.nodeUrns_.set(index, value);
+        return this;
+      }
+      public Builder addNodeUrns(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.nodeUrns_.add(value);
+        return this;
+      }
+      public Builder addAllNodeUrns(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.nodeUrns_);
+        return this;
+      }
+      public Builder clearNodeUrns() {
+        result.nodeUrns_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.ResetNodesRequest)
+    }
+    
+    static {
+      defaultInstance = new ResetNodesRequest(true);
+      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.ResetNodesRequest)
   }
   
   public static final class Notification extends
@@ -1176,25 +2315,46 @@ public final class WSNAppMessages {
       return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Notification_fieldAccessorTable;
     }
     
-    // required string message = 1;
-    public static final int MESSAGE_FIELD_NUMBER = 1;
-    private boolean hasMessage;
-    private java.lang.String message_ = "";
-    public boolean hasMessage() { return hasMessage; }
-    public java.lang.String getMessage() { return message_; }
+    // optional string nodeUrn = 1;
+    public static final int NODEURN_FIELD_NUMBER = 1;
+    private boolean hasNodeUrn;
+    private java.lang.String nodeUrn_ = "";
+    public boolean hasNodeUrn() { return hasNodeUrn; }
+    public java.lang.String getNodeUrn() { return nodeUrn_; }
+    
+    // required string timestamp = 2;
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private boolean hasTimestamp;
+    private java.lang.String timestamp_ = "";
+    public boolean hasTimestamp() { return hasTimestamp; }
+    public java.lang.String getTimestamp() { return timestamp_; }
+    
+    // required string msg = 3;
+    public static final int MSG_FIELD_NUMBER = 3;
+    private boolean hasMsg;
+    private java.lang.String msg_ = "";
+    public boolean hasMsg() { return hasMsg; }
+    public java.lang.String getMsg() { return msg_; }
     
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasMessage) return false;
+      if (!hasTimestamp) return false;
+      if (!hasMsg) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasMessage()) {
-        output.writeString(1, getMessage());
+      if (hasNodeUrn()) {
+        output.writeString(1, getNodeUrn());
+      }
+      if (hasTimestamp()) {
+        output.writeString(2, getTimestamp());
+      }
+      if (hasMsg()) {
+        output.writeString(3, getMsg());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1205,9 +2365,17 @@ public final class WSNAppMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasMessage()) {
+      if (hasNodeUrn()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getMessage());
+          .computeStringSize(1, getNodeUrn());
+      }
+      if (hasTimestamp()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(2, getTimestamp());
+      }
+      if (hasMsg()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(3, getMsg());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1367,8 +2535,14 @@ public final class WSNAppMessages {
       
       public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Notification other) {
         if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Notification.getDefaultInstance()) return this;
-        if (other.hasMessage()) {
-          setMessage(other.getMessage());
+        if (other.hasNodeUrn()) {
+          setNodeUrn(other.getNodeUrn());
+        }
+        if (other.hasTimestamp()) {
+          setTimestamp(other.getTimestamp());
+        }
+        if (other.hasMsg()) {
+          setMsg(other.getMsg());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1396,7 +2570,15 @@ public final class WSNAppMessages {
               break;
             }
             case 10: {
-              setMessage(input.readString());
+              setNodeUrn(input.readString());
+              break;
+            }
+            case 18: {
+              setTimestamp(input.readString());
+              break;
+            }
+            case 26: {
+              setMsg(input.readString());
               break;
             }
           }
@@ -1404,24 +2586,66 @@ public final class WSNAppMessages {
       }
       
       
-      // required string message = 1;
-      public boolean hasMessage() {
-        return result.hasMessage();
+      // optional string nodeUrn = 1;
+      public boolean hasNodeUrn() {
+        return result.hasNodeUrn();
       }
-      public java.lang.String getMessage() {
-        return result.getMessage();
+      public java.lang.String getNodeUrn() {
+        return result.getNodeUrn();
       }
-      public Builder setMessage(java.lang.String value) {
+      public Builder setNodeUrn(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  result.hasMessage = true;
-        result.message_ = value;
+  result.hasNodeUrn = true;
+        result.nodeUrn_ = value;
         return this;
       }
-      public Builder clearMessage() {
-        result.hasMessage = false;
-        result.message_ = getDefaultInstance().getMessage();
+      public Builder clearNodeUrn() {
+        result.hasNodeUrn = false;
+        result.nodeUrn_ = getDefaultInstance().getNodeUrn();
+        return this;
+      }
+      
+      // required string timestamp = 2;
+      public boolean hasTimestamp() {
+        return result.hasTimestamp();
+      }
+      public java.lang.String getTimestamp() {
+        return result.getTimestamp();
+      }
+      public Builder setTimestamp(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasTimestamp = true;
+        result.timestamp_ = value;
+        return this;
+      }
+      public Builder clearTimestamp() {
+        result.hasTimestamp = false;
+        result.timestamp_ = getDefaultInstance().getTimestamp();
+        return this;
+      }
+      
+      // required string msg = 3;
+      public boolean hasMsg() {
+        return result.hasMsg();
+      }
+      public java.lang.String getMsg() {
+        return result.getMsg();
+      }
+      public Builder setMsg(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasMsg = true;
+        result.msg_ = value;
+        return this;
+      }
+      public Builder clearMsg() {
+        result.hasMsg = false;
+        result.msg_ = getDefaultInstance().getMsg();
         return this;
       }
       
@@ -1464,12 +2688,12 @@ public final class WSNAppMessages {
       return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_UpstreamMessage_fieldAccessorTable;
     }
     
-    // required string sourceNodeId = 1;
-    public static final int SOURCENODEID_FIELD_NUMBER = 1;
-    private boolean hasSourceNodeId;
-    private java.lang.String sourceNodeId_ = "";
-    public boolean hasSourceNodeId() { return hasSourceNodeId; }
-    public java.lang.String getSourceNodeId() { return sourceNodeId_; }
+    // required string sourceNodeUrn = 1;
+    public static final int SOURCENODEURN_FIELD_NUMBER = 1;
+    private boolean hasSourceNodeUrn;
+    private java.lang.String sourceNodeUrn_ = "";
+    public boolean hasSourceNodeUrn() { return hasSourceNodeUrn; }
+    public java.lang.String getSourceNodeUrn() { return sourceNodeUrn_; }
     
     // required string timestamp = 2;
     public static final int TIMESTAMP_FIELD_NUMBER = 2;
@@ -1478,33 +2702,33 @@ public final class WSNAppMessages {
     public boolean hasTimestamp() { return hasTimestamp; }
     public java.lang.String getTimestamp() { return timestamp_; }
     
-    // required bytes binaryData = 3;
-    public static final int BINARYDATA_FIELD_NUMBER = 3;
-    private boolean hasBinaryData;
-    private com.google.protobuf.ByteString binaryData_ = com.google.protobuf.ByteString.EMPTY;
-    public boolean hasBinaryData() { return hasBinaryData; }
-    public com.google.protobuf.ByteString getBinaryData() { return binaryData_; }
+    // required bytes messageBytes = 3;
+    public static final int MESSAGEBYTES_FIELD_NUMBER = 3;
+    private boolean hasMessageBytes;
+    private com.google.protobuf.ByteString messageBytes_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasMessageBytes() { return hasMessageBytes; }
+    public com.google.protobuf.ByteString getMessageBytes() { return messageBytes_; }
     
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasSourceNodeId) return false;
+      if (!hasSourceNodeUrn) return false;
       if (!hasTimestamp) return false;
-      if (!hasBinaryData) return false;
+      if (!hasMessageBytes) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasSourceNodeId()) {
-        output.writeString(1, getSourceNodeId());
+      if (hasSourceNodeUrn()) {
+        output.writeString(1, getSourceNodeUrn());
       }
       if (hasTimestamp()) {
         output.writeString(2, getTimestamp());
       }
-      if (hasBinaryData()) {
-        output.writeBytes(3, getBinaryData());
+      if (hasMessageBytes()) {
+        output.writeBytes(3, getMessageBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1515,17 +2739,17 @@ public final class WSNAppMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasSourceNodeId()) {
+      if (hasSourceNodeUrn()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getSourceNodeId());
+          .computeStringSize(1, getSourceNodeUrn());
       }
       if (hasTimestamp()) {
         size += com.google.protobuf.CodedOutputStream
           .computeStringSize(2, getTimestamp());
       }
-      if (hasBinaryData()) {
+      if (hasMessageBytes()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getBinaryData());
+          .computeBytesSize(3, getMessageBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1685,14 +2909,14 @@ public final class WSNAppMessages {
       
       public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage other) {
         if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.getDefaultInstance()) return this;
-        if (other.hasSourceNodeId()) {
-          setSourceNodeId(other.getSourceNodeId());
+        if (other.hasSourceNodeUrn()) {
+          setSourceNodeUrn(other.getSourceNodeUrn());
         }
         if (other.hasTimestamp()) {
           setTimestamp(other.getTimestamp());
         }
-        if (other.hasBinaryData()) {
-          setBinaryData(other.getBinaryData());
+        if (other.hasMessageBytes()) {
+          setMessageBytes(other.getMessageBytes());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1720,7 +2944,7 @@ public final class WSNAppMessages {
               break;
             }
             case 10: {
-              setSourceNodeId(input.readString());
+              setSourceNodeUrn(input.readString());
               break;
             }
             case 18: {
@@ -1728,7 +2952,7 @@ public final class WSNAppMessages {
               break;
             }
             case 26: {
-              setBinaryData(input.readBytes());
+              setMessageBytes(input.readBytes());
               break;
             }
           }
@@ -1736,24 +2960,24 @@ public final class WSNAppMessages {
       }
       
       
-      // required string sourceNodeId = 1;
-      public boolean hasSourceNodeId() {
-        return result.hasSourceNodeId();
+      // required string sourceNodeUrn = 1;
+      public boolean hasSourceNodeUrn() {
+        return result.hasSourceNodeUrn();
       }
-      public java.lang.String getSourceNodeId() {
-        return result.getSourceNodeId();
+      public java.lang.String getSourceNodeUrn() {
+        return result.getSourceNodeUrn();
       }
-      public Builder setSourceNodeId(java.lang.String value) {
+      public Builder setSourceNodeUrn(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  result.hasSourceNodeId = true;
-        result.sourceNodeId_ = value;
+  result.hasSourceNodeUrn = true;
+        result.sourceNodeUrn_ = value;
         return this;
       }
-      public Builder clearSourceNodeId() {
-        result.hasSourceNodeId = false;
-        result.sourceNodeId_ = getDefaultInstance().getSourceNodeId();
+      public Builder clearSourceNodeUrn() {
+        result.hasSourceNodeUrn = false;
+        result.sourceNodeUrn_ = getDefaultInstance().getSourceNodeUrn();
         return this;
       }
       
@@ -1778,24 +3002,24 @@ public final class WSNAppMessages {
         return this;
       }
       
-      // required bytes binaryData = 3;
-      public boolean hasBinaryData() {
-        return result.hasBinaryData();
+      // required bytes messageBytes = 3;
+      public boolean hasMessageBytes() {
+        return result.hasMessageBytes();
       }
-      public com.google.protobuf.ByteString getBinaryData() {
-        return result.getBinaryData();
+      public com.google.protobuf.ByteString getMessageBytes() {
+        return result.getMessageBytes();
       }
-      public Builder setBinaryData(com.google.protobuf.ByteString value) {
+      public Builder setMessageBytes(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  result.hasBinaryData = true;
-        result.binaryData_ = value;
+  result.hasMessageBytes = true;
+        result.messageBytes_ = value;
         return this;
       }
-      public Builder clearBinaryData() {
-        result.hasBinaryData = false;
-        result.binaryData_ = getDefaultInstance().getBinaryData();
+      public Builder clearMessageBytes() {
+        result.hasMessageBytes = false;
+        result.messageBytes_ = getDefaultInstance().getMessageBytes();
         return this;
       }
       
@@ -1838,36 +3062,40 @@ public final class WSNAppMessages {
       return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DownstreamMessage_fieldAccessorTable;
     }
     
-    // required string targetNodeUrn = 1;
-    public static final int TARGETNODEURN_FIELD_NUMBER = 1;
-    private boolean hasTargetNodeUrn;
-    private java.lang.String targetNodeUrn_ = "";
-    public boolean hasTargetNodeUrn() { return hasTargetNodeUrn; }
-    public java.lang.String getTargetNodeUrn() { return targetNodeUrn_; }
+    // repeated string targetNodeUrns = 1;
+    public static final int TARGETNODEURNS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.String> targetNodeUrns_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getTargetNodeUrnsList() {
+      return targetNodeUrns_;
+    }
+    public int getTargetNodeUrnsCount() { return targetNodeUrns_.size(); }
+    public java.lang.String getTargetNodeUrns(int index) {
+      return targetNodeUrns_.get(index);
+    }
     
-    // required bytes binaryData = 2;
-    public static final int BINARYDATA_FIELD_NUMBER = 2;
-    private boolean hasBinaryData;
-    private com.google.protobuf.ByteString binaryData_ = com.google.protobuf.ByteString.EMPTY;
-    public boolean hasBinaryData() { return hasBinaryData; }
-    public com.google.protobuf.ByteString getBinaryData() { return binaryData_; }
+    // required bytes messageBytes = 2;
+    public static final int MESSAGEBYTES_FIELD_NUMBER = 2;
+    private boolean hasMessageBytes;
+    private com.google.protobuf.ByteString messageBytes_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasMessageBytes() { return hasMessageBytes; }
+    public com.google.protobuf.ByteString getMessageBytes() { return messageBytes_; }
     
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasTargetNodeUrn) return false;
-      if (!hasBinaryData) return false;
+      if (!hasMessageBytes) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasTargetNodeUrn()) {
-        output.writeString(1, getTargetNodeUrn());
+      for (java.lang.String element : getTargetNodeUrnsList()) {
+        output.writeString(1, element);
       }
-      if (hasBinaryData()) {
-        output.writeBytes(2, getBinaryData());
+      if (hasMessageBytes()) {
+        output.writeBytes(2, getMessageBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1878,13 +3106,18 @@ public final class WSNAppMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasTargetNodeUrn()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getTargetNodeUrn());
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getTargetNodeUrnsList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getTargetNodeUrnsList().size();
       }
-      if (hasBinaryData()) {
+      if (hasMessageBytes()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getBinaryData());
+          .computeBytesSize(2, getMessageBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2028,6 +3261,10 @@ public final class WSNAppMessages {
           throw new IllegalStateException(
             "build() has already been called on this Builder.");
         }
+        if (result.targetNodeUrns_ != java.util.Collections.EMPTY_LIST) {
+          result.targetNodeUrns_ =
+            java.util.Collections.unmodifiableList(result.targetNodeUrns_);
+        }
         de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage returnMe = result;
         result = null;
         return returnMe;
@@ -2044,11 +3281,14 @@ public final class WSNAppMessages {
       
       public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage other) {
         if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.getDefaultInstance()) return this;
-        if (other.hasTargetNodeUrn()) {
-          setTargetNodeUrn(other.getTargetNodeUrn());
+        if (!other.targetNodeUrns_.isEmpty()) {
+          if (result.targetNodeUrns_.isEmpty()) {
+            result.targetNodeUrns_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.targetNodeUrns_.addAll(other.targetNodeUrns_);
         }
-        if (other.hasBinaryData()) {
-          setBinaryData(other.getBinaryData());
+        if (other.hasMessageBytes()) {
+          setMessageBytes(other.getMessageBytes());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2076,11 +3316,11 @@ public final class WSNAppMessages {
               break;
             }
             case 10: {
-              setTargetNodeUrn(input.readString());
+              addTargetNodeUrns(input.readString());
               break;
             }
             case 18: {
-              setBinaryData(input.readBytes());
+              setMessageBytes(input.readBytes());
               break;
             }
           }
@@ -2088,45 +3328,64 @@ public final class WSNAppMessages {
       }
       
       
-      // required string targetNodeUrn = 1;
-      public boolean hasTargetNodeUrn() {
-        return result.hasTargetNodeUrn();
+      // repeated string targetNodeUrns = 1;
+      public java.util.List<java.lang.String> getTargetNodeUrnsList() {
+        return java.util.Collections.unmodifiableList(result.targetNodeUrns_);
       }
-      public java.lang.String getTargetNodeUrn() {
-        return result.getTargetNodeUrn();
+      public int getTargetNodeUrnsCount() {
+        return result.getTargetNodeUrnsCount();
       }
-      public Builder setTargetNodeUrn(java.lang.String value) {
+      public java.lang.String getTargetNodeUrns(int index) {
+        return result.getTargetNodeUrns(index);
+      }
+      public Builder setTargetNodeUrns(int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  result.hasTargetNodeUrn = true;
-        result.targetNodeUrn_ = value;
+  result.targetNodeUrns_.set(index, value);
         return this;
       }
-      public Builder clearTargetNodeUrn() {
-        result.hasTargetNodeUrn = false;
-        result.targetNodeUrn_ = getDefaultInstance().getTargetNodeUrn();
+      public Builder addTargetNodeUrns(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  if (result.targetNodeUrns_.isEmpty()) {
+          result.targetNodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.targetNodeUrns_.add(value);
+        return this;
+      }
+      public Builder addAllTargetNodeUrns(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.targetNodeUrns_.isEmpty()) {
+          result.targetNodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.targetNodeUrns_);
+        return this;
+      }
+      public Builder clearTargetNodeUrns() {
+        result.targetNodeUrns_ = java.util.Collections.emptyList();
         return this;
       }
       
-      // required bytes binaryData = 2;
-      public boolean hasBinaryData() {
-        return result.hasBinaryData();
+      // required bytes messageBytes = 2;
+      public boolean hasMessageBytes() {
+        return result.hasMessageBytes();
       }
-      public com.google.protobuf.ByteString getBinaryData() {
-        return result.getBinaryData();
+      public com.google.protobuf.ByteString getMessageBytes() {
+        return result.getMessageBytes();
       }
-      public Builder setBinaryData(com.google.protobuf.ByteString value) {
+      public Builder setMessageBytes(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  result.hasBinaryData = true;
-        result.binaryData_ = value;
+  result.hasMessageBytes = true;
+        result.messageBytes_ = value;
         return this;
       }
-      public Builder clearBinaryData() {
-        result.hasBinaryData = false;
-        result.binaryData_ = getDefaultInstance().getBinaryData();
+      public Builder clearMessageBytes() {
+        result.hasMessageBytes = false;
+        result.messageBytes_ = getDefaultInstance().getMessageBytes();
         return this;
       }
       
@@ -2142,63 +3401,59 @@ public final class WSNAppMessages {
     // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DownstreamMessage)
   }
   
-  public static final class SetVirtualLinkRequest extends
+  public static final class SetVirtualLinksRequest extends
       com.google.protobuf.GeneratedMessage {
-    // Use SetVirtualLinkRequest.newBuilder() to construct.
-    private SetVirtualLinkRequest() {
+    // Use SetVirtualLinksRequest.newBuilder() to construct.
+    private SetVirtualLinksRequest() {
       initFields();
     }
-    private SetVirtualLinkRequest(boolean noInit) {}
+    private SetVirtualLinksRequest(boolean noInit) {}
     
-    private static final SetVirtualLinkRequest defaultInstance;
-    public static SetVirtualLinkRequest getDefaultInstance() {
+    private static final SetVirtualLinksRequest defaultInstance;
+    public static SetVirtualLinksRequest getDefaultInstance() {
       return defaultInstance;
     }
     
-    public SetVirtualLinkRequest getDefaultInstanceForType() {
+    public SetVirtualLinksRequest getDefaultInstanceForType() {
       return defaultInstance;
     }
     
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinkRequest_descriptor;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinksRequest_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinkRequest_fieldAccessorTable;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinksRequest_fieldAccessorTable;
     }
     
-    // required string sourceNode = 1;
-    public static final int SOURCENODE_FIELD_NUMBER = 1;
-    private boolean hasSourceNode;
-    private java.lang.String sourceNode_ = "";
-    public boolean hasSourceNode() { return hasSourceNode; }
-    public java.lang.String getSourceNode() { return sourceNode_; }
-    
-    // required string targetNode = 2;
-    public static final int TARGETNODE_FIELD_NUMBER = 2;
-    private boolean hasTargetNode;
-    private java.lang.String targetNode_ = "";
-    public boolean hasTargetNode() { return hasTargetNode; }
-    public java.lang.String getTargetNode() { return targetNode_; }
+    // repeated .de.uniluebeck.itm.tr.runtime.wsnapp.Link links = 1;
+    public static final int LINKS_FIELD_NUMBER = 1;
+    private java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> links_ =
+      java.util.Collections.emptyList();
+    public java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> getLinksList() {
+      return links_;
+    }
+    public int getLinksCount() { return links_.size(); }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link getLinks(int index) {
+      return links_.get(index);
+    }
     
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasSourceNode) return false;
-      if (!hasTargetNode) return false;
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        if (!element.isInitialized()) return false;
+      }
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasSourceNode()) {
-        output.writeString(1, getSourceNode());
-      }
-      if (hasTargetNode()) {
-        output.writeString(2, getTargetNode());
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        output.writeMessage(1, element);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2209,54 +3464,50 @@ public final class WSNAppMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasSourceNode()) {
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getSourceNode());
-      }
-      if (hasTargetNode()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(2, getTargetNode());
+          .computeMessageSize(1, element);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
     
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseFrom(byte[] data)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseDelimitedFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
@@ -2265,7 +3516,7 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseDelimitedFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2276,12 +3527,12 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2291,25 +3542,25 @@ public final class WSNAppMessages {
     
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest prototype) {
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
     
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> {
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest result;
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest result;
       
-      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest.newBuilder()
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.newBuilder()
       private Builder() {}
       
       private static Builder create() {
         Builder builder = new Builder();
-        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest();
         return builder;
       }
       
-      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest internalGetResult() {
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest internalGetResult() {
         return result;
       }
       
@@ -2318,7 +3569,7 @@ public final class WSNAppMessages {
           throw new IllegalStateException(
             "Cannot call clear() after build().");
         }
-        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest();
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest();
         return this;
       }
       
@@ -2328,24 +3579,24 @@ public final class WSNAppMessages {
       
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest.getDescriptor();
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.getDescriptor();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest getDefaultInstanceForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest.getDefaultInstance();
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.getDefaultInstance();
       }
       
       public boolean isInitialized() {
         return result.isInitialized();
       }
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest build() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest build() {
         if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return buildPartial();
       }
       
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest buildParsed()
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
         if (!isInitialized()) {
           throw newUninitializedMessageException(
@@ -2354,32 +3605,36 @@ public final class WSNAppMessages {
         return buildPartial();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest buildPartial() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest buildPartial() {
         if (result == null) {
           throw new IllegalStateException(
             "build() has already been called on this Builder.");
         }
-        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest returnMe = result;
+        if (result.links_ != java.util.Collections.EMPTY_LIST) {
+          result.links_ =
+            java.util.Collections.unmodifiableList(result.links_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest returnMe = result;
         result = null;
         return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest) {
-          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest)other);
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
       
-      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest other) {
-        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest.getDefaultInstance()) return this;
-        if (other.hasSourceNode()) {
-          setSourceNode(other.getSourceNode());
-        }
-        if (other.hasTargetNode()) {
-          setTargetNode(other.getTargetNode());
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.getDefaultInstance()) return this;
+        if (!other.links_.isEmpty()) {
+          if (result.links_.isEmpty()) {
+            result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+          }
+          result.links_.addAll(other.links_);
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2407,11 +3662,9 @@ public final class WSNAppMessages {
               break;
             }
             case 10: {
-              setSourceNode(input.readString());
-              break;
-            }
-            case 18: {
-              setTargetNode(input.readString());
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.newBuilder();
+              input.readMessage(subBuilder, extensionRegistry);
+              addLinks(subBuilder.buildPartial());
               break;
             }
           }
@@ -2419,117 +3672,122 @@ public final class WSNAppMessages {
       }
       
       
-      // required string sourceNode = 1;
-      public boolean hasSourceNode() {
-        return result.hasSourceNode();
+      // repeated .de.uniluebeck.itm.tr.runtime.wsnapp.Link links = 1;
+      public java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> getLinksList() {
+        return java.util.Collections.unmodifiableList(result.links_);
       }
-      public java.lang.String getSourceNode() {
-        return result.getSourceNode();
+      public int getLinksCount() {
+        return result.getLinksCount();
       }
-      public Builder setSourceNode(java.lang.String value) {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link getLinks(int index) {
+        return result.getLinks(index);
+      }
+      public Builder setLinks(int index, de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasSourceNode = true;
-        result.sourceNode_ = value;
+          throw new NullPointerException();
+        }
+        result.links_.set(index, value);
         return this;
       }
-      public Builder clearSourceNode() {
-        result.hasSourceNode = false;
-        result.sourceNode_ = getDefaultInstance().getSourceNode();
+      public Builder setLinks(int index, de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder builderForValue) {
+        result.links_.set(index, builderForValue.build());
+        return this;
+      }
+      public Builder addLinks(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        result.links_.add(value);
+        return this;
+      }
+      public Builder addLinks(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder builderForValue) {
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        result.links_.add(builderForValue.build());
+        return this;
+      }
+      public Builder addAllLinks(
+          java.lang.Iterable<? extends de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> values) {
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        super.addAll(values, result.links_);
+        return this;
+      }
+      public Builder clearLinks() {
+        result.links_ = java.util.Collections.emptyList();
         return this;
       }
       
-      // required string targetNode = 2;
-      public boolean hasTargetNode() {
-        return result.hasTargetNode();
-      }
-      public java.lang.String getTargetNode() {
-        return result.getTargetNode();
-      }
-      public Builder setTargetNode(java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasTargetNode = true;
-        result.targetNode_ = value;
-        return this;
-      }
-      public Builder clearTargetNode() {
-        result.hasTargetNode = false;
-        result.targetNode_ = getDefaultInstance().getTargetNode();
-        return this;
-      }
-      
-      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.SetVirtualLinkRequest)
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.SetVirtualLinksRequest)
     }
     
     static {
-      defaultInstance = new SetVirtualLinkRequest(true);
+      defaultInstance = new SetVirtualLinksRequest(true);
       de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
       defaultInstance.initFields();
     }
     
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.SetVirtualLinkRequest)
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.SetVirtualLinksRequest)
   }
   
-  public static final class DestroyVirtualLinkRequest extends
+  public static final class DestroyVirtualLinksRequest extends
       com.google.protobuf.GeneratedMessage {
-    // Use DestroyVirtualLinkRequest.newBuilder() to construct.
-    private DestroyVirtualLinkRequest() {
+    // Use DestroyVirtualLinksRequest.newBuilder() to construct.
+    private DestroyVirtualLinksRequest() {
       initFields();
     }
-    private DestroyVirtualLinkRequest(boolean noInit) {}
+    private DestroyVirtualLinksRequest(boolean noInit) {}
     
-    private static final DestroyVirtualLinkRequest defaultInstance;
-    public static DestroyVirtualLinkRequest getDefaultInstance() {
+    private static final DestroyVirtualLinksRequest defaultInstance;
+    public static DestroyVirtualLinksRequest getDefaultInstance() {
       return defaultInstance;
     }
     
-    public DestroyVirtualLinkRequest getDefaultInstanceForType() {
+    public DestroyVirtualLinksRequest getDefaultInstanceForType() {
       return defaultInstance;
     }
     
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinkRequest_descriptor;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinksRequest_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinkRequest_fieldAccessorTable;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinksRequest_fieldAccessorTable;
     }
     
-    // required string sourceNode = 1;
-    public static final int SOURCENODE_FIELD_NUMBER = 1;
-    private boolean hasSourceNode;
-    private java.lang.String sourceNode_ = "";
-    public boolean hasSourceNode() { return hasSourceNode; }
-    public java.lang.String getSourceNode() { return sourceNode_; }
-    
-    // required string targetNode = 2;
-    public static final int TARGETNODE_FIELD_NUMBER = 2;
-    private boolean hasTargetNode;
-    private java.lang.String targetNode_ = "";
-    public boolean hasTargetNode() { return hasTargetNode; }
-    public java.lang.String getTargetNode() { return targetNode_; }
+    // repeated .de.uniluebeck.itm.tr.runtime.wsnapp.Link links = 1;
+    public static final int LINKS_FIELD_NUMBER = 1;
+    private java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> links_ =
+      java.util.Collections.emptyList();
+    public java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> getLinksList() {
+      return links_;
+    }
+    public int getLinksCount() { return links_.size(); }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link getLinks(int index) {
+      return links_.get(index);
+    }
     
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasSourceNode) return false;
-      if (!hasTargetNode) return false;
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        if (!element.isInitialized()) return false;
+      }
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasSourceNode()) {
-        output.writeString(1, getSourceNode());
-      }
-      if (hasTargetNode()) {
-        output.writeString(2, getTargetNode());
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        output.writeMessage(1, element);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2540,54 +3798,50 @@ public final class WSNAppMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasSourceNode()) {
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getSourceNode());
-      }
-      if (hasTargetNode()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(2, getTargetNode());
+          .computeMessageSize(1, element);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
     
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseFrom(byte[] data)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseDelimitedFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
@@ -2596,7 +3850,7 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseDelimitedFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2607,12 +3861,12 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2622,25 +3876,25 @@ public final class WSNAppMessages {
     
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest prototype) {
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
     
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> {
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest result;
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest result;
       
-      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest.newBuilder()
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.newBuilder()
       private Builder() {}
       
       private static Builder create() {
         Builder builder = new Builder();
-        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest();
         return builder;
       }
       
-      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest internalGetResult() {
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest internalGetResult() {
         return result;
       }
       
@@ -2649,7 +3903,7 @@ public final class WSNAppMessages {
           throw new IllegalStateException(
             "Cannot call clear() after build().");
         }
-        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest();
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest();
         return this;
       }
       
@@ -2659,24 +3913,24 @@ public final class WSNAppMessages {
       
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest.getDescriptor();
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.getDescriptor();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest getDefaultInstanceForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest.getDefaultInstance();
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.getDefaultInstance();
       }
       
       public boolean isInitialized() {
         return result.isInitialized();
       }
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest build() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest build() {
         if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return buildPartial();
       }
       
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest buildParsed()
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
         if (!isInitialized()) {
           throw newUninitializedMessageException(
@@ -2685,32 +3939,36 @@ public final class WSNAppMessages {
         return buildPartial();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest buildPartial() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest buildPartial() {
         if (result == null) {
           throw new IllegalStateException(
             "build() has already been called on this Builder.");
         }
-        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest returnMe = result;
+        if (result.links_ != java.util.Collections.EMPTY_LIST) {
+          result.links_ =
+            java.util.Collections.unmodifiableList(result.links_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest returnMe = result;
         result = null;
         return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest) {
-          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest)other);
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
       
-      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest other) {
-        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest.getDefaultInstance()) return this;
-        if (other.hasSourceNode()) {
-          setSourceNode(other.getSourceNode());
-        }
-        if (other.hasTargetNode()) {
-          setTargetNode(other.getTargetNode());
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.getDefaultInstance()) return this;
+        if (!other.links_.isEmpty()) {
+          if (result.links_.isEmpty()) {
+            result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+          }
+          result.links_.addAll(other.links_);
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2738,11 +3996,9 @@ public final class WSNAppMessages {
               break;
             }
             case 10: {
-              setSourceNode(input.readString());
-              break;
-            }
-            case 18: {
-              setTargetNode(input.readString());
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.newBuilder();
+              input.readMessage(subBuilder, extensionRegistry);
+              addLinks(subBuilder.buildPartial());
               break;
             }
           }
@@ -2750,106 +4006,119 @@ public final class WSNAppMessages {
       }
       
       
-      // required string sourceNode = 1;
-      public boolean hasSourceNode() {
-        return result.hasSourceNode();
+      // repeated .de.uniluebeck.itm.tr.runtime.wsnapp.Link links = 1;
+      public java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> getLinksList() {
+        return java.util.Collections.unmodifiableList(result.links_);
       }
-      public java.lang.String getSourceNode() {
-        return result.getSourceNode();
+      public int getLinksCount() {
+        return result.getLinksCount();
       }
-      public Builder setSourceNode(java.lang.String value) {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link getLinks(int index) {
+        return result.getLinks(index);
+      }
+      public Builder setLinks(int index, de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasSourceNode = true;
-        result.sourceNode_ = value;
+          throw new NullPointerException();
+        }
+        result.links_.set(index, value);
         return this;
       }
-      public Builder clearSourceNode() {
-        result.hasSourceNode = false;
-        result.sourceNode_ = getDefaultInstance().getSourceNode();
+      public Builder setLinks(int index, de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder builderForValue) {
+        result.links_.set(index, builderForValue.build());
+        return this;
+      }
+      public Builder addLinks(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        result.links_.add(value);
+        return this;
+      }
+      public Builder addLinks(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder builderForValue) {
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        result.links_.add(builderForValue.build());
+        return this;
+      }
+      public Builder addAllLinks(
+          java.lang.Iterable<? extends de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> values) {
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        super.addAll(values, result.links_);
+        return this;
+      }
+      public Builder clearLinks() {
+        result.links_ = java.util.Collections.emptyList();
         return this;
       }
       
-      // required string targetNode = 2;
-      public boolean hasTargetNode() {
-        return result.hasTargetNode();
-      }
-      public java.lang.String getTargetNode() {
-        return result.getTargetNode();
-      }
-      public Builder setTargetNode(java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasTargetNode = true;
-        result.targetNode_ = value;
-        return this;
-      }
-      public Builder clearTargetNode() {
-        result.hasTargetNode = false;
-        result.targetNode_ = getDefaultInstance().getTargetNode();
-        return this;
-      }
-      
-      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DestroyVirtualLinkRequest)
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DestroyVirtualLinksRequest)
     }
     
     static {
-      defaultInstance = new DestroyVirtualLinkRequest(true);
+      defaultInstance = new DestroyVirtualLinksRequest(true);
       de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
       defaultInstance.initFields();
     }
     
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DestroyVirtualLinkRequest)
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DestroyVirtualLinksRequest)
   }
   
-  public static final class DisablePhysicalLink extends
+  public static final class DisableNodesRequest extends
       com.google.protobuf.GeneratedMessage {
-    // Use DisablePhysicalLink.newBuilder() to construct.
-    private DisablePhysicalLink() {
+    // Use DisableNodesRequest.newBuilder() to construct.
+    private DisableNodesRequest() {
       initFields();
     }
-    private DisablePhysicalLink(boolean noInit) {}
+    private DisableNodesRequest(boolean noInit) {}
     
-    private static final DisablePhysicalLink defaultInstance;
-    public static DisablePhysicalLink getDefaultInstance() {
+    private static final DisableNodesRequest defaultInstance;
+    public static DisableNodesRequest getDefaultInstance() {
       return defaultInstance;
     }
     
-    public DisablePhysicalLink getDefaultInstanceForType() {
+    public DisableNodesRequest getDefaultInstanceForType() {
       return defaultInstance;
     }
     
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLink_descriptor;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisableNodesRequest_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLink_fieldAccessorTable;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisableNodesRequest_fieldAccessorTable;
     }
     
-    // required string nodeB = 2;
-    public static final int NODEB_FIELD_NUMBER = 2;
-    private boolean hasNodeB;
-    private java.lang.String nodeB_ = "";
-    public boolean hasNodeB() { return hasNodeB; }
-    public java.lang.String getNodeB() { return nodeB_; }
+    // repeated string nodeUrns = 1;
+    public static final int NODEURNS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.String> nodeUrns_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getNodeUrnsList() {
+      return nodeUrns_;
+    }
+    public int getNodeUrnsCount() { return nodeUrns_.size(); }
+    public java.lang.String getNodeUrns(int index) {
+      return nodeUrns_.get(index);
+    }
     
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasNodeB) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasNodeB()) {
-        output.writeString(2, getNodeB());
+      for (java.lang.String element : getNodeUrnsList()) {
+        output.writeString(1, element);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2860,50 +4129,55 @@ public final class WSNAppMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasNodeB()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(2, getNodeB());
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getNodeUrnsList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getNodeUrnsList().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
     
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseFrom(byte[] data)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseDelimitedFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
@@ -2912,7 +4186,7 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseDelimitedFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2923,12 +4197,12 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2938,25 +4212,25 @@ public final class WSNAppMessages {
     
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink prototype) {
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
     
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> {
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink result;
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest result;
       
-      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink.newBuilder()
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.newBuilder()
       private Builder() {}
       
       private static Builder create() {
         Builder builder = new Builder();
-        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest();
         return builder;
       }
       
-      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink internalGetResult() {
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest internalGetResult() {
         return result;
       }
       
@@ -2965,7 +4239,7 @@ public final class WSNAppMessages {
           throw new IllegalStateException(
             "Cannot call clear() after build().");
         }
-        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink();
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest();
         return this;
       }
       
@@ -2975,24 +4249,24 @@ public final class WSNAppMessages {
       
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink.getDescriptor();
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.getDescriptor();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink getDefaultInstanceForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink.getDefaultInstance();
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.getDefaultInstance();
       }
       
       public boolean isInitialized() {
         return result.isInitialized();
       }
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink build() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest build() {
         if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return buildPartial();
       }
       
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink buildParsed()
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
         if (!isInitialized()) {
           throw newUninitializedMessageException(
@@ -3001,29 +4275,1014 @@ public final class WSNAppMessages {
         return buildPartial();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink buildPartial() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest buildPartial() {
         if (result == null) {
           throw new IllegalStateException(
             "build() has already been called on this Builder.");
         }
-        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink returnMe = result;
+        if (result.nodeUrns_ != java.util.Collections.EMPTY_LIST) {
+          result.nodeUrns_ =
+            java.util.Collections.unmodifiableList(result.nodeUrns_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest returnMe = result;
         result = null;
         return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink) {
-          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink)other);
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
       
-      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink other) {
-        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink.getDefaultInstance()) return this;
-        if (other.hasNodeB()) {
-          setNodeB(other.getNodeB());
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.getDefaultInstance()) return this;
+        if (!other.nodeUrns_.isEmpty()) {
+          if (result.nodeUrns_.isEmpty()) {
+            result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.nodeUrns_.addAll(other.nodeUrns_);
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              addNodeUrns(input.readString());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // repeated string nodeUrns = 1;
+      public java.util.List<java.lang.String> getNodeUrnsList() {
+        return java.util.Collections.unmodifiableList(result.nodeUrns_);
+      }
+      public int getNodeUrnsCount() {
+        return result.getNodeUrnsCount();
+      }
+      public java.lang.String getNodeUrns(int index) {
+        return result.getNodeUrns(index);
+      }
+      public Builder setNodeUrns(int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.nodeUrns_.set(index, value);
+        return this;
+      }
+      public Builder addNodeUrns(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.nodeUrns_.add(value);
+        return this;
+      }
+      public Builder addAllNodeUrns(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.nodeUrns_);
+        return this;
+      }
+      public Builder clearNodeUrns() {
+        result.nodeUrns_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DisableNodesRequest)
+    }
+    
+    static {
+      defaultInstance = new DisableNodesRequest(true);
+      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DisableNodesRequest)
+  }
+  
+  public static final class EnableNodesRequest extends
+      com.google.protobuf.GeneratedMessage {
+    // Use EnableNodesRequest.newBuilder() to construct.
+    private EnableNodesRequest() {
+      initFields();
+    }
+    private EnableNodesRequest(boolean noInit) {}
+    
+    private static final EnableNodesRequest defaultInstance;
+    public static EnableNodesRequest getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public EnableNodesRequest getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnableNodesRequest_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnableNodesRequest_fieldAccessorTable;
+    }
+    
+    // repeated string nodeUrns = 1;
+    public static final int NODEURNS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.String> nodeUrns_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getNodeUrnsList() {
+      return nodeUrns_;
+    }
+    public int getNodeUrnsCount() { return nodeUrns_.size(); }
+    public java.lang.String getNodeUrns(int index) {
+      return nodeUrns_.get(index);
+    }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (java.lang.String element : getNodeUrnsList()) {
+        output.writeString(1, element);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getNodeUrnsList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getNodeUrnsList().size();
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.nodeUrns_ != java.util.Collections.EMPTY_LIST) {
+          result.nodeUrns_ =
+            java.util.Collections.unmodifiableList(result.nodeUrns_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.getDefaultInstance()) return this;
+        if (!other.nodeUrns_.isEmpty()) {
+          if (result.nodeUrns_.isEmpty()) {
+            result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.nodeUrns_.addAll(other.nodeUrns_);
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              addNodeUrns(input.readString());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // repeated string nodeUrns = 1;
+      public java.util.List<java.lang.String> getNodeUrnsList() {
+        return java.util.Collections.unmodifiableList(result.nodeUrns_);
+      }
+      public int getNodeUrnsCount() {
+        return result.getNodeUrnsCount();
+      }
+      public java.lang.String getNodeUrns(int index) {
+        return result.getNodeUrns(index);
+      }
+      public Builder setNodeUrns(int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.nodeUrns_.set(index, value);
+        return this;
+      }
+      public Builder addNodeUrns(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.nodeUrns_.add(value);
+        return this;
+      }
+      public Builder addAllNodeUrns(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.nodeUrns_.isEmpty()) {
+          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.nodeUrns_);
+        return this;
+      }
+      public Builder clearNodeUrns() {
+        result.nodeUrns_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.EnableNodesRequest)
+    }
+    
+    static {
+      defaultInstance = new EnableNodesRequest(true);
+      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.EnableNodesRequest)
+  }
+  
+  public static final class DisablePhysicalLinksRequest extends
+      com.google.protobuf.GeneratedMessage {
+    // Use DisablePhysicalLinksRequest.newBuilder() to construct.
+    private DisablePhysicalLinksRequest() {
+      initFields();
+    }
+    private DisablePhysicalLinksRequest(boolean noInit) {}
+    
+    private static final DisablePhysicalLinksRequest defaultInstance;
+    public static DisablePhysicalLinksRequest getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public DisablePhysicalLinksRequest getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLinksRequest_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLinksRequest_fieldAccessorTable;
+    }
+    
+    // repeated .de.uniluebeck.itm.tr.runtime.wsnapp.Link links = 1;
+    public static final int LINKS_FIELD_NUMBER = 1;
+    private java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> links_ =
+      java.util.Collections.emptyList();
+    public java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> getLinksList() {
+      return links_;
+    }
+    public int getLinksCount() { return links_.size(); }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link getLinks(int index) {
+      return links_.get(index);
+    }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        if (!element.isInitialized()) return false;
+      }
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        output.writeMessage(1, element);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, element);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.links_ != java.util.Collections.EMPTY_LIST) {
+          result.links_ =
+            java.util.Collections.unmodifiableList(result.links_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.getDefaultInstance()) return this;
+        if (!other.links_.isEmpty()) {
+          if (result.links_.isEmpty()) {
+            result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+          }
+          result.links_.addAll(other.links_);
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.newBuilder();
+              input.readMessage(subBuilder, extensionRegistry);
+              addLinks(subBuilder.buildPartial());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // repeated .de.uniluebeck.itm.tr.runtime.wsnapp.Link links = 1;
+      public java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> getLinksList() {
+        return java.util.Collections.unmodifiableList(result.links_);
+      }
+      public int getLinksCount() {
+        return result.getLinksCount();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link getLinks(int index) {
+        return result.getLinks(index);
+      }
+      public Builder setLinks(int index, de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.links_.set(index, value);
+        return this;
+      }
+      public Builder setLinks(int index, de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder builderForValue) {
+        result.links_.set(index, builderForValue.build());
+        return this;
+      }
+      public Builder addLinks(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        result.links_.add(value);
+        return this;
+      }
+      public Builder addLinks(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder builderForValue) {
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        result.links_.add(builderForValue.build());
+        return this;
+      }
+      public Builder addAllLinks(
+          java.lang.Iterable<? extends de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> values) {
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        super.addAll(values, result.links_);
+        return this;
+      }
+      public Builder clearLinks() {
+        result.links_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DisablePhysicalLinksRequest)
+    }
+    
+    static {
+      defaultInstance = new DisablePhysicalLinksRequest(true);
+      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DisablePhysicalLinksRequest)
+  }
+  
+  public static final class EnablePhysicalLinksRequest extends
+      com.google.protobuf.GeneratedMessage {
+    // Use EnablePhysicalLinksRequest.newBuilder() to construct.
+    private EnablePhysicalLinksRequest() {
+      initFields();
+    }
+    private EnablePhysicalLinksRequest(boolean noInit) {}
+    
+    private static final EnablePhysicalLinksRequest defaultInstance;
+    public static EnablePhysicalLinksRequest getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public EnablePhysicalLinksRequest getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLinksRequest_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLinksRequest_fieldAccessorTable;
+    }
+    
+    // repeated .de.uniluebeck.itm.tr.runtime.wsnapp.Link links = 2;
+    public static final int LINKS_FIELD_NUMBER = 2;
+    private java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> links_ =
+      java.util.Collections.emptyList();
+    public java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> getLinksList() {
+      return links_;
+    }
+    public int getLinksCount() { return links_.size(); }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link getLinks(int index) {
+      return links_.get(index);
+    }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        if (!element.isInitialized()) return false;
+      }
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        output.writeMessage(2, element);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      for (de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link element : getLinksList()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, element);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.links_ != java.util.Collections.EMPTY_LIST) {
+          result.links_ =
+            java.util.Collections.unmodifiableList(result.links_);
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.getDefaultInstance()) return this;
+        if (!other.links_.isEmpty()) {
+          if (result.links_.isEmpty()) {
+            result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+          }
+          result.links_.addAll(other.links_);
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -3051,7 +5310,9 @@ public final class WSNAppMessages {
               break;
             }
             case 18: {
-              setNodeB(input.readString());
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.newBuilder();
+              input.readMessage(subBuilder, extensionRegistry);
+              addLinks(subBuilder.buildPartial());
               break;
             }
           }
@@ -3059,325 +5320,67 @@ public final class WSNAppMessages {
       }
       
       
-      // required string nodeB = 2;
-      public boolean hasNodeB() {
-        return result.hasNodeB();
+      // repeated .de.uniluebeck.itm.tr.runtime.wsnapp.Link links = 2;
+      public java.util.List<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> getLinksList() {
+        return java.util.Collections.unmodifiableList(result.links_);
       }
-      public java.lang.String getNodeB() {
-        return result.getNodeB();
+      public int getLinksCount() {
+        return result.getLinksCount();
       }
-      public Builder setNodeB(java.lang.String value) {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link getLinks(int index) {
+        return result.getLinks(index);
+      }
+      public Builder setLinks(int index, de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasNodeB = true;
-        result.nodeB_ = value;
+          throw new NullPointerException();
+        }
+        result.links_.set(index, value);
         return this;
       }
-      public Builder clearNodeB() {
-        result.hasNodeB = false;
-        result.nodeB_ = getDefaultInstance().getNodeB();
+      public Builder setLinks(int index, de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder builderForValue) {
+        result.links_.set(index, builderForValue.build());
+        return this;
+      }
+      public Builder addLinks(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        result.links_.add(value);
+        return this;
+      }
+      public Builder addLinks(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder builderForValue) {
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        result.links_.add(builderForValue.build());
+        return this;
+      }
+      public Builder addAllLinks(
+          java.lang.Iterable<? extends de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link> values) {
+        if (result.links_.isEmpty()) {
+          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link>();
+        }
+        super.addAll(values, result.links_);
+        return this;
+      }
+      public Builder clearLinks() {
+        result.links_ = java.util.Collections.emptyList();
         return this;
       }
       
-      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DisablePhysicalLink)
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.EnablePhysicalLinksRequest)
     }
     
     static {
-      defaultInstance = new DisablePhysicalLink(true);
+      defaultInstance = new EnablePhysicalLinksRequest(true);
       de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
       defaultInstance.initFields();
     }
     
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.DisablePhysicalLink)
-  }
-  
-  public static final class EnablePhysicalLink extends
-      com.google.protobuf.GeneratedMessage {
-    // Use EnablePhysicalLink.newBuilder() to construct.
-    private EnablePhysicalLink() {
-      initFields();
-    }
-    private EnablePhysicalLink(boolean noInit) {}
-    
-    private static final EnablePhysicalLink defaultInstance;
-    public static EnablePhysicalLink getDefaultInstance() {
-      return defaultInstance;
-    }
-    
-    public EnablePhysicalLink getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-    
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLink_descriptor;
-    }
-    
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLink_fieldAccessorTable;
-    }
-    
-    // required string nodeB = 2;
-    public static final int NODEB_FIELD_NUMBER = 2;
-    private boolean hasNodeB;
-    private java.lang.String nodeB_ = "";
-    public boolean hasNodeB() { return hasNodeB; }
-    public java.lang.String getNodeB() { return nodeB_; }
-    
-    private void initFields() {
-    }
-    public final boolean isInitialized() {
-      if (!hasNodeB) return false;
-      return true;
-    }
-    
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (hasNodeB()) {
-        output.writeString(2, getNodeB());
-      }
-      getUnknownFields().writeTo(output);
-    }
-    
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-    
-      size = 0;
-      if (hasNodeB()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(2, getNodeB());
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-    
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-    
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> {
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink result;
-      
-      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink.newBuilder()
-      private Builder() {}
-      
-      private static Builder create() {
-        Builder builder = new Builder();
-        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink();
-        return builder;
-      }
-      
-      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink internalGetResult() {
-        return result;
-      }
-      
-      public Builder clear() {
-        if (result == null) {
-          throw new IllegalStateException(
-            "Cannot call clear() after build().");
-        }
-        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink();
-        return this;
-      }
-      
-      public Builder clone() {
-        return create().mergeFrom(result);
-      }
-      
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink.getDescriptor();
-      }
-      
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink getDefaultInstanceForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink.getDefaultInstance();
-      }
-      
-      public boolean isInitialized() {
-        return result.isInitialized();
-      }
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink build() {
-        if (result != null && !isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return buildPartial();
-      }
-      
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink buildParsed()
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        if (!isInitialized()) {
-          throw newUninitializedMessageException(
-            result).asInvalidProtocolBufferException();
-        }
-        return buildPartial();
-      }
-      
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink buildPartial() {
-        if (result == null) {
-          throw new IllegalStateException(
-            "build() has already been called on this Builder.");
-        }
-        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink returnMe = result;
-        result = null;
-        return returnMe;
-      }
-      
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink) {
-          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-      
-      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink other) {
-        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink.getDefaultInstance()) return this;
-        if (other.hasNodeB()) {
-          setNodeB(other.getNodeB());
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-      
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder(
-            this.getUnknownFields());
-        while (true) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              this.setUnknownFields(unknownFields.build());
-              return this;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                this.setUnknownFields(unknownFields.build());
-                return this;
-              }
-              break;
-            }
-            case 18: {
-              setNodeB(input.readString());
-              break;
-            }
-          }
-        }
-      }
-      
-      
-      // required string nodeB = 2;
-      public boolean hasNodeB() {
-        return result.hasNodeB();
-      }
-      public java.lang.String getNodeB() {
-        return result.getNodeB();
-      }
-      public Builder setNodeB(java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasNodeB = true;
-        result.nodeB_ = value;
-        return this;
-      }
-      public Builder clearNodeB() {
-        result.hasNodeB = false;
-        result.nodeB_ = getDefaultInstance().getNodeB();
-        return this;
-      }
-      
-      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.EnablePhysicalLink)
-    }
-    
-    static {
-      defaultInstance = new EnablePhysicalLink(true);
-      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
-      defaultInstance.initFields();
-    }
-    
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.EnablePhysicalLink)
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.EnablePhysicalLinksRequest)
   }
   
   public static final class SetChannelPipelineRequest extends
@@ -4422,83 +6425,330 @@ public final class WSNAppMessages {
     // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.SetChannelPipelineRequest)
   }
   
-  public static final class OperationInvocation extends
+  public static final class SetDefaultChannelPipelineRequest extends
       com.google.protobuf.GeneratedMessage {
-    // Use OperationInvocation.newBuilder() to construct.
-    private OperationInvocation() {
+    // Use SetDefaultChannelPipelineRequest.newBuilder() to construct.
+    private SetDefaultChannelPipelineRequest() {
       initFields();
     }
-    private OperationInvocation(boolean noInit) {}
+    private SetDefaultChannelPipelineRequest(boolean noInit) {}
     
-    private static final OperationInvocation defaultInstance;
-    public static OperationInvocation getDefaultInstance() {
+    private static final SetDefaultChannelPipelineRequest defaultInstance;
+    public static SetDefaultChannelPipelineRequest getDefaultInstance() {
       return defaultInstance;
     }
     
-    public OperationInvocation getDefaultInstanceForType() {
+    public SetDefaultChannelPipelineRequest getDefaultInstanceForType() {
       return defaultInstance;
     }
     
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_OperationInvocation_descriptor;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetDefaultChannelPipelineRequest_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_OperationInvocation_fieldAccessorTable;
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetDefaultChannelPipelineRequest_fieldAccessorTable;
     }
     
-    public enum Operation
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.getDefaultInstance()) return this;
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.SetDefaultChannelPipelineRequest)
+    }
+    
+    static {
+      defaultInstance = new SetDefaultChannelPipelineRequest(true);
+      de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.SetDefaultChannelPipelineRequest)
+  }
+  
+  public static final class Invocation extends
+      com.google.protobuf.GeneratedMessage {
+    // Use Invocation.newBuilder() to construct.
+    private Invocation() {
+      initFields();
+    }
+    private Invocation(boolean noInit) {}
+    
+    private static final Invocation defaultInstance;
+    public static Invocation getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public Invocation getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Invocation_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Invocation_fieldAccessorTable;
+    }
+    
+    public enum Type
         implements com.google.protobuf.ProtocolMessageEnum {
-      SEND(0, 0),
-      ARE_NODES_ALIVE(1, 1),
-      FLASH_PROGRAMS(2, 2),
-      RESET_NODES(3, 3),
-      SET_VIRTUAL_LINK(4, 4),
-      DESTROY_VIRTUAL_LINK(5, 5),
-      DISABLE_NODE(6, 6),
-      ENABLE_NODE(7, 7),
-      DISABLE_PHYSICAL_LINK(8, 8),
-      ENABLE_PHYSICAL_LINK(9, 9),
-      SET_CHANNEL_PIPELINE(10, 10),
-      SET_DEFAULT_CHANNEL_PIPELINE(11, 11),
-      ARE_NODES_ALIVE_SM(12, 12),
-      FLASH_DEFAULT_IMAGE(13, 13),
+      SEND_DOWNSTREAM(0, 1),
+      SEND_UPSTREAM(1, 2),
+      ARE_NODES_ALIVE(2, 3),
+      ARE_NODES_CONNECTED(3, 4),
+      FLASH_PROGRAMS(4, 5),
+      FLASH_DEFAULT_IMAGE(5, 6),
+      RESET_NODES(6, 7),
+      SET_VIRTUAL_LINK(7, 8),
+      DESTROY_VIRTUAL_LINK(8, 9),
+      DISABLE_NODE(9, 10),
+      ENABLE_NODE(10, 11),
+      DISABLE_PHYSICAL_LINK(11, 12),
+      ENABLE_PHYSICAL_LINK(12, 13),
+      SET_CHANNEL_PIPELINE(13, 14),
+      SET_DEFAULT_CHANNEL_PIPELINE(14, 15),
       ;
       
       
       public final int getNumber() { return value; }
       
-      public static Operation valueOf(int value) {
+      public static Type valueOf(int value) {
         switch (value) {
-          case 0: return SEND;
-          case 1: return ARE_NODES_ALIVE;
-          case 2: return FLASH_PROGRAMS;
-          case 3: return RESET_NODES;
-          case 4: return SET_VIRTUAL_LINK;
-          case 5: return DESTROY_VIRTUAL_LINK;
-          case 6: return DISABLE_NODE;
-          case 7: return ENABLE_NODE;
-          case 8: return DISABLE_PHYSICAL_LINK;
-          case 9: return ENABLE_PHYSICAL_LINK;
-          case 10: return SET_CHANNEL_PIPELINE;
-          case 11: return SET_DEFAULT_CHANNEL_PIPELINE;
-          case 12: return ARE_NODES_ALIVE_SM;
-          case 13: return FLASH_DEFAULT_IMAGE;
+          case 1: return SEND_DOWNSTREAM;
+          case 2: return SEND_UPSTREAM;
+          case 3: return ARE_NODES_ALIVE;
+          case 4: return ARE_NODES_CONNECTED;
+          case 5: return FLASH_PROGRAMS;
+          case 6: return FLASH_DEFAULT_IMAGE;
+          case 7: return RESET_NODES;
+          case 8: return SET_VIRTUAL_LINK;
+          case 9: return DESTROY_VIRTUAL_LINK;
+          case 10: return DISABLE_NODE;
+          case 11: return ENABLE_NODE;
+          case 12: return DISABLE_PHYSICAL_LINK;
+          case 13: return ENABLE_PHYSICAL_LINK;
+          case 14: return SET_CHANNEL_PIPELINE;
+          case 15: return SET_DEFAULT_CHANNEL_PIPELINE;
           default: return null;
         }
       }
       
-      public static com.google.protobuf.Internal.EnumLiteMap<Operation>
+      public static com.google.protobuf.Internal.EnumLiteMap<Type>
           internalGetValueMap() {
         return internalValueMap;
       }
-      private static com.google.protobuf.Internal.EnumLiteMap<Operation>
+      private static com.google.protobuf.Internal.EnumLiteMap<Type>
           internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<Operation>() {
-              public Operation findValueByNumber(int number) {
-                return Operation.valueOf(number)
+            new com.google.protobuf.Internal.EnumLiteMap<Type>() {
+              public Type findValueByNumber(int number) {
+                return Type.valueOf(number)
       ;        }
             };
       
@@ -4512,13 +6762,13 @@ public final class WSNAppMessages {
       }
       public static final com.google.protobuf.Descriptors.EnumDescriptor
           getDescriptor() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.getDescriptor().getEnumTypes().get(0);
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.getDescriptor().getEnumTypes().get(0);
       }
       
-      private static final Operation[] VALUES = {
-        SEND, ARE_NODES_ALIVE, FLASH_PROGRAMS, RESET_NODES, SET_VIRTUAL_LINK, DESTROY_VIRTUAL_LINK, DISABLE_NODE, ENABLE_NODE, DISABLE_PHYSICAL_LINK, ENABLE_PHYSICAL_LINK, SET_CHANNEL_PIPELINE, SET_DEFAULT_CHANNEL_PIPELINE, ARE_NODES_ALIVE_SM, FLASH_DEFAULT_IMAGE, 
+      private static final Type[] VALUES = {
+        SEND_DOWNSTREAM, SEND_UPSTREAM, ARE_NODES_ALIVE, ARE_NODES_CONNECTED, FLASH_PROGRAMS, FLASH_DEFAULT_IMAGE, RESET_NODES, SET_VIRTUAL_LINK, DESTROY_VIRTUAL_LINK, DISABLE_NODE, ENABLE_NODE, DISABLE_PHYSICAL_LINK, ENABLE_PHYSICAL_LINK, SET_CHANNEL_PIPELINE, SET_DEFAULT_CHANNEL_PIPELINE, 
       };
-      public static Operation valueOf(
+      public static Type valueOf(
           com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
         if (desc.getType() != getDescriptor()) {
           throw new java.lang.IllegalArgumentException(
@@ -4528,7 +6778,7 @@ public final class WSNAppMessages {
       }
       private final int index;
       private final int value;
-      private Operation(int index, int value) {
+      private Type(int index, int value) {
         this.index = index;
         this.value = value;
       }
@@ -4537,39 +6787,218 @@ public final class WSNAppMessages {
         de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.getDescriptor();
       }
       
-      // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.tr.runtime.wsnapp.OperationInvocation.Operation)
+      // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.tr.runtime.wsnapp.Invocation.Type)
     }
     
-    // required .de.uniluebeck.itm.tr.runtime.wsnapp.OperationInvocation.Operation operation = 1;
-    public static final int OPERATION_FIELD_NUMBER = 1;
-    private boolean hasOperation;
-    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.Operation operation_;
-    public boolean hasOperation() { return hasOperation; }
-    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.Operation getOperation() { return operation_; }
+    // required .de.uniluebeck.itm.tr.runtime.wsnapp.Invocation.Type type = 1;
+    public static final int TYPE_FIELD_NUMBER = 1;
+    private boolean hasType;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.Type type_;
+    public boolean hasType() { return hasType; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.Type getType() { return type_; }
     
-    // optional bytes arguments = 2;
-    public static final int ARGUMENTS_FIELD_NUMBER = 2;
-    private boolean hasArguments;
-    private com.google.protobuf.ByteString arguments_ = com.google.protobuf.ByteString.EMPTY;
-    public boolean hasArguments() { return hasArguments; }
-    public com.google.protobuf.ByteString getArguments() { return arguments_; }
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.DownstreamMessage downstreamMessage = 2;
+    public static final int DOWNSTREAMMESSAGE_FIELD_NUMBER = 2;
+    private boolean hasDownstreamMessage;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage downstreamMessage_;
+    public boolean hasDownstreamMessage() { return hasDownstreamMessage; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage getDownstreamMessage() { return downstreamMessage_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.UpstreamMessage upstreamMessage = 3;
+    public static final int UPSTREAMMESSAGE_FIELD_NUMBER = 3;
+    private boolean hasUpstreamMessage;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage upstreamMessage_;
+    public boolean hasUpstreamMessage() { return hasUpstreamMessage; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage getUpstreamMessage() { return upstreamMessage_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.AreNodesAliveRequest areNodesAliveRequest = 4;
+    public static final int ARENODESALIVEREQUEST_FIELD_NUMBER = 4;
+    private boolean hasAreNodesAliveRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest areNodesAliveRequest_;
+    public boolean hasAreNodesAliveRequest() { return hasAreNodesAliveRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest getAreNodesAliveRequest() { return areNodesAliveRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.AreNodesConnectedRequest areNodesConnectedRequest = 5;
+    public static final int ARENODESCONNECTEDREQUEST_FIELD_NUMBER = 5;
+    private boolean hasAreNodesConnectedRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest areNodesConnectedRequest_;
+    public boolean hasAreNodesConnectedRequest() { return hasAreNodesConnectedRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest getAreNodesConnectedRequest() { return areNodesConnectedRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.FlashImageRequest flashImageRequest = 6;
+    public static final int FLASHIMAGEREQUEST_FIELD_NUMBER = 6;
+    private boolean hasFlashImageRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest flashImageRequest_;
+    public boolean hasFlashImageRequest() { return hasFlashImageRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest getFlashImageRequest() { return flashImageRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.FlashDefaultImageRequest flashDefaultImageRequest = 7;
+    public static final int FLASHDEFAULTIMAGEREQUEST_FIELD_NUMBER = 7;
+    private boolean hasFlashDefaultImageRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest flashDefaultImageRequest_;
+    public boolean hasFlashDefaultImageRequest() { return hasFlashDefaultImageRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest getFlashDefaultImageRequest() { return flashDefaultImageRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.ResetNodesRequest resetNodesRequest = 8;
+    public static final int RESETNODESREQUEST_FIELD_NUMBER = 8;
+    private boolean hasResetNodesRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest resetNodesRequest_;
+    public boolean hasResetNodesRequest() { return hasResetNodesRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest getResetNodesRequest() { return resetNodesRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.SetVirtualLinksRequest setVirtualLinksRequest = 9;
+    public static final int SETVIRTUALLINKSREQUEST_FIELD_NUMBER = 9;
+    private boolean hasSetVirtualLinksRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest setVirtualLinksRequest_;
+    public boolean hasSetVirtualLinksRequest() { return hasSetVirtualLinksRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest getSetVirtualLinksRequest() { return setVirtualLinksRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.DestroyVirtualLinksRequest destroyVirtualLinksRequest = 10;
+    public static final int DESTROYVIRTUALLINKSREQUEST_FIELD_NUMBER = 10;
+    private boolean hasDestroyVirtualLinksRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest destroyVirtualLinksRequest_;
+    public boolean hasDestroyVirtualLinksRequest() { return hasDestroyVirtualLinksRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest getDestroyVirtualLinksRequest() { return destroyVirtualLinksRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.DisableNodesRequest disableNodesRequest = 11;
+    public static final int DISABLENODESREQUEST_FIELD_NUMBER = 11;
+    private boolean hasDisableNodesRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest disableNodesRequest_;
+    public boolean hasDisableNodesRequest() { return hasDisableNodesRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest getDisableNodesRequest() { return disableNodesRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.EnableNodesRequest enableNodesRequest = 12;
+    public static final int ENABLENODESREQUEST_FIELD_NUMBER = 12;
+    private boolean hasEnableNodesRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest enableNodesRequest_;
+    public boolean hasEnableNodesRequest() { return hasEnableNodesRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest getEnableNodesRequest() { return enableNodesRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.DisablePhysicalLinksRequest disablePhysicalLinksRequest = 13;
+    public static final int DISABLEPHYSICALLINKSREQUEST_FIELD_NUMBER = 13;
+    private boolean hasDisablePhysicalLinksRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest disablePhysicalLinksRequest_;
+    public boolean hasDisablePhysicalLinksRequest() { return hasDisablePhysicalLinksRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest getDisablePhysicalLinksRequest() { return disablePhysicalLinksRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.EnablePhysicalLinksRequest enablePhysicalLinksRequest = 14;
+    public static final int ENABLEPHYSICALLINKSREQUEST_FIELD_NUMBER = 14;
+    private boolean hasEnablePhysicalLinksRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest enablePhysicalLinksRequest_;
+    public boolean hasEnablePhysicalLinksRequest() { return hasEnablePhysicalLinksRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest getEnablePhysicalLinksRequest() { return enablePhysicalLinksRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.SetChannelPipelineRequest setChannelPipelineRequest = 15;
+    public static final int SETCHANNELPIPELINEREQUEST_FIELD_NUMBER = 15;
+    private boolean hasSetChannelPipelineRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest setChannelPipelineRequest_;
+    public boolean hasSetChannelPipelineRequest() { return hasSetChannelPipelineRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest getSetChannelPipelineRequest() { return setChannelPipelineRequest_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.wsnapp.SetDefaultChannelPipelineRequest setDefaultChannelPipelineRequest = 16;
+    public static final int SETDEFAULTCHANNELPIPELINEREQUEST_FIELD_NUMBER = 16;
+    private boolean hasSetDefaultChannelPipelineRequest;
+    private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest setDefaultChannelPipelineRequest_;
+    public boolean hasSetDefaultChannelPipelineRequest() { return hasSetDefaultChannelPipelineRequest; }
+    public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest getSetDefaultChannelPipelineRequest() { return setDefaultChannelPipelineRequest_; }
     
     private void initFields() {
-      operation_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.Operation.SEND;
+      type_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.Type.SEND_DOWNSTREAM;
+      downstreamMessage_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.getDefaultInstance();
+      upstreamMessage_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.getDefaultInstance();
+      areNodesAliveRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.getDefaultInstance();
+      areNodesConnectedRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.getDefaultInstance();
+      flashImageRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.getDefaultInstance();
+      flashDefaultImageRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.getDefaultInstance();
+      resetNodesRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.getDefaultInstance();
+      setVirtualLinksRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.getDefaultInstance();
+      destroyVirtualLinksRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.getDefaultInstance();
+      disableNodesRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.getDefaultInstance();
+      enableNodesRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.getDefaultInstance();
+      disablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.getDefaultInstance();
+      enablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.getDefaultInstance();
+      setChannelPipelineRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest.getDefaultInstance();
+      setDefaultChannelPipelineRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.getDefaultInstance();
     }
     public final boolean isInitialized() {
-      if (!hasOperation) return false;
+      if (!hasType) return false;
+      if (hasDownstreamMessage()) {
+        if (!getDownstreamMessage().isInitialized()) return false;
+      }
+      if (hasUpstreamMessage()) {
+        if (!getUpstreamMessage().isInitialized()) return false;
+      }
+      if (hasFlashImageRequest()) {
+        if (!getFlashImageRequest().isInitialized()) return false;
+      }
+      if (hasSetVirtualLinksRequest()) {
+        if (!getSetVirtualLinksRequest().isInitialized()) return false;
+      }
+      if (hasDestroyVirtualLinksRequest()) {
+        if (!getDestroyVirtualLinksRequest().isInitialized()) return false;
+      }
+      if (hasDisablePhysicalLinksRequest()) {
+        if (!getDisablePhysicalLinksRequest().isInitialized()) return false;
+      }
+      if (hasEnablePhysicalLinksRequest()) {
+        if (!getEnablePhysicalLinksRequest().isInitialized()) return false;
+      }
+      if (hasSetChannelPipelineRequest()) {
+        if (!getSetChannelPipelineRequest().isInitialized()) return false;
+      }
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasOperation()) {
-        output.writeEnum(1, getOperation().getNumber());
+      if (hasType()) {
+        output.writeEnum(1, getType().getNumber());
       }
-      if (hasArguments()) {
-        output.writeBytes(2, getArguments());
+      if (hasDownstreamMessage()) {
+        output.writeMessage(2, getDownstreamMessage());
+      }
+      if (hasUpstreamMessage()) {
+        output.writeMessage(3, getUpstreamMessage());
+      }
+      if (hasAreNodesAliveRequest()) {
+        output.writeMessage(4, getAreNodesAliveRequest());
+      }
+      if (hasAreNodesConnectedRequest()) {
+        output.writeMessage(5, getAreNodesConnectedRequest());
+      }
+      if (hasFlashImageRequest()) {
+        output.writeMessage(6, getFlashImageRequest());
+      }
+      if (hasFlashDefaultImageRequest()) {
+        output.writeMessage(7, getFlashDefaultImageRequest());
+      }
+      if (hasResetNodesRequest()) {
+        output.writeMessage(8, getResetNodesRequest());
+      }
+      if (hasSetVirtualLinksRequest()) {
+        output.writeMessage(9, getSetVirtualLinksRequest());
+      }
+      if (hasDestroyVirtualLinksRequest()) {
+        output.writeMessage(10, getDestroyVirtualLinksRequest());
+      }
+      if (hasDisableNodesRequest()) {
+        output.writeMessage(11, getDisableNodesRequest());
+      }
+      if (hasEnableNodesRequest()) {
+        output.writeMessage(12, getEnableNodesRequest());
+      }
+      if (hasDisablePhysicalLinksRequest()) {
+        output.writeMessage(13, getDisablePhysicalLinksRequest());
+      }
+      if (hasEnablePhysicalLinksRequest()) {
+        output.writeMessage(14, getEnablePhysicalLinksRequest());
+      }
+      if (hasSetChannelPipelineRequest()) {
+        output.writeMessage(15, getSetChannelPipelineRequest());
+      }
+      if (hasSetDefaultChannelPipelineRequest()) {
+        output.writeMessage(16, getSetDefaultChannelPipelineRequest());
       }
       getUnknownFields().writeTo(output);
     }
@@ -4580,54 +7009,110 @@ public final class WSNAppMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasOperation()) {
+      if (hasType()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, getOperation().getNumber());
+          .computeEnumSize(1, getType().getNumber());
       }
-      if (hasArguments()) {
+      if (hasDownstreamMessage()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getArguments());
+          .computeMessageSize(2, getDownstreamMessage());
+      }
+      if (hasUpstreamMessage()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, getUpstreamMessage());
+      }
+      if (hasAreNodesAliveRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, getAreNodesAliveRequest());
+      }
+      if (hasAreNodesConnectedRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(5, getAreNodesConnectedRequest());
+      }
+      if (hasFlashImageRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(6, getFlashImageRequest());
+      }
+      if (hasFlashDefaultImageRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, getFlashDefaultImageRequest());
+      }
+      if (hasResetNodesRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(8, getResetNodesRequest());
+      }
+      if (hasSetVirtualLinksRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(9, getSetVirtualLinksRequest());
+      }
+      if (hasDestroyVirtualLinksRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(10, getDestroyVirtualLinksRequest());
+      }
+      if (hasDisableNodesRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(11, getDisableNodesRequest());
+      }
+      if (hasEnableNodesRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(12, getEnableNodesRequest());
+      }
+      if (hasDisablePhysicalLinksRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(13, getDisablePhysicalLinksRequest());
+      }
+      if (hasEnablePhysicalLinksRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(14, getEnablePhysicalLinksRequest());
+      }
+      if (hasSetChannelPipelineRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(15, getSetChannelPipelineRequest());
+      }
+      if (hasSetDefaultChannelPipelineRequest()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(16, getSetDefaultChannelPipelineRequest());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
     
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseFrom(byte[] data)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
                .buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseDelimitedFrom(java.io.InputStream input)
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
@@ -4636,7 +7121,7 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseDelimitedFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -4647,12 +7132,12 @@ public final class WSNAppMessages {
         return null;
       }
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation parseFrom(
+    public static de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -4662,25 +7147,25 @@ public final class WSNAppMessages {
     
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation prototype) {
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
     
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> {
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation result;
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation result;
       
-      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.newBuilder()
+      // Construct using de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.newBuilder()
       private Builder() {}
       
       private static Builder create() {
         Builder builder = new Builder();
-        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation();
+        builder.result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation();
         return builder;
       }
       
-      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation internalGetResult() {
+      protected de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation internalGetResult() {
         return result;
       }
       
@@ -4689,7 +7174,7 @@ public final class WSNAppMessages {
           throw new IllegalStateException(
             "Cannot call clear() after build().");
         }
-        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation();
+        result = new de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation();
         return this;
       }
       
@@ -4699,24 +7184,24 @@ public final class WSNAppMessages {
       
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.getDescriptor();
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.getDescriptor();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation getDefaultInstanceForType() {
-        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.getDefaultInstance();
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.getDefaultInstance();
       }
       
       public boolean isInitialized() {
         return result.isInitialized();
       }
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation build() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation build() {
         if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return buildPartial();
       }
       
-      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation buildParsed()
+      private de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
         if (!isInitialized()) {
           throw newUninitializedMessageException(
@@ -4725,32 +7210,74 @@ public final class WSNAppMessages {
         return buildPartial();
       }
       
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation buildPartial() {
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation buildPartial() {
         if (result == null) {
           throw new IllegalStateException(
             "build() has already been called on this Builder.");
         }
-        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation returnMe = result;
+        de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation returnMe = result;
         result = null;
         return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation) {
-          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation)other);
+        if (other instanceof de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
       
-      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation other) {
-        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.getDefaultInstance()) return this;
-        if (other.hasOperation()) {
-          setOperation(other.getOperation());
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation other) {
+        if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.getDefaultInstance()) return this;
+        if (other.hasType()) {
+          setType(other.getType());
         }
-        if (other.hasArguments()) {
-          setArguments(other.getArguments());
+        if (other.hasDownstreamMessage()) {
+          mergeDownstreamMessage(other.getDownstreamMessage());
+        }
+        if (other.hasUpstreamMessage()) {
+          mergeUpstreamMessage(other.getUpstreamMessage());
+        }
+        if (other.hasAreNodesAliveRequest()) {
+          mergeAreNodesAliveRequest(other.getAreNodesAliveRequest());
+        }
+        if (other.hasAreNodesConnectedRequest()) {
+          mergeAreNodesConnectedRequest(other.getAreNodesConnectedRequest());
+        }
+        if (other.hasFlashImageRequest()) {
+          mergeFlashImageRequest(other.getFlashImageRequest());
+        }
+        if (other.hasFlashDefaultImageRequest()) {
+          mergeFlashDefaultImageRequest(other.getFlashDefaultImageRequest());
+        }
+        if (other.hasResetNodesRequest()) {
+          mergeResetNodesRequest(other.getResetNodesRequest());
+        }
+        if (other.hasSetVirtualLinksRequest()) {
+          mergeSetVirtualLinksRequest(other.getSetVirtualLinksRequest());
+        }
+        if (other.hasDestroyVirtualLinksRequest()) {
+          mergeDestroyVirtualLinksRequest(other.getDestroyVirtualLinksRequest());
+        }
+        if (other.hasDisableNodesRequest()) {
+          mergeDisableNodesRequest(other.getDisableNodesRequest());
+        }
+        if (other.hasEnableNodesRequest()) {
+          mergeEnableNodesRequest(other.getEnableNodesRequest());
+        }
+        if (other.hasDisablePhysicalLinksRequest()) {
+          mergeDisablePhysicalLinksRequest(other.getDisablePhysicalLinksRequest());
+        }
+        if (other.hasEnablePhysicalLinksRequest()) {
+          mergeEnablePhysicalLinksRequest(other.getEnablePhysicalLinksRequest());
+        }
+        if (other.hasSetChannelPipelineRequest()) {
+          mergeSetChannelPipelineRequest(other.getSetChannelPipelineRequest());
+        }
+        if (other.hasSetDefaultChannelPipelineRequest()) {
+          mergeSetDefaultChannelPipelineRequest(other.getSetDefaultChannelPipelineRequest());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -4779,16 +7306,147 @@ public final class WSNAppMessages {
             }
             case 8: {
               int rawValue = input.readEnum();
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.Operation value = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.Operation.valueOf(rawValue);
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.Type value = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.Type.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
-                setOperation(value);
+                setType(value);
               }
               break;
             }
             case 18: {
-              setArguments(input.readBytes());
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.newBuilder();
+              if (hasDownstreamMessage()) {
+                subBuilder.mergeFrom(getDownstreamMessage());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setDownstreamMessage(subBuilder.buildPartial());
+              break;
+            }
+            case 26: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.newBuilder();
+              if (hasUpstreamMessage()) {
+                subBuilder.mergeFrom(getUpstreamMessage());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setUpstreamMessage(subBuilder.buildPartial());
+              break;
+            }
+            case 34: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.newBuilder();
+              if (hasAreNodesAliveRequest()) {
+                subBuilder.mergeFrom(getAreNodesAliveRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setAreNodesAliveRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 42: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.newBuilder();
+              if (hasAreNodesConnectedRequest()) {
+                subBuilder.mergeFrom(getAreNodesConnectedRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setAreNodesConnectedRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 50: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.newBuilder();
+              if (hasFlashImageRequest()) {
+                subBuilder.mergeFrom(getFlashImageRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setFlashImageRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 58: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.newBuilder();
+              if (hasFlashDefaultImageRequest()) {
+                subBuilder.mergeFrom(getFlashDefaultImageRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setFlashDefaultImageRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 66: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.newBuilder();
+              if (hasResetNodesRequest()) {
+                subBuilder.mergeFrom(getResetNodesRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setResetNodesRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 74: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.newBuilder();
+              if (hasSetVirtualLinksRequest()) {
+                subBuilder.mergeFrom(getSetVirtualLinksRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setSetVirtualLinksRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 82: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.newBuilder();
+              if (hasDestroyVirtualLinksRequest()) {
+                subBuilder.mergeFrom(getDestroyVirtualLinksRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setDestroyVirtualLinksRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 90: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.newBuilder();
+              if (hasDisableNodesRequest()) {
+                subBuilder.mergeFrom(getDisableNodesRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setDisableNodesRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 98: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.newBuilder();
+              if (hasEnableNodesRequest()) {
+                subBuilder.mergeFrom(getEnableNodesRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setEnableNodesRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 106: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.newBuilder();
+              if (hasDisablePhysicalLinksRequest()) {
+                subBuilder.mergeFrom(getDisablePhysicalLinksRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setDisablePhysicalLinksRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 114: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.newBuilder();
+              if (hasEnablePhysicalLinksRequest()) {
+                subBuilder.mergeFrom(getEnablePhysicalLinksRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setEnablePhysicalLinksRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 122: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest.newBuilder();
+              if (hasSetChannelPipelineRequest()) {
+                subBuilder.mergeFrom(getSetChannelPipelineRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setSetChannelPipelineRequest(subBuilder.buildPartial());
+              break;
+            }
+            case 130: {
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.Builder subBuilder = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.newBuilder();
+              if (hasSetDefaultChannelPipelineRequest()) {
+                subBuilder.mergeFrom(getSetDefaultChannelPipelineRequest());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setSetDefaultChannelPipelineRequest(subBuilder.buildPartial());
               break;
             }
           }
@@ -4796,75 +7454,629 @@ public final class WSNAppMessages {
       }
       
       
-      // required .de.uniluebeck.itm.tr.runtime.wsnapp.OperationInvocation.Operation operation = 1;
-      public boolean hasOperation() {
-        return result.hasOperation();
+      // required .de.uniluebeck.itm.tr.runtime.wsnapp.Invocation.Type type = 1;
+      public boolean hasType() {
+        return result.hasType();
       }
-      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.Operation getOperation() {
-        return result.getOperation();
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.Type getType() {
+        return result.getType();
       }
-      public Builder setOperation(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.Operation value) {
+      public Builder setType(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.Type value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        result.hasOperation = true;
-        result.operation_ = value;
+        result.hasType = true;
+        result.type_ = value;
         return this;
       }
-      public Builder clearOperation() {
-        result.hasOperation = false;
-        result.operation_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.Operation.SEND;
+      public Builder clearType() {
+        result.hasType = false;
+        result.type_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.Type.SEND_DOWNSTREAM;
         return this;
       }
       
-      // optional bytes arguments = 2;
-      public boolean hasArguments() {
-        return result.hasArguments();
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.DownstreamMessage downstreamMessage = 2;
+      public boolean hasDownstreamMessage() {
+        return result.hasDownstreamMessage();
       }
-      public com.google.protobuf.ByteString getArguments() {
-        return result.getArguments();
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage getDownstreamMessage() {
+        return result.getDownstreamMessage();
       }
-      public Builder setArguments(com.google.protobuf.ByteString value) {
+      public Builder setDownstreamMessage(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage value) {
         if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasArguments = true;
-        result.arguments_ = value;
+          throw new NullPointerException();
+        }
+        result.hasDownstreamMessage = true;
+        result.downstreamMessage_ = value;
         return this;
       }
-      public Builder clearArguments() {
-        result.hasArguments = false;
-        result.arguments_ = getDefaultInstance().getArguments();
+      public Builder setDownstreamMessage(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.Builder builderForValue) {
+        result.hasDownstreamMessage = true;
+        result.downstreamMessage_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeDownstreamMessage(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage value) {
+        if (result.hasDownstreamMessage() &&
+            result.downstreamMessage_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.getDefaultInstance()) {
+          result.downstreamMessage_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.newBuilder(result.downstreamMessage_).mergeFrom(value).buildPartial();
+        } else {
+          result.downstreamMessage_ = value;
+        }
+        result.hasDownstreamMessage = true;
+        return this;
+      }
+      public Builder clearDownstreamMessage() {
+        result.hasDownstreamMessage = false;
+        result.downstreamMessage_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.getDefaultInstance();
         return this;
       }
       
-      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.OperationInvocation)
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.UpstreamMessage upstreamMessage = 3;
+      public boolean hasUpstreamMessage() {
+        return result.hasUpstreamMessage();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage getUpstreamMessage() {
+        return result.getUpstreamMessage();
+      }
+      public Builder setUpstreamMessage(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasUpstreamMessage = true;
+        result.upstreamMessage_ = value;
+        return this;
+      }
+      public Builder setUpstreamMessage(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.Builder builderForValue) {
+        result.hasUpstreamMessage = true;
+        result.upstreamMessage_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeUpstreamMessage(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage value) {
+        if (result.hasUpstreamMessage() &&
+            result.upstreamMessage_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.getDefaultInstance()) {
+          result.upstreamMessage_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.newBuilder(result.upstreamMessage_).mergeFrom(value).buildPartial();
+        } else {
+          result.upstreamMessage_ = value;
+        }
+        result.hasUpstreamMessage = true;
+        return this;
+      }
+      public Builder clearUpstreamMessage() {
+        result.hasUpstreamMessage = false;
+        result.upstreamMessage_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.AreNodesAliveRequest areNodesAliveRequest = 4;
+      public boolean hasAreNodesAliveRequest() {
+        return result.hasAreNodesAliveRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest getAreNodesAliveRequest() {
+        return result.getAreNodesAliveRequest();
+      }
+      public Builder setAreNodesAliveRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasAreNodesAliveRequest = true;
+        result.areNodesAliveRequest_ = value;
+        return this;
+      }
+      public Builder setAreNodesAliveRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.Builder builderForValue) {
+        result.hasAreNodesAliveRequest = true;
+        result.areNodesAliveRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeAreNodesAliveRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest value) {
+        if (result.hasAreNodesAliveRequest() &&
+            result.areNodesAliveRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.getDefaultInstance()) {
+          result.areNodesAliveRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.newBuilder(result.areNodesAliveRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.areNodesAliveRequest_ = value;
+        }
+        result.hasAreNodesAliveRequest = true;
+        return this;
+      }
+      public Builder clearAreNodesAliveRequest() {
+        result.hasAreNodesAliveRequest = false;
+        result.areNodesAliveRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.AreNodesConnectedRequest areNodesConnectedRequest = 5;
+      public boolean hasAreNodesConnectedRequest() {
+        return result.hasAreNodesConnectedRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest getAreNodesConnectedRequest() {
+        return result.getAreNodesConnectedRequest();
+      }
+      public Builder setAreNodesConnectedRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasAreNodesConnectedRequest = true;
+        result.areNodesConnectedRequest_ = value;
+        return this;
+      }
+      public Builder setAreNodesConnectedRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.Builder builderForValue) {
+        result.hasAreNodesConnectedRequest = true;
+        result.areNodesConnectedRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeAreNodesConnectedRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest value) {
+        if (result.hasAreNodesConnectedRequest() &&
+            result.areNodesConnectedRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.getDefaultInstance()) {
+          result.areNodesConnectedRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.newBuilder(result.areNodesConnectedRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.areNodesConnectedRequest_ = value;
+        }
+        result.hasAreNodesConnectedRequest = true;
+        return this;
+      }
+      public Builder clearAreNodesConnectedRequest() {
+        result.hasAreNodesConnectedRequest = false;
+        result.areNodesConnectedRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.FlashImageRequest flashImageRequest = 6;
+      public boolean hasFlashImageRequest() {
+        return result.hasFlashImageRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest getFlashImageRequest() {
+        return result.getFlashImageRequest();
+      }
+      public Builder setFlashImageRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasFlashImageRequest = true;
+        result.flashImageRequest_ = value;
+        return this;
+      }
+      public Builder setFlashImageRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.Builder builderForValue) {
+        result.hasFlashImageRequest = true;
+        result.flashImageRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeFlashImageRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest value) {
+        if (result.hasFlashImageRequest() &&
+            result.flashImageRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.getDefaultInstance()) {
+          result.flashImageRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.newBuilder(result.flashImageRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.flashImageRequest_ = value;
+        }
+        result.hasFlashImageRequest = true;
+        return this;
+      }
+      public Builder clearFlashImageRequest() {
+        result.hasFlashImageRequest = false;
+        result.flashImageRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.FlashDefaultImageRequest flashDefaultImageRequest = 7;
+      public boolean hasFlashDefaultImageRequest() {
+        return result.hasFlashDefaultImageRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest getFlashDefaultImageRequest() {
+        return result.getFlashDefaultImageRequest();
+      }
+      public Builder setFlashDefaultImageRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasFlashDefaultImageRequest = true;
+        result.flashDefaultImageRequest_ = value;
+        return this;
+      }
+      public Builder setFlashDefaultImageRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.Builder builderForValue) {
+        result.hasFlashDefaultImageRequest = true;
+        result.flashDefaultImageRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeFlashDefaultImageRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest value) {
+        if (result.hasFlashDefaultImageRequest() &&
+            result.flashDefaultImageRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.getDefaultInstance()) {
+          result.flashDefaultImageRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.newBuilder(result.flashDefaultImageRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.flashDefaultImageRequest_ = value;
+        }
+        result.hasFlashDefaultImageRequest = true;
+        return this;
+      }
+      public Builder clearFlashDefaultImageRequest() {
+        result.hasFlashDefaultImageRequest = false;
+        result.flashDefaultImageRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.ResetNodesRequest resetNodesRequest = 8;
+      public boolean hasResetNodesRequest() {
+        return result.hasResetNodesRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest getResetNodesRequest() {
+        return result.getResetNodesRequest();
+      }
+      public Builder setResetNodesRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasResetNodesRequest = true;
+        result.resetNodesRequest_ = value;
+        return this;
+      }
+      public Builder setResetNodesRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.Builder builderForValue) {
+        result.hasResetNodesRequest = true;
+        result.resetNodesRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeResetNodesRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest value) {
+        if (result.hasResetNodesRequest() &&
+            result.resetNodesRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.getDefaultInstance()) {
+          result.resetNodesRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.newBuilder(result.resetNodesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.resetNodesRequest_ = value;
+        }
+        result.hasResetNodesRequest = true;
+        return this;
+      }
+      public Builder clearResetNodesRequest() {
+        result.hasResetNodesRequest = false;
+        result.resetNodesRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.SetVirtualLinksRequest setVirtualLinksRequest = 9;
+      public boolean hasSetVirtualLinksRequest() {
+        return result.hasSetVirtualLinksRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest getSetVirtualLinksRequest() {
+        return result.getSetVirtualLinksRequest();
+      }
+      public Builder setSetVirtualLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasSetVirtualLinksRequest = true;
+        result.setVirtualLinksRequest_ = value;
+        return this;
+      }
+      public Builder setSetVirtualLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.Builder builderForValue) {
+        result.hasSetVirtualLinksRequest = true;
+        result.setVirtualLinksRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeSetVirtualLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest value) {
+        if (result.hasSetVirtualLinksRequest() &&
+            result.setVirtualLinksRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.getDefaultInstance()) {
+          result.setVirtualLinksRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.newBuilder(result.setVirtualLinksRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.setVirtualLinksRequest_ = value;
+        }
+        result.hasSetVirtualLinksRequest = true;
+        return this;
+      }
+      public Builder clearSetVirtualLinksRequest() {
+        result.hasSetVirtualLinksRequest = false;
+        result.setVirtualLinksRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.DestroyVirtualLinksRequest destroyVirtualLinksRequest = 10;
+      public boolean hasDestroyVirtualLinksRequest() {
+        return result.hasDestroyVirtualLinksRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest getDestroyVirtualLinksRequest() {
+        return result.getDestroyVirtualLinksRequest();
+      }
+      public Builder setDestroyVirtualLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasDestroyVirtualLinksRequest = true;
+        result.destroyVirtualLinksRequest_ = value;
+        return this;
+      }
+      public Builder setDestroyVirtualLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.Builder builderForValue) {
+        result.hasDestroyVirtualLinksRequest = true;
+        result.destroyVirtualLinksRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeDestroyVirtualLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest value) {
+        if (result.hasDestroyVirtualLinksRequest() &&
+            result.destroyVirtualLinksRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.getDefaultInstance()) {
+          result.destroyVirtualLinksRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.newBuilder(result.destroyVirtualLinksRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.destroyVirtualLinksRequest_ = value;
+        }
+        result.hasDestroyVirtualLinksRequest = true;
+        return this;
+      }
+      public Builder clearDestroyVirtualLinksRequest() {
+        result.hasDestroyVirtualLinksRequest = false;
+        result.destroyVirtualLinksRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.DisableNodesRequest disableNodesRequest = 11;
+      public boolean hasDisableNodesRequest() {
+        return result.hasDisableNodesRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest getDisableNodesRequest() {
+        return result.getDisableNodesRequest();
+      }
+      public Builder setDisableNodesRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasDisableNodesRequest = true;
+        result.disableNodesRequest_ = value;
+        return this;
+      }
+      public Builder setDisableNodesRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.Builder builderForValue) {
+        result.hasDisableNodesRequest = true;
+        result.disableNodesRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeDisableNodesRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest value) {
+        if (result.hasDisableNodesRequest() &&
+            result.disableNodesRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.getDefaultInstance()) {
+          result.disableNodesRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.newBuilder(result.disableNodesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.disableNodesRequest_ = value;
+        }
+        result.hasDisableNodesRequest = true;
+        return this;
+      }
+      public Builder clearDisableNodesRequest() {
+        result.hasDisableNodesRequest = false;
+        result.disableNodesRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.EnableNodesRequest enableNodesRequest = 12;
+      public boolean hasEnableNodesRequest() {
+        return result.hasEnableNodesRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest getEnableNodesRequest() {
+        return result.getEnableNodesRequest();
+      }
+      public Builder setEnableNodesRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasEnableNodesRequest = true;
+        result.enableNodesRequest_ = value;
+        return this;
+      }
+      public Builder setEnableNodesRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.Builder builderForValue) {
+        result.hasEnableNodesRequest = true;
+        result.enableNodesRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeEnableNodesRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest value) {
+        if (result.hasEnableNodesRequest() &&
+            result.enableNodesRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.getDefaultInstance()) {
+          result.enableNodesRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.newBuilder(result.enableNodesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.enableNodesRequest_ = value;
+        }
+        result.hasEnableNodesRequest = true;
+        return this;
+      }
+      public Builder clearEnableNodesRequest() {
+        result.hasEnableNodesRequest = false;
+        result.enableNodesRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.DisablePhysicalLinksRequest disablePhysicalLinksRequest = 13;
+      public boolean hasDisablePhysicalLinksRequest() {
+        return result.hasDisablePhysicalLinksRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest getDisablePhysicalLinksRequest() {
+        return result.getDisablePhysicalLinksRequest();
+      }
+      public Builder setDisablePhysicalLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasDisablePhysicalLinksRequest = true;
+        result.disablePhysicalLinksRequest_ = value;
+        return this;
+      }
+      public Builder setDisablePhysicalLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.Builder builderForValue) {
+        result.hasDisablePhysicalLinksRequest = true;
+        result.disablePhysicalLinksRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeDisablePhysicalLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest value) {
+        if (result.hasDisablePhysicalLinksRequest() &&
+            result.disablePhysicalLinksRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.getDefaultInstance()) {
+          result.disablePhysicalLinksRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.newBuilder(result.disablePhysicalLinksRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.disablePhysicalLinksRequest_ = value;
+        }
+        result.hasDisablePhysicalLinksRequest = true;
+        return this;
+      }
+      public Builder clearDisablePhysicalLinksRequest() {
+        result.hasDisablePhysicalLinksRequest = false;
+        result.disablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.EnablePhysicalLinksRequest enablePhysicalLinksRequest = 14;
+      public boolean hasEnablePhysicalLinksRequest() {
+        return result.hasEnablePhysicalLinksRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest getEnablePhysicalLinksRequest() {
+        return result.getEnablePhysicalLinksRequest();
+      }
+      public Builder setEnablePhysicalLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasEnablePhysicalLinksRequest = true;
+        result.enablePhysicalLinksRequest_ = value;
+        return this;
+      }
+      public Builder setEnablePhysicalLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.Builder builderForValue) {
+        result.hasEnablePhysicalLinksRequest = true;
+        result.enablePhysicalLinksRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeEnablePhysicalLinksRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest value) {
+        if (result.hasEnablePhysicalLinksRequest() &&
+            result.enablePhysicalLinksRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.getDefaultInstance()) {
+          result.enablePhysicalLinksRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.newBuilder(result.enablePhysicalLinksRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.enablePhysicalLinksRequest_ = value;
+        }
+        result.hasEnablePhysicalLinksRequest = true;
+        return this;
+      }
+      public Builder clearEnablePhysicalLinksRequest() {
+        result.hasEnablePhysicalLinksRequest = false;
+        result.enablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.SetChannelPipelineRequest setChannelPipelineRequest = 15;
+      public boolean hasSetChannelPipelineRequest() {
+        return result.hasSetChannelPipelineRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest getSetChannelPipelineRequest() {
+        return result.getSetChannelPipelineRequest();
+      }
+      public Builder setSetChannelPipelineRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasSetChannelPipelineRequest = true;
+        result.setChannelPipelineRequest_ = value;
+        return this;
+      }
+      public Builder setSetChannelPipelineRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest.Builder builderForValue) {
+        result.hasSetChannelPipelineRequest = true;
+        result.setChannelPipelineRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeSetChannelPipelineRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest value) {
+        if (result.hasSetChannelPipelineRequest() &&
+            result.setChannelPipelineRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest.getDefaultInstance()) {
+          result.setChannelPipelineRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest.newBuilder(result.setChannelPipelineRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.setChannelPipelineRequest_ = value;
+        }
+        result.hasSetChannelPipelineRequest = true;
+        return this;
+      }
+      public Builder clearSetChannelPipelineRequest() {
+        result.hasSetChannelPipelineRequest = false;
+        result.setChannelPipelineRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.wsnapp.SetDefaultChannelPipelineRequest setDefaultChannelPipelineRequest = 16;
+      public boolean hasSetDefaultChannelPipelineRequest() {
+        return result.hasSetDefaultChannelPipelineRequest();
+      }
+      public de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest getSetDefaultChannelPipelineRequest() {
+        return result.getSetDefaultChannelPipelineRequest();
+      }
+      public Builder setSetDefaultChannelPipelineRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasSetDefaultChannelPipelineRequest = true;
+        result.setDefaultChannelPipelineRequest_ = value;
+        return this;
+      }
+      public Builder setSetDefaultChannelPipelineRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.Builder builderForValue) {
+        result.hasSetDefaultChannelPipelineRequest = true;
+        result.setDefaultChannelPipelineRequest_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeSetDefaultChannelPipelineRequest(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest value) {
+        if (result.hasSetDefaultChannelPipelineRequest() &&
+            result.setDefaultChannelPipelineRequest_ != de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.getDefaultInstance()) {
+          result.setDefaultChannelPipelineRequest_ =
+            de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.newBuilder(result.setDefaultChannelPipelineRequest_).mergeFrom(value).buildPartial();
+        } else {
+          result.setDefaultChannelPipelineRequest_ = value;
+        }
+        result.hasSetDefaultChannelPipelineRequest = true;
+        return this;
+      }
+      public Builder clearSetDefaultChannelPipelineRequest() {
+        result.hasSetDefaultChannelPipelineRequest = false;
+        result.setDefaultChannelPipelineRequest_ = de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.getDefaultInstance();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.wsnapp.Invocation)
     }
     
     static {
-      defaultInstance = new OperationInvocation(true);
+      defaultInstance = new Invocation(true);
       de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internalForceInit();
       defaultInstance.initFields();
     }
     
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.OperationInvocation)
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.wsnapp.Invocation)
   }
   
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Link_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Link_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_RequestStatus_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_RequestStatus_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesAliveRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesAliveRequest_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_ProgramMetaData_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesConnectedRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_ProgramMetaData_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesConnectedRequest_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashImageRequest_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashImageRequest_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashDefaultImageRequest_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashDefaultImageRequest_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_ResetNodesRequest_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_ResetNodesRequest_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Notification_descriptor;
   private static
@@ -4881,25 +8093,35 @@ public final class WSNAppMessages {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DownstreamMessage_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinkRequest_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinksRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinkRequest_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinksRequest_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinkRequest_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinksRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinkRequest_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinksRequest_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLink_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisableNodesRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLink_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisableNodesRequest_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLink_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnableNodesRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLink_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnableNodesRequest_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLinksRequest_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLinksRequest_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLinksRequest_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLinksRequest_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetChannelPipelineRequest_descriptor;
   private static
@@ -4916,10 +8138,15 @@ public final class WSNAppMessages {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetChannelPipelineRequest_ChannelHandlerConfiguration_KeyValuePair_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_OperationInvocation_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetDefaultChannelPipelineRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_OperationInvocation_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetDefaultChannelPipelineRequest_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Invocation_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Invocation_fieldAccessorTable;
   
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -4931,132 +8158,223 @@ public final class WSNAppMessages {
     java.lang.String[] descriptorData = {
       "\n)src/main/resources/wsn-app-messages.pr" +
       "oto\022#de.uniluebeck.itm.tr.runtime.wsnapp" +
-      "\"<\n\rRequestStatus\022\017\n\007nodeUrn\030\001 \002(\t\022\r\n\005va" +
-      "lue\030\002 \001(\005\022\013\n\003msg\030\003 \001(\t\"\275\001\n\007Program\022\017\n\007pr" +
-      "ogram\030\001 \002(\014\022N\n\010metaData\030\002 \001(\0132<.de.unilu" +
-      "ebeck.itm.tr.runtime.wsnapp.Program.Prog" +
-      "ramMetaData\032Q\n\017ProgramMetaData\022\017\n\007versio" +
-      "n\030\001 \002(\t\022\014\n\004name\030\002 \002(\t\022\020\n\010platform\030\003 \002(\t\022" +
-      "\r\n\005other\030\004 \002(\t\"\037\n\014Notification\022\017\n\007messag" +
-      "e\030\001 \002(\t\"N\n\017UpstreamMessage\022\024\n\014sourceNode",
-      "Id\030\001 \002(\t\022\021\n\ttimestamp\030\002 \002(\t\022\022\n\nbinaryDat" +
-      "a\030\003 \002(\014\">\n\021DownstreamMessage\022\025\n\rtargetNo" +
-      "deUrn\030\001 \002(\t\022\022\n\nbinaryData\030\002 \002(\014\"?\n\025SetVi" +
-      "rtualLinkRequest\022\022\n\nsourceNode\030\001 \002(\t\022\022\n\n" +
-      "targetNode\030\002 \002(\t\"C\n\031DestroyVirtualLinkRe" +
-      "quest\022\022\n\nsourceNode\030\001 \002(\t\022\022\n\ntargetNode\030" +
-      "\002 \002(\t\"$\n\023DisablePhysicalLink\022\r\n\005nodeB\030\002 " +
-      "\002(\t\"#\n\022EnablePhysicalLink\022\r\n\005nodeB\030\002 \002(\t" +
-      "\"\370\002\n\031SetChannelPipelineRequest\022\200\001\n\034chann" +
-      "elHandlerConfigurations\030\001 \003(\0132Z.de.unilu",
-      "ebeck.itm.tr.runtime.wsnapp.SetChannelPi" +
-      "pelineRequest.ChannelHandlerConfiguratio" +
-      "n\032\327\001\n\033ChannelHandlerConfiguration\022\014\n\004nam" +
-      "e\030\001 \002(\t\022~\n\rconfiguration\030\002 \003(\0132g.de.unil" +
-      "uebeck.itm.tr.runtime.wsnapp.SetChannelP" +
-      "ipelineRequest.ChannelHandlerConfigurati" +
-      "on.KeyValuePair\032*\n\014KeyValuePair\022\013\n\003key\030\001" +
-      " \002(\t\022\r\n\005value\030\002 \002(\t\"\306\003\n\023OperationInvocat" +
-      "ion\022U\n\toperation\030\001 \002(\0162B.de.uniluebeck.i" +
-      "tm.tr.runtime.wsnapp.OperationInvocation",
-      ".Operation\022\021\n\targuments\030\002 \001(\014\"\304\002\n\tOperat" +
-      "ion\022\010\n\004SEND\020\000\022\023\n\017ARE_NODES_ALIVE\020\001\022\022\n\016FL" +
-      "ASH_PROGRAMS\020\002\022\017\n\013RESET_NODES\020\003\022\024\n\020SET_V" +
-      "IRTUAL_LINK\020\004\022\030\n\024DESTROY_VIRTUAL_LINK\020\005\022" +
-      "\020\n\014DISABLE_NODE\020\006\022\017\n\013ENABLE_NODE\020\007\022\031\n\025DI" +
-      "SABLE_PHYSICAL_LINK\020\010\022\030\n\024ENABLE_PHYSICAL" +
-      "_LINK\020\t\022\030\n\024SET_CHANNEL_PIPELINE\020\n\022 \n\034SET" +
-      "_DEFAULT_CHANNEL_PIPELINE\020\013\022\026\n\022ARE_NODES" +
-      "_ALIVE_SM\020\014\022\027\n\023FLASH_DEFAULT_IMAGE\020\rB\022B\016" +
-      "WSNAppMessagesP\000"
+      "\"4\n\004Link\022\025\n\rsourceNodeUrn\030\001 \002(\t\022\025\n\rtarge" +
+      "tNodeUrn\030\002 \002(\t\"<\n\rRequestStatus\022\017\n\007nodeU" +
+      "rn\030\001 \002(\t\022\r\n\005value\030\002 \001(\005\022\013\n\003msg\030\003 \001(\t\"(\n\024" +
+      "AreNodesAliveRequest\022\020\n\010nodeUrns\030\001 \003(\t\"," +
+      "\n\030AreNodesConnectedRequest\022\020\n\010nodeUrns\030\001" +
+      " \003(\t\"4\n\021FlashImageRequest\022\020\n\010nodeUrns\030\001 " +
+      "\003(\t\022\r\n\005image\030\002 \002(\014\"\032\n\030FlashDefaultImageR" +
+      "equest\"%\n\021ResetNodesRequest\022\020\n\010nodeUrns\030",
+      "\001 \003(\t\"?\n\014Notification\022\017\n\007nodeUrn\030\001 \001(\t\022\021" +
+      "\n\ttimestamp\030\002 \002(\t\022\013\n\003msg\030\003 \002(\t\"Q\n\017Upstre" +
+      "amMessage\022\025\n\rsourceNodeUrn\030\001 \002(\t\022\021\n\ttime" +
+      "stamp\030\002 \002(\t\022\024\n\014messageBytes\030\003 \002(\014\"A\n\021Dow" +
+      "nstreamMessage\022\026\n\016targetNodeUrns\030\001 \003(\t\022\024" +
+      "\n\014messageBytes\030\002 \002(\014\"R\n\026SetVirtualLinksR" +
+      "equest\0228\n\005links\030\001 \003(\0132).de.uniluebeck.it" +
+      "m.tr.runtime.wsnapp.Link\"V\n\032DestroyVirtu" +
+      "alLinksRequest\0228\n\005links\030\001 \003(\0132).de.unilu" +
+      "ebeck.itm.tr.runtime.wsnapp.Link\"\'\n\023Disa",
+      "bleNodesRequest\022\020\n\010nodeUrns\030\001 \003(\t\"&\n\022Ena" +
+      "bleNodesRequest\022\020\n\010nodeUrns\030\001 \003(\t\"W\n\033Dis" +
+      "ablePhysicalLinksRequest\0228\n\005links\030\001 \003(\0132" +
+      ").de.uniluebeck.itm.tr.runtime.wsnapp.Li" +
+      "nk\"V\n\032EnablePhysicalLinksRequest\0228\n\005link" +
+      "s\030\002 \003(\0132).de.uniluebeck.itm.tr.runtime.w" +
+      "snapp.Link\"\370\002\n\031SetChannelPipelineRequest" +
+      "\022\200\001\n\034channelHandlerConfigurations\030\001 \003(\0132" +
+      "Z.de.uniluebeck.itm.tr.runtime.wsnapp.Se" +
+      "tChannelPipelineRequest.ChannelHandlerCo",
+      "nfiguration\032\327\001\n\033ChannelHandlerConfigurat" +
+      "ion\022\014\n\004name\030\001 \002(\t\022~\n\rconfiguration\030\002 \003(\013" +
+      "2g.de.uniluebeck.itm.tr.runtime.wsnapp.S" +
+      "etChannelPipelineRequest.ChannelHandlerC" +
+      "onfiguration.KeyValuePair\032*\n\014KeyValuePai" +
+      "r\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"\"\n SetDefa" +
+      "ultChannelPipelineRequest\"\242\016\n\nInvocation" +
+      "\022B\n\004type\030\001 \002(\01624.de.uniluebeck.itm.tr.ru" +
+      "ntime.wsnapp.Invocation.Type\022Q\n\021downstre" +
+      "amMessage\030\002 \001(\01326.de.uniluebeck.itm.tr.r",
+      "untime.wsnapp.DownstreamMessage\022M\n\017upstr" +
+      "eamMessage\030\003 \001(\01324.de.uniluebeck.itm.tr." +
+      "runtime.wsnapp.UpstreamMessage\022W\n\024areNod" +
+      "esAliveRequest\030\004 \001(\01329.de.uniluebeck.itm" +
+      ".tr.runtime.wsnapp.AreNodesAliveRequest\022" +
+      "_\n\030areNodesConnectedRequest\030\005 \001(\0132=.de.u" +
+      "niluebeck.itm.tr.runtime.wsnapp.AreNodes" +
+      "ConnectedRequest\022Q\n\021flashImageRequest\030\006 " +
+      "\001(\01326.de.uniluebeck.itm.tr.runtime.wsnap" +
+      "p.FlashImageRequest\022_\n\030flashDefaultImage",
+      "Request\030\007 \001(\0132=.de.uniluebeck.itm.tr.run" +
+      "time.wsnapp.FlashDefaultImageRequest\022Q\n\021" +
+      "resetNodesRequest\030\010 \001(\01326.de.uniluebeck." +
+      "itm.tr.runtime.wsnapp.ResetNodesRequest\022" +
+      "[\n\026setVirtualLinksRequest\030\t \001(\0132;.de.uni" +
+      "luebeck.itm.tr.runtime.wsnapp.SetVirtual" +
+      "LinksRequest\022c\n\032destroyVirtualLinksReque" +
+      "st\030\n \001(\0132?.de.uniluebeck.itm.tr.runtime." +
+      "wsnapp.DestroyVirtualLinksRequest\022U\n\023dis" +
+      "ableNodesRequest\030\013 \001(\01328.de.uniluebeck.i",
+      "tm.tr.runtime.wsnapp.DisableNodesRequest" +
+      "\022S\n\022enableNodesRequest\030\014 \001(\01327.de.unilue" +
+      "beck.itm.tr.runtime.wsnapp.EnableNodesRe" +
+      "quest\022e\n\033disablePhysicalLinksRequest\030\r \001" +
+      "(\0132@.de.uniluebeck.itm.tr.runtime.wsnapp" +
+      ".DisablePhysicalLinksRequest\022c\n\032enablePh" +
+      "ysicalLinksRequest\030\016 \001(\0132?.de.uniluebeck" +
+      ".itm.tr.runtime.wsnapp.EnablePhysicalLin" +
+      "ksRequest\022a\n\031setChannelPipelineRequest\030\017" +
+      " \001(\0132>.de.uniluebeck.itm.tr.runtime.wsna",
+      "pp.SetChannelPipelineRequest\022o\n setDefau" +
+      "ltChannelPipelineRequest\030\020 \001(\0132E.de.unil" +
+      "uebeck.itm.tr.runtime.wsnapp.SetDefaultC" +
+      "hannelPipelineRequest\"\336\002\n\004Type\022\023\n\017SEND_D" +
+      "OWNSTREAM\020\001\022\021\n\rSEND_UPSTREAM\020\002\022\023\n\017ARE_NO" +
+      "DES_ALIVE\020\003\022\027\n\023ARE_NODES_CONNECTED\020\004\022\022\n\016" +
+      "FLASH_PROGRAMS\020\005\022\027\n\023FLASH_DEFAULT_IMAGE\020" +
+      "\006\022\017\n\013RESET_NODES\020\007\022\024\n\020SET_VIRTUAL_LINK\020\010" +
+      "\022\030\n\024DESTROY_VIRTUAL_LINK\020\t\022\020\n\014DISABLE_NO" +
+      "DE\020\n\022\017\n\013ENABLE_NODE\020\013\022\031\n\025DISABLE_PHYSICA",
+      "L_LINK\020\014\022\030\n\024ENABLE_PHYSICAL_LINK\020\r\022\030\n\024SE" +
+      "T_CHANNEL_PIPELINE\020\016\022 \n\034SET_DEFAULT_CHAN" +
+      "NEL_PIPELINE\020\017B\022B\016WSNAppMessagesP\000"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
         public com.google.protobuf.ExtensionRegistry assignDescriptors(
             com.google.protobuf.Descriptors.FileDescriptor root) {
           descriptor = root;
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_RequestStatus_descriptor =
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Link_descriptor =
             getDescriptor().getMessageTypes().get(0);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Link_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Link_descriptor,
+              new java.lang.String[] { "SourceNodeUrn", "TargetNodeUrn", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Link.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_RequestStatus_descriptor =
+            getDescriptor().getMessageTypes().get(1);
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_RequestStatus_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_RequestStatus_descriptor,
               new java.lang.String[] { "NodeUrn", "Value", "Msg", },
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.RequestStatus.class,
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.RequestStatus.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_descriptor,
-              new java.lang.String[] { "Program", "MetaData", },
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.class,
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_ProgramMetaData_descriptor =
-            internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_descriptor.getNestedTypes().get(0);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_ProgramMetaData_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Program_ProgramMetaData_descriptor,
-              new java.lang.String[] { "Version", "Name", "Platform", "Other", },
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.class,
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Program.ProgramMetaData.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Notification_descriptor =
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesAliveRequest_descriptor =
             getDescriptor().getMessageTypes().get(2);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesAliveRequest_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesAliveRequest_descriptor,
+              new java.lang.String[] { "NodeUrns", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesAliveRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesConnectedRequest_descriptor =
+            getDescriptor().getMessageTypes().get(3);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesConnectedRequest_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_AreNodesConnectedRequest_descriptor,
+              new java.lang.String[] { "NodeUrns", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.AreNodesConnectedRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashImageRequest_descriptor =
+            getDescriptor().getMessageTypes().get(4);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashImageRequest_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashImageRequest_descriptor,
+              new java.lang.String[] { "NodeUrns", "Image", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashImageRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashDefaultImageRequest_descriptor =
+            getDescriptor().getMessageTypes().get(5);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashDefaultImageRequest_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_FlashDefaultImageRequest_descriptor,
+              new java.lang.String[] { },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.FlashDefaultImageRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_ResetNodesRequest_descriptor =
+            getDescriptor().getMessageTypes().get(6);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_ResetNodesRequest_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_ResetNodesRequest_descriptor,
+              new java.lang.String[] { "NodeUrns", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.ResetNodesRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Notification_descriptor =
+            getDescriptor().getMessageTypes().get(7);
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Notification_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Notification_descriptor,
-              new java.lang.String[] { "Message", },
+              new java.lang.String[] { "NodeUrn", "Timestamp", "Msg", },
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Notification.class,
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Notification.Builder.class);
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_UpstreamMessage_descriptor =
-            getDescriptor().getMessageTypes().get(3);
+            getDescriptor().getMessageTypes().get(8);
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_UpstreamMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_UpstreamMessage_descriptor,
-              new java.lang.String[] { "SourceNodeId", "Timestamp", "BinaryData", },
+              new java.lang.String[] { "SourceNodeUrn", "Timestamp", "MessageBytes", },
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.class,
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.UpstreamMessage.Builder.class);
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DownstreamMessage_descriptor =
-            getDescriptor().getMessageTypes().get(4);
+            getDescriptor().getMessageTypes().get(9);
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DownstreamMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DownstreamMessage_descriptor,
-              new java.lang.String[] { "TargetNodeUrn", "BinaryData", },
+              new java.lang.String[] { "TargetNodeUrns", "MessageBytes", },
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.class,
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DownstreamMessage.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinkRequest_descriptor =
-            getDescriptor().getMessageTypes().get(5);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinkRequest_fieldAccessorTable = new
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinksRequest_descriptor =
+            getDescriptor().getMessageTypes().get(10);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinksRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinkRequest_descriptor,
-              new java.lang.String[] { "SourceNode", "TargetNode", },
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest.class,
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinkRequest.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinkRequest_descriptor =
-            getDescriptor().getMessageTypes().get(6);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinkRequest_fieldAccessorTable = new
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetVirtualLinksRequest_descriptor,
+              new java.lang.String[] { "Links", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetVirtualLinksRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinksRequest_descriptor =
+            getDescriptor().getMessageTypes().get(11);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinksRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinkRequest_descriptor,
-              new java.lang.String[] { "SourceNode", "TargetNode", },
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest.class,
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinkRequest.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLink_descriptor =
-            getDescriptor().getMessageTypes().get(7);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLink_fieldAccessorTable = new
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DestroyVirtualLinksRequest_descriptor,
+              new java.lang.String[] { "Links", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DestroyVirtualLinksRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisableNodesRequest_descriptor =
+            getDescriptor().getMessageTypes().get(12);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisableNodesRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLink_descriptor,
-              new java.lang.String[] { "NodeB", },
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink.class,
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLink.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLink_descriptor =
-            getDescriptor().getMessageTypes().get(8);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLink_fieldAccessorTable = new
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisableNodesRequest_descriptor,
+              new java.lang.String[] { "NodeUrns", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisableNodesRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnableNodesRequest_descriptor =
+            getDescriptor().getMessageTypes().get(13);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnableNodesRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLink_descriptor,
-              new java.lang.String[] { "NodeB", },
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink.class,
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLink.Builder.class);
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnableNodesRequest_descriptor,
+              new java.lang.String[] { "NodeUrns", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnableNodesRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLinksRequest_descriptor =
+            getDescriptor().getMessageTypes().get(14);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLinksRequest_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_DisablePhysicalLinksRequest_descriptor,
+              new java.lang.String[] { "Links", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.DisablePhysicalLinksRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLinksRequest_descriptor =
+            getDescriptor().getMessageTypes().get(15);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLinksRequest_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_EnablePhysicalLinksRequest_descriptor,
+              new java.lang.String[] { "Links", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.EnablePhysicalLinksRequest.Builder.class);
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetChannelPipelineRequest_descriptor =
-            getDescriptor().getMessageTypes().get(9);
+            getDescriptor().getMessageTypes().get(16);
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetChannelPipelineRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetChannelPipelineRequest_descriptor,
@@ -5079,14 +8397,22 @@ public final class WSNAppMessages {
               new java.lang.String[] { "Key", "Value", },
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.KeyValuePair.class,
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.KeyValuePair.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_OperationInvocation_descriptor =
-            getDescriptor().getMessageTypes().get(10);
-          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_OperationInvocation_fieldAccessorTable = new
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetDefaultChannelPipelineRequest_descriptor =
+            getDescriptor().getMessageTypes().get(17);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetDefaultChannelPipelineRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_OperationInvocation_descriptor,
-              new java.lang.String[] { "Operation", "Arguments", },
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.class,
-              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.OperationInvocation.Builder.class);
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_SetDefaultChannelPipelineRequest_descriptor,
+              new java.lang.String[] { },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.SetDefaultChannelPipelineRequest.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Invocation_descriptor =
+            getDescriptor().getMessageTypes().get(18);
+          internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Invocation_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Invocation_descriptor,
+              new java.lang.String[] { "Type", "DownstreamMessage", "UpstreamMessage", "AreNodesAliveRequest", "AreNodesConnectedRequest", "FlashImageRequest", "FlashDefaultImageRequest", "ResetNodesRequest", "SetVirtualLinksRequest", "DestroyVirtualLinksRequest", "DisableNodesRequest", "EnableNodesRequest", "DisablePhysicalLinksRequest", "EnablePhysicalLinksRequest", "SetChannelPipelineRequest", "SetDefaultChannelPipelineRequest", },
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.class,
+              de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Invocation.Builder.class);
           return null;
         }
       };

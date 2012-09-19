@@ -3,14 +3,12 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageDownstreamRequest;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.MessageUpstreamRequest;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppDownstreamMessage;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppUpstreamMessage;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
@@ -166,16 +164,11 @@ public class TypeConverter {
 		return mapBuilder.build();
 	}
 
-	public static Map<String, WSNAppMessages.Program> convert(final ImmutableSet<NodeUrn> nodeUrns,
-															  final byte[] image) {
-		Map<String, WSNAppMessages.Program> map = newHashMap();
+	public static Map<String, byte[]> convert(final ImmutableSet<NodeUrn> nodeUrns,
+											  final byte[] image) {
+		Map<String, byte[]> map = newHashMap();
 		for (NodeUrn nodeUrn : nodeUrns) {
-
-			final WSNAppMessages.Program program = WSNAppMessages.Program.newBuilder()
-					.setProgram(ByteString.copyFrom(image))
-					.build();
-
-			map.put(nodeUrn.toString(), program);
+			map.put(nodeUrn.toString(), image);
 		}
 		return map;
 	}

@@ -247,13 +247,13 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 					log.debug("{}", output);
 				}
 
-				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getBinaryData().toByteArray());
+				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getMessageBytes().toByteArray());
 
 				final Map<String, Object> userContext = Maps.newHashMap();
 				userContext.put("timestamp", message.getTimestamp());
 
 				final WisebedMulticastAddress sourceAddress = new WisebedMulticastAddress(
-						newHashSet(message.getSourceNodeId()),
+						newHashSet(message.getSourceNodeUrn()),
 						userContext
 				);
 
@@ -277,7 +277,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 						.mergeFrom(msg.getPayload())
 						.build();
 
-				sendBackendNotificationsToUser(notification.getMessage());
+				sendBackendNotificationsToUser(notification.getMsg());
 
 			} catch (InvalidProtocolBufferException e) {
 				log.error("" + e, e);
@@ -353,16 +353,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			for (final String nodeUrn : nodeUrns) {
 
-				WSNAppMessages.DownstreamMessage message = WSNAppMessages.DownstreamMessage
+				final WSNAppMessages.DownstreamMessage.Builder message = WSNAppMessages.DownstreamMessage
 						.newBuilder()
-						.setBinaryData(ByteString.copyFrom(buf.array(), buf.readerIndex(), buf.readableBytes()))
-						.setTargetNodeUrn(nodeUrn)
-						.build();
+						.setMessageBytes(ByteString.copyFrom(buf.array(), buf.readerIndex(), buf.readableBytes()))
+						.addTargetNodeUrns(nodeUrn);
 
-				WSNAppMessages.OperationInvocation operationInvocation = WSNAppMessages.OperationInvocation
+				final WSNAppMessages.Invocation operationInvocation = WSNAppMessages.Invocation
 						.newBuilder()
-						.setArguments(message.toByteString())
-						.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND)
+						.setType(WSNAppMessages.Invocation.Type.SEND_DOWNSTREAM)
+						.setDownstreamMessage(message)
 						.build();
 
 				try {
@@ -636,10 +635,10 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 											  final Callback callback) throws UnknownNodeUrnsException {
 		assertNodeUrnsKnown(nodeUrns);
 
-		WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
+		WSNAppMessages.Invocation.Builder operationInvocation = WSNAppMessages.Invocation
 				.newBuilder()
-				.setArguments(convertToProtobuf(channelHandlerConfigurations).build().toByteString())
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_CHANNEL_PIPELINE);
+				.setSetChannelPipelineRequest(convertToProtobuf(channelHandlerConfigurations))
+				.setType(WSNAppMessages.Invocation.Type.SET_CHANNEL_PIPELINE);
 
 		final byte[] bytes = operationInvocation.build().toByteArray();
 
@@ -671,9 +670,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		assertNodeUrnsKnown(nodeUrns);
 
-		WSNAppMessages.OperationInvocation.Builder builder = WSNAppMessages.OperationInvocation
+		WSNAppMessages.Invocation.Builder builder = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.ARE_NODES_ALIVE);
+				.setType(WSNAppMessages.Invocation.Type.ARE_NODES_ALIVE);
 
 		byte[] bytes = builder.build().toByteArray();
 
@@ -699,9 +698,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		assertNodeUrnsKnown(nodeUrns);
 
-		WSNAppMessages.OperationInvocation.Builder builder = WSNAppMessages.OperationInvocation
+		WSNAppMessages.Invocation.Builder builder = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.ARE_NODES_ALIVE_SM);
+				.setType(WSNAppMessages.Invocation.Type.ARE_NODES_CONNECTED);
 
 		byte[] bytes = builder.build().toByteArray();
 
@@ -724,26 +723,32 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	}
 
 	@Override
-	public void flashPrograms(final Map<String, WSNAppMessages.Program> programs, final Callback callback)
+	public void flashPrograms(final Map<String, byte[]> programs, final Callback callback)
 			throws UnknownNodeUrnsException {
 
 		assertNodeUrnsKnown(programs.keySet());
 
-		WSNAppMessages.OperationInvocation operationInvocationProtobuf = WSNAppMessages.OperationInvocation
+		WSNAppMessages.Invocation operationInvocationProtobuf = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.FLASH_PROGRAMS)
+				.setType(WSNAppMessages.Invocation.Type.FLASH_PROGRAMS)
 				.buildPartial();
 
-		for (Map.Entry<String, WSNAppMessages.Program> entry : programs.entrySet()) {
+		for (Map.Entry<String, byte[]> entry : programs.entrySet()) {
 
 			final String nodeUrn = entry.getKey();
+			final byte[] image = entry.getValue();
 
-			WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+			final WSNAppMessages.FlashImageRequest.Builder flashImageRequest = WSNAppMessages.FlashImageRequest
+					.newBuilder()
+					.setImage(ByteString.copyFrom(image))
+					.addNodeUrns(nodeUrn);
+
+			final WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
 					.newBuilder(operationInvocationProtobuf)
-					.setArguments(entry.getValue().toByteString())
+					.setFlashImageRequest(flashImageRequest)
 					.build();
 
-			Messages.Msg msg = MessageTools.buildMessage(
+			final Messages.Msg msg = MessageTools.buildMessage(
 					getLocalNodeName(),
 					nodeUrn,
 					MSG_TYPE_OPERATION_INVOCATION_REQUEST,
@@ -805,9 +810,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		assertNodeUrnsKnown(nodeUrns);
 
-		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+		WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.RESET_NODES)
+				.setType(WSNAppMessages.Invocation.Type.RESET_NODES)
 				.build();
 
 		byte[] bytes = invocation.toByteArray();
@@ -832,15 +837,20 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		assertNodeUrnsKnown(Arrays.asList(sourceNodeUrn));
 
-		WSNAppMessages.SetVirtualLinkRequest.Builder setVirtualLinkRequestBuilder = WSNAppMessages.SetVirtualLinkRequest
+		final WSNAppMessages.Link.Builder link = WSNAppMessages.Link
 				.newBuilder()
-				.setSourceNode(sourceNodeUrn)
-				.setTargetNode(targetNodeUrn);
+				.setSourceNodeUrn(sourceNodeUrn)
+				.setTargetNodeUrn(targetNodeUrn);
 
-		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+		final WSNAppMessages.SetVirtualLinksRequest.Builder setVirtualLinkRequestBuilder =
+				WSNAppMessages.SetVirtualLinksRequest
+						.newBuilder()
+						.addLinks(link);
+
+		final WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_VIRTUAL_LINK)
-				.setArguments(setVirtualLinkRequestBuilder.build().toByteString())
+				.setType(WSNAppMessages.Invocation.Type.SET_VIRTUAL_LINK)
+				.setSetVirtualLinksRequest(setVirtualLinkRequestBuilder)
 				.build();
 
 		byte[] bytes = invocation.toByteArray();
@@ -853,6 +863,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				UnreliableMessagingService.PRIORITY_NORMAL,
 				10, TimeUnit.SECONDS
 		);
+
 		future.addListener(new RequestStatusRunnable(future, callback, sourceNodeUrn), executor);
 	}
 
@@ -862,16 +873,19 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		assertNodeUrnsKnown(Arrays.asList(sourceNodeUrn));
 
-		WSNAppMessages.DestroyVirtualLinkRequest.Builder destroyVirtualLinkRequestBuilder =
-				WSNAppMessages.DestroyVirtualLinkRequest
-						.newBuilder()
-						.setSourceNode(sourceNodeUrn)
-						.setTargetNode(targetNodeUrn);
+		final WSNAppMessages.Link.Builder link = WSNAppMessages.Link.newBuilder()
+				.setSourceNodeUrn(sourceNodeUrn)
+				.setTargetNodeUrn(targetNodeUrn);
 
-		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+		final WSNAppMessages.DestroyVirtualLinksRequest.Builder destroyVirtualLinksRequest =
+				WSNAppMessages.DestroyVirtualLinksRequest
+						.newBuilder()
+						.addLinks(link);
+
+		final WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.DESTROY_VIRTUAL_LINK)
-				.setArguments(destroyVirtualLinkRequestBuilder.build().toByteString())
+				.setType(WSNAppMessages.Invocation.Type.DESTROY_VIRTUAL_LINK)
+				.setDestroyVirtualLinksRequest(destroyVirtualLinksRequest)
 				.build();
 
 		byte[] bytes = invocation.toByteArray();
@@ -893,9 +907,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		assertNodeUrnsKnown(Arrays.asList(nodeUrn));
 
-		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+		WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.DISABLE_NODE)
+				.setType(WSNAppMessages.Invocation.Type.DISABLE_NODE)
 				.build();
 
 		byte[] bytes = invocation.toByteArray();
@@ -917,9 +931,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		assertNodeUrnsKnown(Arrays.asList(nodeUrn));
 
-		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+		WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.ENABLE_NODE)
+				.setType(WSNAppMessages.Invocation.Type.ENABLE_NODE)
 				.build();
 
 		byte[] bytes = invocation.toByteArray();
@@ -936,63 +950,70 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	}
 
 	@Override
-	public void enablePhysicalLink(final String nodeUrnA, final String nodeUrnB, Callback callback)
+	public void enablePhysicalLink(final String sourceNodeUrn, final String targetNodeUrn, Callback callback)
 			throws UnknownNodeUrnsException {
 
-		assertNodeUrnsKnown(Arrays.asList(nodeUrnA, nodeUrnB));
+		assertNodeUrnsKnown(Arrays.asList(sourceNodeUrn, targetNodeUrn));
 
-		WSNAppMessages.EnablePhysicalLink enablePhysicalLink = WSNAppMessages.EnablePhysicalLink
-				.newBuilder()
-				.setNodeB(nodeUrnB)
-				.build();
+		final WSNAppMessages.Link.Builder link = WSNAppMessages.Link.newBuilder()
+				.setSourceNodeUrn(sourceNodeUrn)
+				.setTargetNodeUrn(targetNodeUrn);
 
-		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+		final WSNAppMessages.EnablePhysicalLinksRequest enablePhysicalLinksRequest =
+				WSNAppMessages.EnablePhysicalLinksRequest
+						.newBuilder()
+						.addLinks(link)
+						.build();
+
+		final WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.ENABLE_PHYSICAL_LINK)
-				.setArguments(enablePhysicalLink.toByteString())
+				.setType(WSNAppMessages.Invocation.Type.ENABLE_PHYSICAL_LINK)
+				.setEnablePhysicalLinksRequest(enablePhysicalLinksRequest)
 				.build();
 
 		byte[] bytes = invocation.toByteArray();
 
 		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
 				getLocalNodeName(),
-				nodeUrnA,
+				sourceNodeUrn,
 				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
 				bytes,
 				UnreliableMessagingService.PRIORITY_NORMAL,
 				10, TimeUnit.SECONDS
 		);
-		future.addListener(new RequestStatusRunnable(future, callback, nodeUrnA), executor);
+		future.addListener(new RequestStatusRunnable(future, callback, sourceNodeUrn), executor);
 	}
 
 	@Override
-	public void disablePhysicalLink(final String nodeUrnA, final String nodeUrnB, Callback callback)
+	public void disablePhysicalLink(final String sourceNodeUrn, final String targetNodeUrn, Callback callback)
 			throws UnknownNodeUrnsException {
 
-		assertNodeUrnsKnown(Arrays.asList(nodeUrnA, nodeUrnB));
+		assertNodeUrnsKnown(Arrays.asList(sourceNodeUrn, targetNodeUrn));
 
-		WSNAppMessages.DisablePhysicalLink disablePhysicalLink = WSNAppMessages.DisablePhysicalLink
-				.newBuilder()
-				.setNodeB(nodeUrnB)
-				.build();
+		final WSNAppMessages.Link.Builder link = WSNAppMessages.Link.newBuilder()
+				.setSourceNodeUrn(sourceNodeUrn)
+				.setTargetNodeUrn(targetNodeUrn);
 
-		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
-				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.DISABLE_PHYSICAL_LINK)
-				.setArguments(disablePhysicalLink.toByteString())
+		final WSNAppMessages.DisablePhysicalLinksRequest.Builder disablePhysicalLinksRequest =
+				WSNAppMessages.DisablePhysicalLinksRequest.newBuilder().addLinks(link);
+
+		final WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation.newBuilder()
+				.setType(WSNAppMessages.Invocation.Type.DISABLE_PHYSICAL_LINK)
+				.setDisablePhysicalLinksRequest(disablePhysicalLinksRequest)
 				.build();
 
 		byte[] bytes = invocation.toByteArray();
 
 		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
 				getLocalNodeName(),
-				nodeUrnA,
+				sourceNodeUrn,
 				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
 				bytes,
 				UnreliableMessagingService.PRIORITY_NORMAL,
 				10, TimeUnit.SECONDS
 		);
-		future.addListener(new RequestStatusRunnable(future, callback, nodeUrnA), executor);
+
+		future.addListener(new RequestStatusRunnable(future, callback, sourceNodeUrn), executor);
 	}
 
 	private void assertNodeUrnsKnown(Collection<String> nodeUrns) throws UnknownNodeUrnsException {
@@ -1043,9 +1064,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		final SettableFuture<Boolean> future = SettableFuture.create();
 
-		final WSNAppMessages.OperationInvocation operationInvocation = WSNAppMessages.OperationInvocation
+		final WSNAppMessages.Invocation operationInvocation = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.FLASH_DEFAULT_IMAGE)
+				.setType(WSNAppMessages.Invocation.Type.FLASH_DEFAULT_IMAGE)
 				.build();
 
 		final Messages.Msg msg = MessageTools.buildMessage(
@@ -1128,9 +1149,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		log.info("Setting ChannelPipeline to default configuration for all nodes...");
 
-		WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
+		WSNAppMessages.Invocation.Builder operationInvocation = WSNAppMessages.Invocation
 				.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_DEFAULT_CHANNEL_PIPELINE);
+				.setType(WSNAppMessages.Invocation.Type.SET_DEFAULT_CHANNEL_PIPELINE);
 
 		final byte[] bytes = operationInvocation.build().toByteArray();
 		final List<Future<byte[]>> futures = newArrayList();

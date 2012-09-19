@@ -84,7 +84,7 @@ public interface WSNApp extends TestbedApplication {
 
 	void enablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
 
-	void flashPrograms(Map<String, WSNAppMessages.Program> programs, Callback callback) throws UnknownNodeUrnsException;
+	void flashPrograms(Map<String, byte[]> programs, Callback callback) throws UnknownNodeUrnsException;
 
 	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 

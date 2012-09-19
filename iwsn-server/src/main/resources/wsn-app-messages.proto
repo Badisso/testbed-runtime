@@ -26,116 +26,125 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 option java_outer_classname = "WSNAppMessages";
 option java_multiple_files = false;
 
+message Link {
+	required string sourceNodeUrn = 1;
+	required string targetNodeUrn = 2;
+}
 
 message RequestStatus {
-
 	required string nodeUrn = 1;
-	optional int32 value = 2;
-	optional string msg = 3;
+	optional int32 value    = 2;
+	optional string msg     = 3;
 }
 
-
-
-// ==== flashPrograms ===
-message Program {
-
-    message ProgramMetaData{
-        required string version = 1;
-        required string name = 2;
-        required string platform = 3;
-        required string other = 4;
-    }
-
-	required bytes program = 1;
-	optional ProgramMetaData metaData = 2;
-
+message AreNodesAliveRequest {
+	repeated string nodeUrns = 1;
 }
 
+message AreNodesConnectedRequest {
+	repeated string nodeUrns = 1;
+}
 
-// ==== receiveNotification ====
+message FlashImageRequest {
+	repeated string nodeUrns = 1;
+	required bytes image     = 2;
+}
+
+message FlashDefaultImageRequest {
+}
+
+message ResetNodesRequest {
+	repeated string nodeUrns = 1;
+}
+
 message Notification {
-	required string message = 1;
+	optional string nodeUrn   = 1;
+	required string timestamp = 2;
+	required string msg       = 3;
 }
 
-
-// ==== send ====
 message UpstreamMessage {
-    required string sourceNodeId = 1;
-    required string timestamp = 2;
-    required bytes binaryData = 3;
+	required string sourceNodeUrn = 1;
+	required string timestamp     = 2;
+	required bytes messageBytes   = 3;
 }
 
 message DownstreamMessage {
-	required string targetNodeUrn = 1;
-	required bytes binaryData = 2;
+	repeated string targetNodeUrns = 1;
+	required bytes messageBytes    = 2;
 }
 
-
-// ==== setVirtualLink ====
-message SetVirtualLinkRequest {
-	required string sourceNode = 1;
-	required string targetNode = 2;
+message SetVirtualLinksRequest {
+	repeated Link links = 1;
 }
 
-
-// ==== destroyVirtualLink ====
-message DestroyVirtualLinkRequest {
-    required string sourceNode = 1;
-    required string targetNode = 2;
+message DestroyVirtualLinksRequest {
+	repeated Link links = 1;
 }
 
-
-// === disablePhysicalLink ===
-message DisablePhysicalLink {
-	required string nodeB = 2;
+message DisableNodesRequest {
+	repeated string nodeUrns = 1;
 }
 
-
-// === enablePhysicalLink ===
-message EnablePhysicalLink {
-	required string nodeB = 2;
+message EnableNodesRequest {
+	repeated string nodeUrns = 1;
 }
 
-// === setChannelPipeline ===
+message DisablePhysicalLinksRequest {
+	repeated Link links = 1;
+}
+
+message EnablePhysicalLinksRequest {
+	repeated Link links = 2;
+}
+
 message SetChannelPipelineRequest {
-
 	message ChannelHandlerConfiguration {
-
 		message KeyValuePair {
 			required string key = 1;
 			required string value = 2;
 		}
-
         required string name = 1;
         repeated KeyValuePair configuration = 2;
 	}
-
     repeated ChannelHandlerConfiguration channelHandlerConfigurations = 1;
 }
 
-// ==== operation invocation ====
-message OperationInvocation {
+message SetDefaultChannelPipelineRequest {
+}
 
-    enum Operation {
-
-         SEND                         = 0;
-         ARE_NODES_ALIVE              = 1;
-         FLASH_PROGRAMS               = 2;
-         RESET_NODES                  = 3;
-         SET_VIRTUAL_LINK             = 4;
-		 DESTROY_VIRTUAL_LINK         = 5;
-         DISABLE_NODE                 = 6;
-         ENABLE_NODE                  = 7;
-         DISABLE_PHYSICAL_LINK        = 8;
-         ENABLE_PHYSICAL_LINK         = 9;
-         SET_CHANNEL_PIPELINE         = 10;
-         SET_DEFAULT_CHANNEL_PIPELINE = 11;
-         ARE_NODES_ALIVE_SM           = 12;
-         FLASH_DEFAULT_IMAGE          = 13;
-
+message Invocation {
+    enum Type {
+        SEND_DOWNSTREAM              = 1;
+		SEND_UPSTREAM                = 2;
+        ARE_NODES_ALIVE              = 3;
+		ARE_NODES_CONNECTED          = 4;
+        FLASH_PROGRAMS               = 5;
+		FLASH_DEFAULT_IMAGE          = 6;
+        RESET_NODES                  = 7;
+        SET_VIRTUAL_LINK             = 8;
+		DESTROY_VIRTUAL_LINK         = 9;
+        DISABLE_NODE                 = 10;
+        ENABLE_NODE                  = 11;
+        DISABLE_PHYSICAL_LINK        = 12;
+        ENABLE_PHYSICAL_LINK         = 13;
+        SET_CHANNEL_PIPELINE         = 14;
+        SET_DEFAULT_CHANNEL_PIPELINE = 15;
     }
-
-    required Operation operation = 1;
-    optional bytes arguments = 2;
-
+    required Type                             type                             = 1;
+	optional DownstreamMessage                downstreamMessage                = 2;
+    optional UpstreamMessage                  upstreamMessage                  = 3;
+	optional AreNodesAliveRequest             areNodesAliveRequest             = 4;
+	optional AreNodesConnectedRequest         areNodesConnectedRequest         = 5;
+	optional FlashImageRequest                flashImageRequest                = 6;
+	optional FlashDefaultImageRequest         flashDefaultImageRequest         = 7;
+	optional ResetNodesRequest                resetNodesRequest                = 8;
+	optional SetVirtualLinksRequest           setVirtualLinksRequest           = 9;
+	optional DestroyVirtualLinksRequest       destroyVirtualLinksRequest       = 10;
+	optional DisableNodesRequest              disableNodesRequest              = 11;
+	optional EnableNodesRequest               enableNodesRequest               = 12;
+	optional DisablePhysicalLinksRequest      disablePhysicalLinksRequest      = 13;
+	optional EnablePhysicalLinksRequest       enablePhysicalLinksRequest       = 14;
+	optional SetChannelPipelineRequest        setChannelPipelineRequest        = 15;
+	optional SetDefaultChannelPipelineRequest setDefaultChannelPipelineRequest = 16;
 }
