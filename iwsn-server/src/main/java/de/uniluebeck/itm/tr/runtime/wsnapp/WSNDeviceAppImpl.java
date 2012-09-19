@@ -59,13 +59,6 @@ import static com.google.common.collect.Lists.newArrayList;
 
 class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
-	private final WSNDeviceAppConnectorFactory wsnDeviceAppConnectorFactory;
-
-	private final WSNDeviceAppConnectorConfiguration wsnDeviceAppConnectorConfiguration;
-
-	@Nonnull
-	private final DeviceFactory deviceFactory;
-
 	/**
 	 * A callback that answers the result of an operation invocation to the invoking overlay node.
 	 */
@@ -110,7 +103,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 	/**
 	 * A listener that is used to received messages from the overlay network.
 	 */
-	private MessageEventListener messageEventListener = new MessageEventAdapter() {
+	@Nonnull
+	private final MessageEventListener messageEventListener = new MessageEventAdapter() {
 
 		@Override
 		public void messageReceived(Messages.Msg msg) {
@@ -137,7 +131,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 		}
 	};
 
-	private SingleRequestMultiResponseListener srmrsListener = new SingleRequestMultiResponseListener() {
+	@Nonnull
+	private final SingleRequestMultiResponseListener srmrsListener = new SingleRequestMultiResponseListener() {
 		@Override
 		public void receiveRequest(Messages.Msg msg, Responder responder) {
 
@@ -164,7 +159,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 		}
 	};
 
-	private WSNDeviceAppConnector.NodeOutputListener nodeOutputListener =
+	@Nonnull
+	private final WSNDeviceAppConnector.NodeOutputListener nodeOutputListener =
 			new WSNDeviceAppConnector.NodeOutputListener() {
 
 				@Override
@@ -230,14 +226,29 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 	 * The connector to the actual sensor node. May be local (i.e. attached to a serial port) or remote (i.e. (multi-hop)
 	 * through remote-UART.
 	 */
+	@Nonnull
 	private WSNDeviceAppConnector connector;
 
-	private WSNDeviceAppConfiguration wsnDeviceAppConfiguration;
+	@Nonnull
+	private final WSNDeviceAppConfiguration wsnDeviceAppConfiguration;
+
+	@Nonnull
+	private final WSNDeviceAppConnectorFactory wsnDeviceAppConnectorFactory;
+
+	@Nonnull
+	private final WSNDeviceAppConnectorConfiguration wsnDeviceAppConnectorConfiguration;
 
 	/**
 	 * A reference to the overlay network used to receive and send messages.
 	 */
-	private TestbedRuntime testbedRuntime;
+	@Nonnull
+	private final TestbedRuntime testbedRuntime;
+
+	@Nonnull
+	private final DeviceFactory deviceFactory;
+
+	@Nonnull
+	private final DatatypeFactory datatypeFactory;
 
 	@Inject
 	public WSNDeviceAppImpl(@Assisted final TestbedRuntime testbedRuntime,
@@ -255,9 +266,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 		try {
 			this.datatypeFactory = DatatypeFactory.newInstance();
 		} catch (DatatypeConfigurationException e) {
-			log.error(wsnDeviceAppConfiguration.getNodeUrn() + " => " + e, e);
+			throw new RuntimeException(e);
 		}
-
 	}
 
 	/**
@@ -389,7 +399,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> send()", wsnDeviceAppConfiguration.getNodeUrn());
 				try {
 
-					WSNAppMessages.DownstreamMessage message = WSNAppMessages.DownstreamMessage.parseFrom(invocation.getArguments());
+					WSNAppMessages.DownstreamMessage message =
+							WSNAppMessages.DownstreamMessage.parseFrom(invocation.getArguments());
 					executeSendMessage(message, callback);
 
 				} catch (InvalidProtocolBufferException e) {
@@ -504,7 +515,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 		}
 	}
 
-	public void executeSendMessage(final WSNAppMessages.DownstreamMessage message, final ReplyingNodeApiCallback callback) {
+	public void executeSendMessage(final WSNAppMessages.DownstreamMessage message,
+								   final ReplyingNodeApiCallback callback) {
 
 		log.debug("{} => WSNDeviceAppImpl.executeSendMessage()", wsnDeviceAppConfiguration.getNodeUrn());
 
@@ -579,8 +591,6 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 			return null;
 		}
 	}
-
-	private DatatypeFactory datatypeFactory = null;
 
 	@Override
 	public String getName() {
