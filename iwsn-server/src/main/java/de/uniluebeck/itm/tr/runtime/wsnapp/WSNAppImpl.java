@@ -694,7 +694,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	}
 
 	@Override
-	public void areNodesAliveSm(final Set<String> nodeUrns, final Callback callback) throws UnknownNodeUrnsException {
+	public void areNodesConnected(final Set<String> nodeUrns, final Callback callback) throws UnknownNodeUrnsException {
 
 		assertNodeUrnsKnown(nodeUrns);
 
@@ -705,7 +705,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		byte[] bytes = builder.build().toByteArray();
 
 		if (log.isDebugEnabled()) {
-			log.debug("Sending checkAreNodesAliveSm operation invocation, bytes: {}", toPrintableString(bytes, 200));
+			log.debug("Sending checkAreNodesConnected operation invocation, bytes: {}", toPrintableString(bytes, 200));
 		}
 
 		for (String nodeUrn : nodeUrns) {

@@ -289,7 +289,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				break;
 
 			case ARE_NODES_CONNECTED:
-				log.trace("{} => WSNDeviceAppImpl.executeInvocation --> checkAreNodesAliveSm()", nodeUrn);
+				log.trace("{} => WSNDeviceAppImpl.executeInvocation --> checkAreNodesConnected()", nodeUrn);
 				executeAreNodesConnected(callback);
 				break;
 

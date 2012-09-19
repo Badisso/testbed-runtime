@@ -9,7 +9,7 @@ import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
-import de.uniluebeck.itm.tr.iwsn.newoverlay.AreNodesAliveSmRequest;
+import de.uniluebeck.itm.tr.iwsn.newoverlay.AreNodesConnectedRequest;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.Testbed;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.Request;
 import de.uniluebeck.itm.tr.iwsn.newoverlay.RequestFactory;
@@ -217,7 +217,7 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 		deliveryManager.addController(controllerEndpointUrl);
 
 		final ImmutableSet<NodeUrn> nodeUrns = convertNodeUrns(nodes);
-		final AreNodesAliveSmRequest request = requestFactory.createAreNodesAliveSmRequest(nodeUrns);
+		final AreNodesConnectedRequest request = requestFactory.createAreNodesConnectedRequest(nodeUrns);
 
 		for (Map.Entry<NodeUrn, ProgressSettableFuture<Void>> entry : request.getFutureMap().entrySet()) {
 			final StatusRunnable statusRunnable = new StatusRunnable(deliveryManager, request, entry.getKey());

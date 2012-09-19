@@ -6,11 +6,11 @@ import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 
-public class AreNodesAliveSmRequest extends Request {
+public class AreNodesConnectedRequest extends Request {
 
 	@Inject
-	AreNodesAliveSmRequest(final RequestIdProvider requestIdProvider,
-						   @Assisted final ImmutableSet<NodeUrn> nodeUrns) {
+	AreNodesConnectedRequest(final RequestIdProvider requestIdProvider,
+							 @Assisted final ImmutableSet<NodeUrn> nodeUrns) {
 
 		super(requestIdProvider, nodeUrns);
 	}

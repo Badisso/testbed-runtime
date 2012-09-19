@@ -99,14 +99,14 @@ class WSNAppTestbed extends AbstractService implements Testbed {
 
 		@Subscribe
 		@VisibleForTesting
-		public void onAreNodesAliveSmRequest(final AreNodesAliveSmRequest request) {
+		public void onAreNodesConnectedRequest(final AreNodesConnectedRequest request) {
 
-			log.debug("WSNAppTestbed.onAreNodesAliveSmRequest({})", request);
+			log.debug("WSNAppTestbed.onAreNodesConnectedRequest({})", request);
 
 			try {
 
 				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
-				wsnApp.areNodesAliveSm(convertToStringSet(request.getNodeUrns()), callback);
+				wsnApp.areNodesConnected(convertToStringSet(request.getNodeUrns()), callback);
 
 			} catch (UnknownNodeUrnsException e) {
 				handleUnknownNodeUrnsException(request, e);

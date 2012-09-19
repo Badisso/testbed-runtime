@@ -6,13 +6,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.util.Tuple;
-import org.joda.time.DateTime;
 
 public interface RequestFactory {
 
 	AreNodesAliveRequest createAreNodesAliveRequest(ImmutableSet<NodeUrn> nodeUrns);
 
-	AreNodesAliveSmRequest createAreNodesAliveSmRequest(ImmutableSet<NodeUrn> nodeUrns);
+	AreNodesConnectedRequest createAreNodesConnectedRequest(ImmutableSet<NodeUrn> nodeUrns);
 
 	BackendNotificationsRequest createBackendNotificationsRequest(ImmutableSet<String> notifications);
 
