@@ -7,5 +7,4 @@ public interface WSNServiceHandleFactory {
 	WSNServiceHandle create(Testbed testbed,
 							WSNService wsnService,
 							WSNSoapService wsnSoapService);
-
 }

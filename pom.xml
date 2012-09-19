@@ -22,7 +22,8 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -35,9 +36,9 @@
 	<modules>
 
 		<module>iwsn-common</module>
-        <module>iwsn-csv2config</module>
-        <module>iwsn-federator</module>
-        <module>iwsn-server</module>
+		<module>iwsn-csv2config</module>
+		<module>iwsn-federator</module>
+		<module>iwsn-server</module>
 		<module>rs-server</module>
 		<module>snaa-server</module>
 
@@ -61,6 +62,19 @@
 		</profile>
 		<profile>
 			<id>release-profile</id>
+			<modules>
+				<module>assemblies</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>jenkins-profile</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>tr.build.jenkins</name>
+					<value>true</value>
+				</property>
+			</activation>
 			<modules>
 				<module>assemblies</module>
 			</modules>
