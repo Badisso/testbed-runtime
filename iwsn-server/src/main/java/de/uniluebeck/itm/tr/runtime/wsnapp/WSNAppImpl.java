@@ -962,27 +962,55 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	}
 
 	@Override
-	public void disableNode(final String nodeUrn, Callback callback) throws UnknownNodeUrnsException {
+	public void disableNodes(final Set<NodeUrn> nodeUrns, Callback callback) throws UnknownNodeUrnsException {
 
-		assertNodeUrnsKnown(Arrays.asList(nodeUrn));
+		assertNodeUrnsKnown(convert(nodeUrns));
 
-		WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
-				.newBuilder()
-				.setType(WSNAppMessages.Invocation.Type.DISABLE_NODE)
-				.build();
+		Map<NodeUrn, Set<NodeUrn>> gatewayToNodeSet = calculateGatewayToNodeSet(nodeUrns);
 
-		byte[] bytes = invocation.toByteArray();
+		for (NodeUrn gatewayUrn : gatewayToNodeSet.keySet()) {
 
-		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
-				getLocalNodeName(),
-				nodeUrn,
-				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
-				bytes,
-				UnreliableMessagingService.PRIORITY_NORMAL,
-				10, TimeUnit.SECONDS
-		);
-		future.addListener(new RequestStatusRunnable(future, callback, nodeUrn), executor);
+			final WSNAppMessages.DisableNodesRequest.Builder disableNodesRequest = WSNAppMessages.DisableNodesRequest
+					.newBuilder()
+					.addAllNodeUrns(convert(gatewayToNodeSet.get(gatewayUrn)));
 
+			final WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
+					.newBuilder()
+					.setType(WSNAppMessages.Invocation.Type.DISABLE_NODE)
+					.setDisableNodesRequest(disableNodesRequest)
+					.build();
+
+			byte[] bytes = invocation.toByteArray();
+
+			final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+					getLocalNodeName(),
+					gatewayUrn.toString(),
+					MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+					bytes,
+					UnreliableMessagingService.PRIORITY_NORMAL,
+					10, TimeUnit.SECONDS
+			);
+			future.addListener(new RequestStatusRunnable(future, callback, gatewayUrn.toString()), executor);
+		}
+	}
+
+	@VisibleForTesting
+	Map<NodeUrn, Set<NodeUrn>> calculateGatewayToNodeSet(final Set<NodeUrn> nodeUrns) {
+
+		final Map<NodeUrn, Set<NodeUrn>> map = newHashMap();
+
+		for (NodeUrn nodeUrn : nodeUrns) {
+
+			final NodeUrn nextHop = new NodeUrn(testbedRuntime.getRoutingTableService().getNextHop(nodeUrn.toString()));
+
+			Set<NodeUrn> mapEntry = map.get(nextHop);
+			if (mapEntry == null) {
+				mapEntry = newHashSet();
+				map.put(nextHop, mapEntry);
+			}
+			mapEntry.add(nodeUrn);
+		}
+		return map;
 	}
 
 	@Override

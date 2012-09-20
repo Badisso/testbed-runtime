@@ -252,12 +252,13 @@ public class WSNServiceImplTest {
 	public void testIfDisableNodeRequestWorks() throws Exception {
 
 		final String reqId = wsnService.disableNode(NODE_URN_1_STRING);
-		final ArgumentCaptor<DisableNodeRequest> req = ArgumentCaptor.forClass(DisableNodeRequest.class);
+		final ArgumentCaptor<DisableNodesRequest> req = ArgumentCaptor.forClass(DisableNodesRequest.class);
 
 		verify(testbedEventBus).post(req.capture());
 
-		final DisableNodeRequest capReq = req.getValue();
-		assertEquals(NODE_URN_1, capReq.getNodeUrn());
+		final DisableNodesRequest capReq = req.getValue();
+		assertEquals(1, capReq.getNodeUrns().size());
+		assertTrue(capReq.getNodeUrns().contains(NODE_URN_1));
 
 		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq, 1);
 	}

@@ -12,7 +12,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Map;
+import java.util.Set;
 
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -53,6 +56,13 @@ public class WSNAppImplTest {
 	@Before
 	public void setUp() throws Exception {
 		wsnApp = new WSNAppImpl(wsnAppEventBus, testbedRuntime, reservedNodeUrns);
+
+		when(testbedRuntime.getRoutingTableService()).thenReturn(routingTableService);
+
+		when(routingTableService.getNextHop(N1.toString())).thenReturn(GW3.toString());
+		when(routingTableService.getNextHop(N2.toString())).thenReturn(GW1.toString());
+		when(routingTableService.getNextHop(N3.toString())).thenReturn(GW1.toString());
+		when(routingTableService.getNextHop(N4.toString())).thenReturn(GW2.toString());
 	}
 
 	@Test
@@ -64,13 +74,6 @@ public class WSNAppImplTest {
 				N3, M3,
 				N4, M4
 		);
-
-		when(testbedRuntime.getRoutingTableService()).thenReturn(routingTableService);
-
-		when(routingTableService.getNextHop(N1.toString())).thenReturn(GW3.toString());
-		when(routingTableService.getNextHop(N2.toString())).thenReturn(GW1.toString());
-		when(routingTableService.getNextHop(N3.toString())).thenReturn(GW1.toString());
-		when(routingTableService.getNextHop(N4.toString())).thenReturn(GW2.toString());
 
 		final Map<NodeUrn,Map<NodeUrn,NodeUrn>> map = wsnApp.calculateGatewayToLinksMap(links);
 
@@ -84,5 +87,18 @@ public class WSNAppImplTest {
 		assertEquals(M2, map.get(GW1).get(N2));
 		assertEquals(M3, map.get(GW1).get(N3));
 		assertEquals(M4, map.get(GW2).get(N4));
+	}
+
+	@Test
+	public void testCalculateGatewayToNodeSet() throws Exception {
+
+		Map<NodeUrn, Set<NodeUrn>> expected = newHashMap();
+		expected.put(GW3, newHashSet(N1));
+		expected.put(GW1, newHashSet(N2, N3));
+		expected.put(GW2, newHashSet(N4));
+
+		final Map<NodeUrn, Set<NodeUrn>> actual = wsnApp.calculateGatewayToNodeSet(newHashSet(N1, N2, N3, N4));
+
+		assertEquals(expected, actual);
 	}
 }

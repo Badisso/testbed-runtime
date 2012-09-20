@@ -151,14 +151,14 @@ class WSNAppTestbed extends AbstractService implements Testbed {
 
 		@Subscribe
 		@VisibleForTesting
-		public void onDisableNodeRequest(final DisableNodeRequest request) {
+		public void onDisableNodeRequest(final DisableNodesRequest request) {
 
 			log.debug("WSNAppTestbed.onDisableNodeRequest({})", request);
 
 			try {
 
 				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
-				wsnApp.disableNode(request.getNodeUrn().toString(), callback);
+				wsnApp.disableNodes(request.getNodeUrns(), callback);
 
 			} catch (UnknownNodeUrnsException e) {
 				handleUnknownNodeUrnsException(request, e);

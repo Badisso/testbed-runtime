@@ -77,7 +77,7 @@ public interface WSNApp extends TestbedApplication {
 
 	void destroyVirtualLinks(Map<NodeUrn, NodeUrn> links, Callback callback) throws UnknownNodeUrnsException;
 
-	void disableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnsException;
+	void disableNodes(Set<NodeUrn> nodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
 	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
 

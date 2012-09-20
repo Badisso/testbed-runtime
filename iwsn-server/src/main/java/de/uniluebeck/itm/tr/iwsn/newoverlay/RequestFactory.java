@@ -17,7 +17,7 @@ public interface RequestFactory {
 
 	DestroyVirtualLinksRequest createDestroyVirtualLinkRequest(ImmutableMap<NodeUrn, NodeUrn> links);
 
-	DisableNodeRequest createDisableNodeRequest(NodeUrn nodeUrn);
+	DisableNodesRequest createDisableNodeRequest(ImmutableSet<NodeUrn> nodeUrns);
 
 	DisablePhysicalLinkRequest createDisablePhysicalLinkRequest(@Assisted("from") NodeUrn from,
 																@Assisted("to") NodeUrn to);

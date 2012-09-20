@@ -7,24 +7,20 @@ import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 
-public class DisableNodeRequest extends Request {
+public class DisableNodesRequest extends Request {
 
 	@Inject
-	DisableNodeRequest(final RequestIdProvider requestIdProvider,
-					   @Assisted final NodeUrn nodeUrn) {
+	DisableNodesRequest(final RequestIdProvider requestIdProvider,
+						@Assisted final ImmutableSet<NodeUrn> nodeUrns) {
 
-		super(requestIdProvider, ImmutableSet.of(nodeUrn));
-	}
-
-	public NodeUrn getNodeUrn() {
-		return futureMap.keySet().iterator().next();
+		super(requestIdProvider, nodeUrns);
 	}
 
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this)
 				.add("requestId", requestId)
-				.add("nodeUrn", futureMap.keySet().iterator().next())
+				.add("nodeUrns", futureMap.keySet())
 				.toString();
 	}
 }

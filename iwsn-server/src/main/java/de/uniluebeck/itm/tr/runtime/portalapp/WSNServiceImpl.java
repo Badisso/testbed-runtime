@@ -371,7 +371,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		log.debug("WSNServiceImpl.disableNode({})", node);
 		preconditions.checkDisableNodeArguments(node);
 
-		final DisableNodeRequest request = requestFactory.createDisableNodeRequest(new NodeUrn(node));
+		final DisableNodesRequest request = requestFactory.createDisableNodeRequest(ImmutableSet.of(new NodeUrn(node)));
 		return addResponseListenerAndPostRequest(request, Long.toString(request.getRequestId()), 1);
 	}
 
