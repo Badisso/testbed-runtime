@@ -300,7 +300,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		log.debug(
 				"WSNServiceImpl.setVirtualLink({}, {}, {}, {}, {})",
-				new Object[]{sourceNode, targetNode, remoteServiceInstance, parameters, filters}
+				sourceNode, targetNode, remoteServiceInstance, parameters, filters
 		);
 		preconditions.checkSetVirtualLinkArguments(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
 
@@ -340,10 +340,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		final NodeUrn sourceNodeUrn = new NodeUrn(sourceNode);
 		final NodeUrn targetNodeUrn = new NodeUrn(targetNode);
 
-		final DestroyVirtualLinkRequest request = requestFactory.createDestroyVirtualLinkRequest(
-				sourceNodeUrn,
-				targetNodeUrn
-		);
+		final ImmutableMap<NodeUrn, NodeUrn> links = ImmutableMap.of(sourceNodeUrn, targetNodeUrn);
+		final DestroyVirtualLinksRequest request = requestFactory.createDestroyVirtualLinkRequest(links);
 
 		final String requestId = addResponseListenerAndPostRequest(request, Long.toString(request.getRequestId()), 1);
 

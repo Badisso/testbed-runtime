@@ -397,7 +397,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void destroyVirtualLink(final long targetNode, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLink()", configuration.getNodeUrn());
+		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLinks()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {

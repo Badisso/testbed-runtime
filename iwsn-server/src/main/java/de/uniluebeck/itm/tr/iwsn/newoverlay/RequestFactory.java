@@ -15,8 +15,7 @@ public interface RequestFactory {
 
 	BackendNotificationsRequest createBackendNotificationsRequest(ImmutableSet<String> notifications);
 
-	DestroyVirtualLinkRequest createDestroyVirtualLinkRequest(@Assisted("from") NodeUrn from,
-															  @Assisted("to") NodeUrn to);
+	DestroyVirtualLinksRequest createDestroyVirtualLinkRequest(ImmutableMap<NodeUrn, NodeUrn> links);
 
 	DisableNodeRequest createDisableNodeRequest(NodeUrn nodeUrn);
 

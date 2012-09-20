@@ -115,17 +115,14 @@ class WSNAppTestbed extends AbstractService implements Testbed {
 
 		@Subscribe
 		@VisibleForTesting
-		public void onDestroyVirtualLinkRequest(final DestroyVirtualLinkRequest request) {
+		public void onDestroyVirtualLinkRequest(final DestroyVirtualLinksRequest request) {
 
 			log.debug("WSNAppTestbed.onDestroyVirtualLinkRequest({})", request);
 
 			try {
 
-				final String sourceNodeUrn = request.getFrom().toString();
-				final String targetNodeUrn = request.getTo().toString();
 				final WSNAppCallback callback = new WSNAppCallback(request, 1, 0);
-
-				wsnApp.destroyVirtualLink(sourceNodeUrn, targetNodeUrn, callback);
+				wsnApp.destroyVirtualLinks(request.getLinks(), callback);
 
 			} catch (UnknownNodeUrnsException e) {
 				handleUnknownNodeUrnsException(request, e);

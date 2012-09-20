@@ -235,13 +235,13 @@ public class WSNServiceImplTest {
 	public void testIfDestroyVirtualLinkWorks() throws Exception {
 
 		final String reqId = wsnService.destroyVirtualLink(NODE_URN_1_STRING, NODE_URN_2_STRING);
-		final ArgumentCaptor<DestroyVirtualLinkRequest> req = ArgumentCaptor.forClass(DestroyVirtualLinkRequest.class);
+		final ArgumentCaptor<DestroyVirtualLinksRequest> req = ArgumentCaptor.forClass(DestroyVirtualLinksRequest.class);
 
 		verify(testbedEventBus).post(req.capture());
 
-		final DestroyVirtualLinkRequest capReq = req.getValue();
-		assertEquals(NODE_URN_1, capReq.getFrom());
-		assertEquals(NODE_URN_2, capReq.getTo());
+		final DestroyVirtualLinksRequest capReq = req.getValue();
+		assertTrue(capReq.getLinks().containsKey(NODE_URN_1));
+		assertEquals(NODE_URN_2, capReq.getLinks().get(NODE_URN_1));
 
 		verifyThatResultIsForwardedCorrectlyOnSuccess(reqId, capReq, 1);
 

@@ -23,7 +23,9 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
+import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 
@@ -73,8 +75,7 @@ public interface WSNApp extends TestbedApplication {
 
 	void areNodesConnected(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
-	void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
-			throws UnknownNodeUrnsException;
+	void destroyVirtualLinks(Map<NodeUrn, NodeUrn> links, Callback callback) throws UnknownNodeUrnsException;
 
 	void disableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnsException;
 

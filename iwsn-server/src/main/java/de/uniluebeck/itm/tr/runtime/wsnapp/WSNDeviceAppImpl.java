@@ -294,7 +294,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				break;
 
 			case DESTROY_VIRTUAL_LINK:
-				log.trace("{} => WSNDeviceAppImpl.executeInvocation --> destroyVirtualLink()", nodeUrn);
+				log.trace("{} => WSNDeviceAppImpl.executeInvocation --> destroyVirtualLinks()", nodeUrn);
 				executeDestroyVirtualLink(invocation.getDestroyVirtualLinksRequest(), callback);
 				break;
 

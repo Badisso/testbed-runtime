@@ -23,11 +23,11 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.*;
 import com.google.inject.Inject;
@@ -36,6 +36,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
+import de.uniluebeck.itm.tr.iwsn.NodeUrn;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
@@ -44,6 +45,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
+import de.uniluebeck.itm.tr.iwsn.overlay.routing.RoutingTableService;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannel;
@@ -67,6 +69,7 @@ import java.util.concurrent.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.PipelineHelper.*;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
@@ -867,39 +870,95 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		future.addListener(new RequestStatusRunnable(future, callback, sourceNodeUrn), executor);
 	}
 
+	@VisibleForTesting
+	Map<NodeUrn, Map<NodeUrn, NodeUrn>> calculateGatewayToLinksMap(Map<NodeUrn, NodeUrn> links) {
+
+		final RoutingTableService routingTable = testbedRuntime.getRoutingTableService();
+		final Map<NodeUrn, Map<NodeUrn, NodeUrn>> map = newHashMap();
+
+		for (Map.Entry<NodeUrn, NodeUrn> entry : links.entrySet()) {
+
+			final NodeUrn sourceNodeUrn = entry.getKey();
+			final NodeUrn targetNodeUrn = entry.getValue();
+			final NodeUrn nextHop = new NodeUrn(routingTable.getNextHop(sourceNodeUrn.toString()));
+
+			Map<NodeUrn, NodeUrn> mapEntry = map.get(nextHop);
+			if (mapEntry == null) {
+				mapEntry = newHashMap();
+				map.put(nextHop, mapEntry);
+			}
+			mapEntry.put(sourceNodeUrn, targetNodeUrn);
+		}
+		return map;
+	}
+
 	@Override
-	public void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
+	public void destroyVirtualLinks(final Map<NodeUrn, NodeUrn> links, Callback callback)
 			throws UnknownNodeUrnsException {
 
-		assertNodeUrnsKnown(Arrays.asList(sourceNodeUrn));
+		assertNodeUrnsKnown(convert(links.keySet()));
 
-		final WSNAppMessages.Link.Builder link = WSNAppMessages.Link.newBuilder()
-				.setSourceNodeUrn(sourceNodeUrn)
-				.setTargetNodeUrn(targetNodeUrn);
+		final Map<NodeUrn, WSNAppMessages.Invocation> invocations = newHashMap();
+		final Map<NodeUrn, Map<NodeUrn, NodeUrn>> gatewayToLinksMap = calculateGatewayToLinksMap(links);
 
-		final WSNAppMessages.DestroyVirtualLinksRequest.Builder destroyVirtualLinksRequest =
-				WSNAppMessages.DestroyVirtualLinksRequest
-						.newBuilder()
-						.addLinks(link);
+		for (Map.Entry<NodeUrn, Map<NodeUrn, NodeUrn>> entry : gatewayToLinksMap.entrySet()) {
 
-		final WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
-				.newBuilder()
-				.setType(WSNAppMessages.Invocation.Type.DESTROY_VIRTUAL_LINK)
-				.setDestroyVirtualLinksRequest(destroyVirtualLinksRequest)
-				.build();
+			final NodeUrn gatewayUrn = entry.getKey();
+			final Map<NodeUrn, NodeUrn> linkMap = entry.getValue();
 
-		byte[] bytes = invocation.toByteArray();
+			final WSNAppMessages.DestroyVirtualLinksRequest.Builder destroyVirtualLinksRequest =
+					WSNAppMessages.DestroyVirtualLinksRequest.newBuilder();
 
-		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
-				getLocalNodeName(),
-				sourceNodeUrn,
-				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
-				bytes,
-				UnreliableMessagingService.PRIORITY_NORMAL,
-				10, TimeUnit.SECONDS
+			for (Map.Entry<NodeUrn, NodeUrn> linkEntry : linkMap.entrySet()) {
+
+				final WSNAppMessages.Link.Builder link = WSNAppMessages.Link.newBuilder()
+						.setSourceNodeUrn(linkEntry.getKey().toString())
+						.setTargetNodeUrn(linkEntry.getValue().toString());
+
+				destroyVirtualLinksRequest.addLinks(link);
+			}
+
+			final WSNAppMessages.Invocation invocation = WSNAppMessages.Invocation
+					.newBuilder()
+					.setType(WSNAppMessages.Invocation.Type.DESTROY_VIRTUAL_LINK)
+					.setDestroyVirtualLinksRequest(destroyVirtualLinksRequest)
+					.build();
+
+			invocations.put(gatewayUrn, invocation);
+		}
+
+		invoke(invocations, callback);
+	}
+
+	private void invoke(final Map<NodeUrn, WSNAppMessages.Invocation> invocations, final Callback callback) {
+
+		for (Map.Entry<NodeUrn, WSNAppMessages.Invocation> invocationEntry : invocations.entrySet()) {
+
+			final WSNAppMessages.Invocation invocation = invocationEntry.getValue();
+			final String gatewayUrn = invocationEntry.getKey().toString();
+			byte[] bytes = invocation.toByteArray();
+
+			final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+					getLocalNodeName(),
+					gatewayUrn,
+					MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+					bytes,
+					UnreliableMessagingService.PRIORITY_NORMAL,
+					10, TimeUnit.SECONDS
+			);
+
+			future.addListener(new RequestStatusRunnable(future, callback, gatewayUrn), executor);
+		}
+	}
+
+	private Iterable<String> convert(final Set<NodeUrn> nodeUrns) {
+		return Iterables.transform(nodeUrns, new Function<NodeUrn, String>() {
+			@Override
+			public String apply(final NodeUrn nodeUrn) {
+				return nodeUrn.toString();
+			}
+		}
 		);
-		future.addListener(new RequestStatusRunnable(future, callback, sourceNodeUrn), executor);
-
 	}
 
 	@Override
@@ -1016,7 +1075,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		future.addListener(new RequestStatusRunnable(future, callback, sourceNodeUrn), executor);
 	}
 
-	private void assertNodeUrnsKnown(Collection<String> nodeUrns) throws UnknownNodeUrnsException {
+	private void assertNodeUrnsKnown(Iterable<String> nodeUrns) throws UnknownNodeUrnsException {
 
 		ImmutableSet<String> localNodeNames = testbedRuntime.getLocalNodeNameManager().getLocalNodeNames();
 		ImmutableSet<String> remoteNodeNames = testbedRuntime.getRoutingTableService().getEntries().keySet();
