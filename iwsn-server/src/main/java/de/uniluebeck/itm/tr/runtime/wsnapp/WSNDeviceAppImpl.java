@@ -300,7 +300,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 			case DISABLE_NODE:
 				log.trace("{} => WSNDeviceAppImpl.executeInvocation --> disableNode()", nodeUrn);
-				executeDisableNode(callback);
+				executeDisableNode(invocation.getDisableNodesRequest(), callback);
 				break;
 
 			case DISABLE_PHYSICAL_LINK:
@@ -357,9 +357,11 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 		connector.isNodeAliveSm(callback);
 	}
 
-	private void executeDisableNode(final ReplyingNodeApiCallback callback) {
+	private void executeDisableNode(final WSNAppMessages.DisableNodesRequest disableNodesRequest,
+									final ReplyingNodeApiCallback callback) {
 		log.debug("WSNDeviceAppImpl.executeDisableNode()");
 		connector.disableNode(callback);
+		throw new RuntimeException("TODO implement multicast behavior");
 	}
 
 	private void executeDisablePhysicalLink(final WSNAppMessages.Invocation invocation,
