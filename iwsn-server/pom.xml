@@ -112,6 +112,23 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-actor</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-remote</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.weiglewilczek.slf4s</groupId>
+			<artifactId>slf4s_2.9.1</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
