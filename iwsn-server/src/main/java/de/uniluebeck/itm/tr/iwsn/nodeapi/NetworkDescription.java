@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
-import java.util.concurrent.Future;
+import com.google.common.util.concurrent.ListenableFuture;
 
 
 public interface NetworkDescription {
@@ -31,17 +31,18 @@ public interface NetworkDescription {
 	/**
 	 * Request this Node for a special property value
 	 *
-	 * @param property request the property specified by this value
+	 * @param property
+	 * 		request the property specified by this value
 	 *
 	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	Future<NodeApiCallResult> getPropertyValue(byte property);
+	ListenableFuture<NodeApiCallResult> getPropertyValue(byte property);
 
 	/**
 	 * Request a Neighborhoodlist from this node
 	 *
 	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	Future<NodeApiCallResult> getNeighborhood();
+	ListenableFuture<NodeApiCallResult> getNeighborhood();
 
 }

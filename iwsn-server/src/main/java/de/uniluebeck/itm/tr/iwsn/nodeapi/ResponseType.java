@@ -37,7 +37,7 @@ public class ResponseType {
 
 	public final static byte UNKNOWN_DESTINATION_ID = 5;
 
-	public final static byte SENSOR_NOT_AVAILIBLE = 6;
+	public final static byte SENSOR_NOT_AVAILABLE = 6;
 
 	public final static byte SENSOR_BUSY = 7;
 

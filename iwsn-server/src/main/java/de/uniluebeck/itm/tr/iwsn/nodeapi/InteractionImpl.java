@@ -23,13 +23,13 @@
 
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.Future;
 
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 
@@ -48,20 +48,19 @@ class InteractionImpl implements Interaction {
 	}
 
 	@Override
-	public Future<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source, byte[] payload) {
+	public ListenableFuture<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination,
+																	  long source, byte[] payload) {
 
 		if (log.isTraceEnabled()) {
 
 			log.trace(
 					"{} => InteractionImpl.sendVirtualLinkMessage(rssi={}, lqi={}, destination={}, source={}, payload={}, callback)",
-					new Object[]{
-							nodeUrn,
-							StringUtils.toHexString(RSSI),
-							StringUtils.toHexString(LQI),
-							destination,
-							source,
-							toPrintableString(payload, 200),
-					}
+					nodeUrn,
+					StringUtils.toHexString(RSSI),
+					StringUtils.toHexString(LQI),
+					destination,
+					source,
+					toPrintableString(payload, 200)
 			);
 		}
 
@@ -75,7 +74,7 @@ class InteractionImpl implements Interaction {
 	}
 
 	@Override
-	public Future<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte[] payload) {
+	public ListenableFuture<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte[] payload) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(
@@ -87,7 +86,7 @@ class InteractionImpl implements Interaction {
 	}
 
 	@Override
-	public Future<NodeApiCallResult> sendByteMessage(byte binaryType, byte[] payload) {
+	public ListenableFuture<NodeApiCallResult> sendByteMessage(byte binaryType, byte[] payload) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.Interaction.newByteMessagePacket(
@@ -99,7 +98,7 @@ class InteractionImpl implements Interaction {
 	}
 
 	@Override
-	public Future<NodeApiCallResult> flashProgram(byte[] payload) {
+	public ListenableFuture<NodeApiCallResult> flashProgram(byte[] payload) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.Interaction.newFlashProgramPacket(

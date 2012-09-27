@@ -23,103 +23,100 @@
 
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.Future;
 
 
 public class NodeControlImpl implements NodeControl {
 
-	private final String nodeUrn;
-
 	private final NodeApi nodeApi;
 
-	public NodeControlImpl(final String nodeUrn, NodeApi nodeApi) {
-		this.nodeUrn = nodeUrn;
+	public NodeControlImpl(NodeApi nodeApi) {
 		this.nodeApi = nodeApi;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> enableNode() {
+	public ListenableFuture<NodeApiCallResult> enableNode() {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.NodeControl.newEnableNodePacket(
 				requestId
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> disableNode() {
+	public ListenableFuture<NodeApiCallResult> disableNode() {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.NodeControl.newDisableNodePacket(
 				requestId
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> resetNode(int time) {
+	public ListenableFuture<NodeApiCallResult> resetNode(int time) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.NodeControl.newResetNodePacket(
 				requestId, time
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> setStartTime(int time) {
+	public ListenableFuture<NodeApiCallResult> setStartTime(int time) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.NodeControl.newSetStartTimePacket(
 				requestId, time
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> setVirtualID(long virtualNodeID) {
+	public ListenableFuture<NodeApiCallResult> setVirtualID(long virtualNodeID) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.NodeControl.newSetVirtualIDPacket(
 				requestId, virtualNodeID
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> getVirtualID() {
+	public ListenableFuture<NodeApiCallResult> getVirtualID() {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.NodeControl.newGetIDPacket(
 				requestId
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> areNodesAlive() {
+	public ListenableFuture<NodeApiCallResult> areNodesAlive() {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.NodeControl.newAreNodesAlivePacket(
 				requestId
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}

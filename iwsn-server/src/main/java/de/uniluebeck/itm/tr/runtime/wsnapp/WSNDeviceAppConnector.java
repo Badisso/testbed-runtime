@@ -24,14 +24,29 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.Listenable;
+import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
 import de.uniluebeck.itm.tr.util.Tuple;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.NodeOutputListener>, Service {
+
+	public static class Response {
+
+		public final byte code;
+
+		@Nullable
+		public final byte[] payload;
+
+		public Response(final byte code, @Nullable final byte[] responsePayload) {
+			this.code = code;
+			this.payload = responsePayload;
+		}
+	}
 
 	public static interface NodeOutputListener {
 
@@ -41,46 +56,29 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 
 	}
 
-	public static interface Callback {
+	ListenableFuture<Response> destroyVirtualLink(long targetNode);
 
-		void success(@Nullable byte[] replyPayload);
+	ListenableFuture<Response> disableNode();
 
-		void failure(byte responseType, byte[] replyPayload);
+	ListenableFuture<Response> disablePhysicalLink(long nodeB);
 
-		void timeout();
+	ListenableFuture<Response> enableNode();
 
-	}
+	ListenableFuture<Response> enablePhysicalLink(long targetNode);
 
-	public static interface FlashProgramCallback extends Callback {
+	ProgressListenableFuture<Response> flashProgram(byte[] image);
 
-		void progress(float percentage);
+	ListenableFuture<Response> isNodeAlive();
 
-	}
+	ListenableFuture<Response> isNodeConnected();
 
-	void enableNode(Callback listener);
+	ListenableFuture<Response> resetNode();
 
-	void enablePhysicalLink(long nodeB, Callback listener);
+	ListenableFuture<Response> sendMessage(byte[] binaryMessage);
 
-	void destroyVirtualLink(long targetNode, Callback listener);
+	ListenableFuture<Response> setVirtualLink(long targetNode);
 
-	void disableNode(Callback listener);
+	ListenableFuture<Response> setDefaultChannelPipeline();
 
-	void disablePhysicalLink(long nodeB, Callback listener);
-
-	void flashProgram(byte[] binaryImage, FlashProgramCallback listener);
-
-	void isNodeAlive(Callback listener);
-
-	void isNodeAliveSm(Callback callback);
-
-	void resetNode(Callback listener);
-
-	void sendMessage(byte[] binaryMessage, Callback listener);
-
-	void setVirtualLink(long targetNode, Callback listener);
-
-	void setDefaultChannelPipeline(Callback callback);
-
-	void setChannelPipeline(List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
-							Callback callback);
+	ListenableFuture<Response> setChannelPipeline(List<Tuple<String, Multimap<String, String>>> configurations);
 }

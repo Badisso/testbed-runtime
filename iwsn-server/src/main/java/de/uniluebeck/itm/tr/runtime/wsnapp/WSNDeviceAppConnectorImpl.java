@@ -31,8 +31,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.common.util.concurrent.*;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -45,6 +44,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.DeviceRequest;
 import de.uniluebeck.itm.tr.util.*;
+import de.uniluebeck.itm.tr.util.RateLimiter;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
@@ -94,8 +94,6 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 	static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
 
-	static final byte VIRTUAL_LINK_MESSAGE = 11;
-
 	private static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
 
 	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
@@ -132,7 +130,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	 */
 	private ExecutorService deviceDriverExecutorService;
 
-	private transient boolean flashOperationRunningOrEnqueued = false;
+	private volatile boolean flashOperationRunningOrEnqueued = false;
 
 	private final HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
 
@@ -226,7 +224,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		String nodeMacAddressString = StringUtils.getUrnSuffix(configuration.getNodeUrn());
 		MacAddress nodeMacAddress = new MacAddress(nodeMacAddressString);
 
-		final MacAddress macAddress = (MacAddress) deviceEvent.getDeviceInfo().getMacAddress();
+		final MacAddress macAddress = deviceEvent.getDeviceInfo().getMacAddress();
 		boolean eventHasSameMac = nodeMacAddress.equals(macAddress);
 		final String nodeUSBChipID = configuration.getNodeUSBChipID();
 		boolean eventHasSameUSBChipId = nodeUSBChipID != null &&
@@ -281,7 +279,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 				if (!tryToConnect(nodeType, nodeSerialInterface, nodeConfiguration)) {
 					log.warn("{} => Unable to connect to {} device at {}. Retrying in 30 seconds.",
-							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+							nodeUrn, nodeType, nodeSerialInterface
 					);
 				}
 
@@ -395,103 +393,102 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	}
 
 	@Override
-	public void destroyVirtualLink(final long targetNode, final Callback listener) {
+	public ListenableFuture<Response> destroyVirtualLink(final long targetNode) {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLinks()", configuration.getNodeUrn());
 
+		final SettableFuture<Response> future = SettableFuture.create();
 		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().destroyVirtualLink(targetNode), listener);
-				}
-			}
-			);
+			addFutureListener(future, nodeApi.getLinkControl().destroyVirtualLink(targetNode));
 		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
+			future.setException(new Exception("Node is not connected."));
 		}
-
+		return future;
 	}
 
 	@Override
-	public void disableNode(final Callback listener) {
+	public ListenableFuture<Response> disableNode() {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.disableNode()", configuration.getNodeUrn());
 
+		final SettableFuture<Response> future = SettableFuture.create();
 		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getNodeControl().disableNode(), listener);
-				}
-			}
-			);
+			addFutureListener(future, nodeApi.getNodeControl().disableNode());
 		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
+			future.setException(new Exception("Node is not connected."));
 		}
-
+		return future;
 	}
 
 	@Override
-	public void disablePhysicalLink(final long nodeB, final Callback listener) {
+	public ListenableFuture<Response> disablePhysicalLink(final long nodeB) {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.disablePhysicalLink()", configuration.getNodeUrn());
 
+		final SettableFuture<Response> future = SettableFuture.create();
 		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().disablePhysicalLink(nodeB), listener);
-				}
-			}
-			);
+			addFutureListener(future, nodeApi.getLinkControl().disablePhysicalLink(nodeB));
 		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
+			future.setException(new Exception("Node is not connected."));
 		}
-
+		return future;
 	}
 
 	@Override
-	public void enableNode(final Callback listener) {
+	public ListenableFuture<Response> enableNode() {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.enableNode()", configuration.getNodeUrn());
 
+		final SettableFuture<Response> future = SettableFuture.create();
 		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getNodeControl().enableNode(), listener);
+			addFutureListener(future, nodeApi.getNodeControl().enableNode());
+		} else {
+			future.setException(new Exception("Node is not connected."));
+		}
+		return future;
+	}
+
+	private void addFutureListener(final SettableFuture<Response> future,
+								   final ListenableFuture<NodeApiCallResult> nodeApiFuture) {
+		nodeApiFuture.addListener(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					final NodeApiCallResult result = nodeApiFuture.get();
+					if (result.isSuccessful()) {
+						future.set(new Response((byte) 1, result.getResponse()));
+					} else {
+						future.set(new Response(result.getResponseType(), result.getResponse()));
+					}
+				} catch (Exception e) {
+					future.setException(e);
 				}
 			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
+		}, nodeApiExecutor
+		);
 	}
 
 	@Override
-	public void enablePhysicalLink(final long nodeB, final Callback listener) {
+	public ListenableFuture<Response> enablePhysicalLink(final long targetNode) {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.enablePhysicalLink()", configuration.getNodeUrn());
 
+		final SettableFuture<Response> future = SettableFuture.create();
 		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().enablePhysicalLink(nodeB), listener);
-				}
-			}
-			);
+			addFutureListener(future, nodeApi.getLinkControl().enablePhysicalLink(targetNode));
 		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
+			future.setException(new Exception("Node is not connected."));
 		}
+		return future;
 	}
 
 	@Override
-	public void flashProgram(final byte[] binaryImage,
-							 final FlashProgramCallback listener) {
+	@Nonnull
+	public ProgressListenableFuture<Response> flashProgram(final byte[] image) {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.executeFlashPrograms()", configuration.getNodeUrn());
+
+		final ProgressSettableFuture<Response> future = ProgressSettableFuture.create();
 
 		if (isConnected()) {
 
@@ -499,7 +496,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 				String msg = "There's a flash operation running or enqueued currently. Please try again later.";
 				log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
-				listener.failure((byte) -1, msg.getBytes());
+				future.set(new Response((byte) -1, msg.getBytes()));
 
 			} else {
 
@@ -507,7 +504,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 				deviceLock.lock();
 				try {
-					device.program(binaryImage, configuration.getTimeoutFlashMillis(),
+					device.program(image, configuration.getTimeoutFlashMillis(),
 							new OperationAdapter<Void>() {
 
 								private int lastProgress = -1;
@@ -516,7 +513,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 								public void onExecute() {
 									flashCount = (flashCount % Integer.MAX_VALUE) == 0 ? 0 : flashCount++;
 									lastProgress = 0;
-									listener.progress(0f);
+									future.setProgress(0f);
 								}
 
 								@Override
@@ -525,7 +522,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 									String msg = "Flash operation was canceled.";
 									log.error("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
 									flashOperationRunningOrEnqueued = false;
-									listener.failure((byte) -1, msg.getBytes());
+									future.set(new Response((byte) -1, msg.getBytes()));
 								}
 
 								@Override
@@ -541,7 +538,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 									log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
 									flashOperationRunningOrEnqueued = false;
-									listener.failure((byte) -3, msg.getBytes());
+									future.set(new Response((byte) -3, msg.getBytes()));
 								}
 
 								@Override
@@ -555,7 +552,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 												configuration.getNodeUrn(),
 												newProgress
 										);
-										listener.progress(fraction);
+										future.setProgress(fraction);
 										lastProgress = newProgress;
 									}
 								}
@@ -565,7 +562,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 									log.debug("{} => Done flashing node.", configuration.getNodeUrn());
 									flashOperationRunningOrEnqueued = false;
-									listener.success(null);
+									future.set(new Response((byte) 100, null));
 								}
 							}
 					);
@@ -578,15 +575,18 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		} else {
 			String msg = "Failed flashing node. Reason: Node is not connected.";
 			log.warn("{} => {}", configuration.getNodeUrn(), msg);
-			listener.failure((byte) -2, msg.getBytes());
+			future.set(new Response((byte) -2, msg.getBytes()));
 		}
 
+		return future;
 	}
 
 	@Override
-	public void isNodeAlive(final Callback listener) {
+	public ListenableFuture<Response> isNodeAlive() {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAlive()", configuration.getNodeUrn());
+
+		final SettableFuture<Response> future = SettableFuture.create();
 
 		if (isConnected()) {
 
@@ -602,19 +602,19 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 					@Override
 					public void onSuccess(final Boolean result) {
 						log.debug("{} => Done checking node alive (result={}).", configuration.getNodeUrn(), result);
-						listener.success(null);
+						future.set(new Response((byte) 1, null));
 					}
 
 					@Override
 					public void onCancel() {
-						listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+						future.setException(new Exception("Operation was cancelled."));
 					}
 
 					@Override
 					public void onFailure(final Throwable throwable) {
 						String msg = "Failed checking if node is alive. Reason: " + throwable;
 						log.warn("{} => resetNode(): {}", configuration.getNodeUrn(), msg);
-						listener.failure((byte) -1, msg.getBytes());
+						future.setException(new Exception(msg));
 					}
 				}
 				);
@@ -626,26 +626,28 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 			String msg = "Failed checking if node is alive. Reason: Device is not connected.";
 			log.warn("{} => {}", configuration.getNodeUrn(), msg);
-			listener.failure((byte) 0, msg.getBytes());
+			future.setException(new Exception(msg));
 		}
+
+		return future;
 	}
 
 	@Override
-	public void isNodeAliveSm(final Callback listener) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAliveSm()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-			listener.success(null);
-		} else {
-			listener.failure((byte) 0, "Device is not connected.".getBytes());
-		}
+	public ListenableFuture<Response> isNodeConnected() {
+		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeConnected()", configuration.getNodeUrn());
+		return Futures.immediateFuture(new Response((byte) (isConnected() ? 1 : 0), null));
 	}
 
 	@Override
-	public void resetNode(final Callback listener) {
+	public ListenableFuture<Response> resetNode() {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.resetNode()", configuration.getNodeUrn());
+
+		if (!isConnected()) {
+			return Futures.immediateFailedFuture(new NodeDisconnectedException("Node is not connected."));
+		}
+
+		final SettableFuture<Response> future = SettableFuture.create();
 
 		if (isConnected()) {
 
@@ -661,19 +663,19 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 					@Override
 					public void onSuccess(final Void result) {
 						log.debug("{} => Done resetting node.", configuration.getNodeUrn());
-						listener.success(null);
+						future.set(new Response((byte) 1, null));
 					}
 
 					@Override
 					public void onCancel() {
-						listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+						future.setException(new Exception("Operation was cancelled."));
 					}
 
 					@Override
 					public void onFailure(final Throwable throwable) {
 						String msg = "Failed resetting node. Reason: " + throwable;
 						log.warn("{} => resetNode(): {}", configuration.getNodeUrn(), msg);
-						listener.failure((byte) -1, msg.getBytes());
+						future.setException(new Exception(msg));
 					}
 				}
 				);
@@ -683,21 +685,21 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 		} else {
 
-			String msg = "Failed resetting node. Reason: Device is not connected.";
+			String msg = "Failed resetting node. Reason: Node is not connected.";
 			log.warn("{} => {}", configuration.getNodeUrn(), msg);
-			listener.failure((byte) 0, msg.getBytes());
+			future.setException(new Exception(msg));
 		}
 
+		return future;
 	}
 
 	@Override
-	public void sendMessage(final byte[] messageBytes, final Callback callback) {
+	public ListenableFuture<Response> sendMessage(final byte[] messageBytes) {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", configuration.getNodeUrn());
 
 		if (!isConnected()) {
-			callback.failure((byte) -1, "Node is not connected.".getBytes());
-			return;
+			return Futures.immediateFailedFuture(new NodeDisconnectedException("Node is not connected."));
 		}
 
 		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
@@ -709,64 +711,58 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 			);
 		}
 
+		final SettableFuture<Response> future = SettableFuture.create();
+
 		deviceChannel
 				.write(buffer, new WisebedMulticastAddress(ImmutableSet.of(configuration.getNodeUrn())))
 				.addListener(new ChannelFutureListener() {
 
 					@Override
-					public void operationComplete(final ChannelFuture future) throws Exception {
+					public void operationComplete(final ChannelFuture channelFuture) throws Exception {
 
-						if (future.isSuccess()) {
+						if (channelFuture.isSuccess()) {
 
-							callback.success(null);
+							future.set(new Response((byte) 1, null));
 
-						} else if (future.isCancelled()) {
+						} else if (channelFuture.isCancelled()) {
 
 							String msg = "Sending message was canceled.";
 							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-							callback.failure((byte) -3, msg.getBytes());
+							future.setException(new Exception(msg));
 
 						} else {
 
-							String msg = "Failed sending message. Reason: " + future.getCause();
-							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-							callback.failure((byte) -2, msg.getBytes());
+							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), channelFuture.getCause());
+							future.setException(channelFuture.getCause());
 						}
 					}
 				}
 				);
+
+		return future;
 	}
 
 	@Override
-	public void setDefaultChannelPipeline(@Nullable final Callback callback) {
+	public ListenableFuture<Response> setDefaultChannelPipeline() {
 
+		final SettableFuture<Response> future = SettableFuture.create();
 		try {
-
 			List<Tuple<String, ChannelHandler>> innerPipelineHandlers = createDefaultInnerPipelineHandlers();
 			setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
-
 			log.debug("{} => Channel pipeline now set to: {}", configuration.getNodeUrn(), innerPipelineHandlers);
-
-			if (callback != null) {
-				callback.success(null);
-			}
-
+			future.set(new Response((byte) 1, null));
 		} catch (Exception e) {
-
 			log.warn("Exception while setting default channel pipeline: {}", e);
-
-			if (callback != null) {
-				callback.failure(
-						(byte) -1,
-						("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
-				);
-			}
+			future.setException(e);
 		}
+		return future;
 	}
 
 	@Override
-	public void setChannelPipeline(final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
-								   final Callback callback) {
+	public ListenableFuture<Response> setChannelPipeline(
+			final List<Tuple<String, Multimap<String, String>>> configurations) {
+
+		final SettableFuture<Response> future = SettableFuture.create();
 
 		if (isConnected()) {
 
@@ -775,35 +771,34 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 			try {
 
 				log.debug("{} => Setting channel pipeline using configuration: {}", configuration.getNodeUrn(),
-						channelHandlerConfigurations
+						configurations
 				);
 
-				innerPipelineHandlers = handlerFactoryRegistry.create(channelHandlerConfigurations);
+				innerPipelineHandlers = handlerFactoryRegistry.create(configurations);
 				setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 
 				log.debug("{} => Channel pipeline now set to: {}", configuration.getNodeUrn(), innerPipelineHandlers);
 
-				callback.success(null);
+				future.set(new Response((byte) 1, null));
 
 			} catch (Exception e) {
 
 				log.warn("{} => {} while setting channel pipeline: {}",
-						new Object[]{configuration.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()}
+						configuration.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()
 				);
 
-				callback.failure(
-						(byte) -1,
-						("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
-				);
+				future.set(new Response((byte) -1, ("Exception while setting channel pipeline: " + e.getMessage()).getBytes()));
 
 				log.warn("{} => Resetting channel pipeline to default pipeline.", configuration.getNodeUrn());
 
-				setDefaultChannelPipeline(null);
+				setDefaultChannelPipeline();
 			}
 
 		} else {
-			callback.failure((byte) -1, "Node is not connected.".getBytes());
+			future.setException(new NodeDisconnectedException("Node is not connected."));
 		}
+
+		return future;
 	}
 
 	private SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
@@ -829,16 +824,15 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		}
 
 		@Override
+		@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e)
 				throws Exception {
 
 			log.warn(
 					"{} => {} in pipeline: {}",
-					new Object[]{
-							configuration.getNodeUrn(),
-							e.getCause().getClass().getSimpleName(),
-							e.getCause().getMessage()
-					}
+					configuration.getNodeUrn(),
+					e.getCause().getClass().getSimpleName(),
+					e.getCause().getMessage()
 			);
 
 			String notification = "The pipeline seems to be wrongly configured. A(n) " +
@@ -870,20 +864,20 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 			} catch (Exception e) {
 				log.warn("{} => Could not connect to {} device at {}.",
-						new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
+						configuration.getNodeUrn(), deviceType, deviceSerialInterface
 				);
 				return false;
 			}
 
 			if (!device.isConnected()) {
 				log.warn("{} => Could not connect to {} device at {}.",
-						new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
+						configuration.getNodeUrn(), deviceType, deviceSerialInterface
 				);
 				return false;
 			}
 
 			log.info("{} => Successfully connected to {} device on serial port {}",
-					new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
+					configuration.getNodeUrn(), deviceType, deviceSerialInterface
 			);
 
 			sendNotification("Device " + configuration.getNodeUrn() + " was attached to the gateway.");
@@ -1056,32 +1050,26 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 					"Exception while creating default channel pipeline from configuration file ({}). "
 							+ "Using empty pipeline as default pipeline. "
 							+ "Error message: {}. Stack trace: {}",
-					new Object[]{
-							configuration.getDefaultChannelPipelineConfigurationFile(),
-							e.getMessage(),
-							Throwables.getStackTraceAsString(e)
-					}
+					configuration.getDefaultChannelPipelineConfigurationFile(),
+					e.getMessage(),
+					Throwables.getStackTraceAsString(e)
 			);
 			return newArrayList();
 		}
 	}
 
 	@Override
-	public void setVirtualLink(final long targetNode, final Callback listener) {
+	public ListenableFuture<Response> setVirtualLink(final long targetNode) {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.setVirtualLink()", configuration.getNodeUrn());
 
+		final SettableFuture<Response> future = SettableFuture.create();
 		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().setVirtualLink(targetNode), listener);
-				}
-			}
-			);
+			addFutureListener(future, nodeApi.getLinkControl().setVirtualLink(targetNode));
 		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
+			future.setException(new Exception("Node is not connected."));
 		}
+		return future;
 	}
 
 	private void shutdownDeviceChannel() {
@@ -1094,37 +1082,6 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 			} catch (Exception e) {
 				log.warn("{} => Exception while closing DeviceConnection!", configuration.getNodeUrn(), e);
-			}
-		}
-	}
-
-	private boolean isVirtualLinkMessage(final byte[] messageBytes) {
-		return messageBytes.length > 1 &&
-				messageBytes[0] == MESSAGE_TYPE_WISELIB_DOWNSTREAM &&
-				messageBytes[1] == VIRTUAL_LINK_MESSAGE;
-	}
-
-	private void callCallback(final Future<NodeApiCallResult> future, final Callback listener) {
-		try {
-
-			NodeApiCallResult result = future.get();
-
-			if (result.isSuccessful()) {
-				listener.success(result.getResponse());
-			} else {
-				listener.failure(result.getResponseType(), result.getResponse());
-			}
-
-		} catch (InterruptedException e) {
-			log.error("{} => InterruptedException while reading Node API call result.", configuration.getNodeUrn());
-			listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
-		} catch (ExecutionException e) {
-			if (e.getCause() instanceof TimeoutException) {
-				log.debug("{} => Call to Node API timed out.", configuration.getNodeUrn());
-				listener.timeout();
-			} else {
-				log.error("" + e, e);
-				listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
 			}
 		}
 	}

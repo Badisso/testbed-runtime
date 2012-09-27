@@ -37,23 +37,6 @@ public class WSNDeviceAppConnectorBenchmark {
 		Logging.setLoggingDefaults();
 	}
 
-	private static final WSNDeviceAppConnector.Callback NULL_CALLBACK = new WSNDeviceAppConnector.Callback() {
-		@Override
-		public void success(@Nullable final byte[] replyPayload) {
-			// nothing to do
-		}
-
-		@Override
-		public void failure(final byte responseType, final byte[] replyPayload) {
-			// nothing to do
-		}
-
-		@Override
-		public void timeout() {
-			// nothing to do
-		}
-	};
-
 	private static final String NODE_URN = "urn:local:0x1234";
 
 	@Mock
@@ -91,7 +74,7 @@ public class WSNDeviceAppConnectorBenchmark {
 		final DeviceFactory deviceFactory = injector.getInstance(DeviceFactory.class);
 
 		connector = factory.create(connectorConfiguration, deviceFactory, eventBus, asyncEventBus);
-		connector.setChannelPipeline(Lists.<Tuple<String, Multimap<String, String>>>newArrayList(), NULL_CALLBACK);
+		connector.setChannelPipeline(Lists.<Tuple<String, Multimap<String, String>>>newArrayList());
 		connector.startAndWait();
 
 		helper = new BenchmarkHelper();
@@ -140,7 +123,7 @@ public class WSNDeviceAppConnectorBenchmark {
 			connector.addListener(listener);
 
 			before = System.currentTimeMillis();
-			connector.sendMessage(toByteArray(helper.encode(message)), NULL_CALLBACK);
+			connector.sendMessage(toByteArray(helper.encode(message)));
 			future.get();
 			after = System.currentTimeMillis();
 			durations.add((float) (after - before));

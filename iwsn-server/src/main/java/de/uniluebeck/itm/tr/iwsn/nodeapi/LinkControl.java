@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.concurrent.Future;
 
 
@@ -36,7 +38,7 @@ public interface LinkControl {
 	 *
 	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	Future<NodeApiCallResult> setVirtualLink(long destNode);
+	ListenableFuture<NodeApiCallResult> setVirtualLink(long destNode);
 
 	/**
 	 * Destroy a virtual link between this node and destNode. The reserved broadcast ID is not allowed as parameter.
@@ -45,7 +47,7 @@ public interface LinkControl {
 	 *
 	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	Future<NodeApiCallResult> destroyVirtualLink(long destNode);
+	ListenableFuture<NodeApiCallResult> destroyVirtualLink(long destNode);
 
 	/**
 	 * Enable the physical radio link between this node and nodeB (if possible). The reserved broadcast ID is not allowed
@@ -55,7 +57,7 @@ public interface LinkControl {
 	 *
 	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	Future<NodeApiCallResult> enablePhysicalLink(long nodeB);
+	ListenableFuture<NodeApiCallResult> enablePhysicalLink(long nodeB);
 
 	/**
 	 * Disable the physical radio link between this node and nodeB. The reserved broadcast ID is not allowed as parameter.
@@ -64,6 +66,6 @@ public interface LinkControl {
 	 *
 	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	Future<NodeApiCallResult> disablePhysicalLink(long nodeB);
+	ListenableFuture<NodeApiCallResult> disablePhysicalLink(long nodeB);
 
 }

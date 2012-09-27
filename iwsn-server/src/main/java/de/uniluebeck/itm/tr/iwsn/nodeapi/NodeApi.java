@@ -107,11 +107,7 @@ public class NodeApi {
 					// execute job
 					if (log.isDebugEnabled()) {
 						log.debug("{} => Sending to node with request ID {}: {}",
-								new Object[]{
-										nodeUrn,
-										currentJob.requestId,
-										toPrintableString(currentJob.buffer.array(), 200)
-								}
+								nodeUrn, currentJob.requestId, toPrintableString(currentJob.buffer.array(), 200)
 						);
 					}
 
@@ -122,12 +118,10 @@ public class NodeApi {
 					);
 					boolean timeout = !currentJobDone.await(defaultTimeout, defaultTimeUnit);
 					log.debug("{} => Job with request ID {} done (timeout={}, success={}).",
-							new Object[]{
-									nodeUrn,
-									currentJob.requestId,
-									!timeout,
-									currentJobResult != null && currentJobResult.isSuccessful()
-							}
+							nodeUrn,
+							currentJob.requestId,
+							!timeout,
+							currentJobResult != null && currentJobResult.isSuccessful()
 					);
 
 					if (timeout) {
@@ -170,9 +164,9 @@ public class NodeApi {
 		this.deviceAdapter.setNodeApi(this);
 
 		this.interaction = new InteractionImpl(nodeUrn, this);
-		this.linkControl = new LinkControlImpl(nodeUrn, this);
+		this.linkControl = new LinkControlImpl(this);
 		this.networkDescription = new NetworkDescriptionImpl(nodeUrn, this);
-		this.nodeControl = new NodeControlImpl(nodeUrn, this);
+		this.nodeControl = new NodeControlImpl(this);
 	}
 
 	public Interaction getInteraction() {
@@ -208,11 +202,7 @@ public class NodeApi {
 
 		if (log.isDebugEnabled()) {
 			log.debug("{} => Enqueueing job to node with request ID {}: {}",
-					new Object[]{
-							nodeUrn,
-							requestId,
-							toPrintableString(buffer.array(), 200)
-					}
+					nodeUrn, requestId, toPrintableString(buffer.array(), 200)
 			);
 		}
 
@@ -251,7 +241,7 @@ public class NodeApi {
 
 		if (log.isDebugEnabled()) {
 			log.debug("{} => Received from node with request ID {} and response code {}: {}",
-					new Object[]{nodeUrn, requestId, responseCode, responsePayload}
+					nodeUrn, requestId, responseCode, responsePayload
 			);
 		}
 

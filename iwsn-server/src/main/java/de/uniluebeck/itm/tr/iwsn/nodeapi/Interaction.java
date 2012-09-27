@@ -23,49 +23,18 @@
 
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
-import java.util.concurrent.Future;
+import com.google.common.util.concurrent.ListenableFuture;
 
 
 public interface Interaction {
 
-	/**
-	 * // TODO documentation
-	 *
-	 * @param RSSI
-	 * @param LQI
-	 * @param destination
-	 * @param source
-	 * @param payload
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source,
-													 byte payload[]);
+	ListenableFuture<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source,
+															   byte payload[]);
 
-	/**
-	 * // TODO documentation
-	 *
-	 * @param destination
-	 * @param source
-	 * @param payload
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte payload[]);
+	ListenableFuture<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte payload[]);
 
-	/**
-	 * // TODO documentation
-	 *
-	 * @param binaryType
-	 * @param payload
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> sendByteMessage(byte binaryType, byte payload[]);
+	ListenableFuture<NodeApiCallResult> sendByteMessage(byte binaryType, byte payload[]);
 
-	/**
-	 * // TODO documentation
-	 *
-	 * @param payload
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> flashProgram(byte payload[]);
+	ListenableFuture<NodeApiCallResult> flashProgram(byte payload[]);
 
 }

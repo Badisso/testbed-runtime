@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
 import java.nio.ByteBuffer;
@@ -41,7 +42,7 @@ public class NetworkDescriptionImpl implements NetworkDescription {
 	}
 
 	@Override
-	public Future<NodeApiCallResult> getPropertyValue(byte property) {
+	public ListenableFuture<NodeApiCallResult> getPropertyValue(byte property) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.NetworkDescription.newGetPropertyValuePacket(
@@ -53,7 +54,7 @@ public class NetworkDescriptionImpl implements NetworkDescription {
 	}
 
 	@Override
-	public Future<NodeApiCallResult> getNeighborhood() {
+	public ListenableFuture<NodeApiCallResult> getNeighborhood() {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.NetworkDescription.newGetNeighborhoodPacket(

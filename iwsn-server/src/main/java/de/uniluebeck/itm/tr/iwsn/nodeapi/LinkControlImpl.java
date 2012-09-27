@@ -23,24 +23,22 @@
 
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.Future;
 
 class LinkControlImpl implements LinkControl {
 
-	private final String nodeUrn;
 
 	private final NodeApi nodeApi;
 
-	public LinkControlImpl(final String nodeUrn, NodeApi nodeApi) {
-		this.nodeUrn = nodeUrn;
+	public LinkControlImpl(final NodeApi nodeApi) {
 		this.nodeApi = nodeApi;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> setVirtualLink(long destinationNode) {
+	public ListenableFuture<NodeApiCallResult> setVirtualLink(long destinationNode) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.LinkControl.newSetVirtualLinkPacket(
@@ -52,7 +50,7 @@ class LinkControlImpl implements LinkControl {
 	}
 
 	@Override
-	public Future<NodeApiCallResult> destroyVirtualLink(long destinationNode) {
+	public ListenableFuture<NodeApiCallResult> destroyVirtualLink(long destinationNode) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.LinkControl.newDestroyVirtualLinkPacket(
@@ -64,7 +62,7 @@ class LinkControlImpl implements LinkControl {
 	}
 
 	@Override
-	public Future<NodeApiCallResult> enablePhysicalLink(long nodeB) {
+	public ListenableFuture<NodeApiCallResult> enablePhysicalLink(long nodeB) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.LinkControl.newEnablePhysicalLinkPacket(
@@ -76,7 +74,7 @@ class LinkControlImpl implements LinkControl {
 	}
 
 	@Override
-	public Future<NodeApiCallResult> disablePhysicalLink(long nodeB) {
+	public ListenableFuture<NodeApiCallResult> disablePhysicalLink(long nodeB) {
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.LinkControl.newDisablePhysicalLinkPacket(
