@@ -31,7 +31,11 @@ public class ShiroSNAATest {
 
 	private static final String EXPERIMENTER1_PASS = "Pass1";
 	private static final String EXPERIMENTER1 = "Experimenter1";
-	private static final UsernamePasswordToken experimenter_token = new UsernamePasswordToken(EXPERIMENTER1, EXPERIMENTER1_PASS);
+	private static final UsernamePasswordToken experimenter1_token = new UsernamePasswordToken(EXPERIMENTER1, EXPERIMENTER1_PASS);
+
+    private static final String EXPERIMENTER2_PASS = "Pass2";
+    private static final String EXPERIMENTER2 = "Experimenter1";
+    private static final UsernamePasswordToken experimenter2_token = new UsernamePasswordToken(EXPERIMENTER2, EXPERIMENTER2_PASS);
 
 	private static final String ADMINISTRATOR2_PASS = "Pass2";
 	private static final String ADMINISTRATOR2 = "Administrator2";
@@ -73,4 +77,25 @@ public class ShiroSNAATest {
 			fail();
 		}
 	}
+
+    @Test
+    public void testAuthenticationFailDueToWrongPasswd(){
+        // set up Shiro framework
+        AuthenticationTriple authTriple = new AuthenticationTriple();
+        authTriple.setUsername(EXPERIMENTER1);
+        authTriple.setPassword(EXPERIMENTER2_PASS);
+        authTriple.setUrnPrefix(urnPrefix);
+        List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
+        authenticationData.add(authTriple);
+        ShiroSNAA shiroSNAA = new ShiroSNAA(realm,urnPrefix);
+        try {
+            shiroSNAA.authenticate(authenticationData);
+            fail();
+        } catch (AuthenticationExceptionException e) {
+            // an exception has to be thrown
+        } catch (SNAAExceptionException e) {
+            // an exception has to be thrown
+        }
+    }
+
 }
