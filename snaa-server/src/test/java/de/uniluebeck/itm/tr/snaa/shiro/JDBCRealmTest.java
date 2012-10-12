@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package shiro;
+package de.uniluebeck.itm.tr.snaa.shiro;
 
 import static org.junit.Assert.*;
 

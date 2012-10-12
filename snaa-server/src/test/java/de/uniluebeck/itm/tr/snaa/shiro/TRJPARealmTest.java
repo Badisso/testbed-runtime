@@ -1,4 +1,4 @@
-package shiro;
+package de.uniluebeck.itm.tr.snaa.shiro;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

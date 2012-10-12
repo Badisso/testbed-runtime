@@ -1,7 +1,8 @@
-package shiro;
+package de.uniluebeck.itm.tr.snaa.shiro;
 
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
 import de.uniluebeck.itm.tr.util.Logging;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
@@ -16,6 +17,8 @@ import org.apache.shiro.util.Factory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -185,6 +188,12 @@ public class ShiroSNAATest {
         }catch (Exception e){
             fail();
         }
+    }
+    
+    @Test
+    public void testGetNodeGroupsForNodeURNs(){
+    	ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
+    	shiroSNAA.getNodeGroupsForNodeURNs(Lists.newArrayList(new NodeUrn("urn:wisebed:ulanc1:0x2345")));
     }
 
 
