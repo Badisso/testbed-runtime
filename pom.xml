@@ -29,7 +29,7 @@
 	<groupId>de.uniluebeck.itm</groupId>
 	<artifactId>tr</artifactId>
 	<packaging>pom</packaging>
-	<version>0.8.3-SNAPSHOT</version>
+	<version>0.10-SNAPSHOT</version>
 	<name>TR</name>
 
 	<modules>
@@ -42,8 +42,6 @@
 		<module>snaa-server</module>
 
 		<module>federator-utils</module>
-		<module>wiseml</module>
-		<module>wiseml-merger</module>
 
 	</modules>
 
@@ -86,16 +84,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.wiseml</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.wiseml-merger</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.iwsn-server</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -125,29 +113,29 @@
 			<dependency>
 				<groupId>eu.wisebed</groupId>
 				<artifactId>api</artifactId>
-				<version>2.3.1</version>
+				<version>3.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.wisebed</groupId>
 				<artifactId>wiseml</artifactId>
-				<version>1.0</version>
+				<version>1.0.1</version>
 			</dependency>
 
 			<!-- other itm projects -->
 			<dependency>
 				<groupId>de.uniluebeck.itm.itmutils</groupId>
 				<artifactId>itmutils</artifactId>
-				<version>0.4</version>
+				<version>0.4.1</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
 				<artifactId>wsn-device-utils</artifactId>
-				<version>1.1.2-SNAPSHOT</version>
+				<version>1.1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>wsn-device-drivers-factories</artifactId>
-				<version>1.1.2-SNAPSHOT</version>
+				<version>1.1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-iostream</groupId>
@@ -157,12 +145,12 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>protocol-collection</artifactId>
-				<version>1.5-SNAPSHOT</version>
+				<version>1.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>factory</artifactId>
-				<version>1.5-SNAPSHOT</version>
+				<version>1.5</version>
 			</dependency>
 
 			<!-- 3rd party libraries -->
@@ -353,24 +341,24 @@
 			<dependency>
 				<groupId>org.glassfish.metro</groupId>
 				<artifactId>webservices-rt</artifactId>
-				<version>2.1.1</version>
+				<version>2.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.metro</groupId>
 				<artifactId>webservices-api</artifactId>
-				<version>2.1.1</version>
+				<version>2.2</version>
 			</dependency>
 
 			<!-- JAXB reference implementation -->
 			<dependency>
 				<groupId>javax.xml.bind</groupId>
 				<artifactId>jaxb-api</artifactId>
-				<version>2.2.4</version>
+				<version>2.2.6</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sun.xml.bind</groupId>
 				<artifactId>jaxb-impl</artifactId>
-				<version>2.2.4</version>
+				<version>2.2.6</version>
 			</dependency>
 
 			<!-- unit testing dependencies -->
@@ -471,29 +459,7 @@
 		</extensions>
 	</build>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>onejar-maven-plugin.googlecode.com</id>
-			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>onejar-maven-plugin-itm-patch</id>
-			<url>http://www.itm.uni-luebeck.de/projects/maven/releases/</url>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<repositories>
-		<repository>
-			<id>google-maven-repository</id>
-			<name>Google Maven Repository</name>
-			<url>http://google-maven-repository.googlecode.com/svn/repository/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
 		<repository>
 			<id>itm-maven-repository-releases</id>
 			<url>http://maven.itm.uni-luebeck.de/content/repositories/releases/</url>
@@ -515,26 +481,6 @@
 			</snapshots>
 		</repository>
 		<repository>
-			<id>repository.tu-bs.de</id>
-			<url>http://www.ibr.cs.tu-bs.de/maven/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>repository.jboss.org</id>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net Repository for Maven 2</name>
-			<url>http://download.java.net/maven/2/</url>
-		</repository>
-		<repository>
 			<id>wisebed-maven-repository-releases</id>
 			<url>http://wisebed.eu/maven/releases/</url>
 			<releases>
@@ -552,6 +498,27 @@
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>jboss-public</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>maven2-repository.dev.java.net</id>
+			<name>Java.net Repository for Maven 2</name>
+			<url>http://download.java.net/maven/2/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 	</repositories>

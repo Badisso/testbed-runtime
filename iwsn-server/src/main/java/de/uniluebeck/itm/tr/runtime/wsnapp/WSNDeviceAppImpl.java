@@ -41,16 +41,13 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagin
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -119,7 +116,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 			boolean isRecipient = wsnDeviceAppConfiguration.getNodeUrn().equals(msg.getTo());
 			boolean isOperationInvocation = WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST.equals(msg.getMsgType());
-			boolean isListenerManagement = WSNApp.MSG_TYPE_LISTENER_MANAGEMENT.equals(msg.getMsgType());
+			boolean isListenerManagement =
+					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT.equals(msg.getMsgType()) && msg.hasReplyWith();
 
 			if (isRecipient && isOperationInvocation) {
 
@@ -180,8 +178,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 				switch (invocation.getOperation()) {
 					case FLASH_PROGRAMS:
-						WSNAppMessages.Program program = WSNAppMessages.Program.parseFrom(invocation.getArguments());
-						executeFlashPrograms(program.getProgram().toByteArray(), responder);
+						executeFlashPrograms(invocation.getArguments().toByteArray(), responder);
 						break;
 					case FLASH_DEFAULT_IMAGE:
 						executeFlashDefaultImage(responder);
@@ -202,16 +199,12 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				@Override
 				public void receivedPacket(final byte[] bytes) {
 
-					XMLGregorianCalendar now =
-							datatypeFactory
-									.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance());
+					WSNAppMessages.UpstreamMessage.Builder messageBuilder = WSNAppMessages.UpstreamMessage.newBuilder()
+							.setSourceNodeUrn(wsnDeviceAppConfiguration.getNodeUrn())
+							.setTimestamp(DateTime.now().toString())
+							.setMessageBytes(ByteString.copyFrom(bytes));
 
-					WSNAppMessages.Message.Builder messageBuilder = WSNAppMessages.Message.newBuilder()
-							.setSourceNodeId(wsnDeviceAppConfiguration.getNodeUrn())
-							.setTimestamp(now.toXMLFormat())
-							.setBinaryData(ByteString.copyFrom(bytes));
-
-					WSNAppMessages.Message message = messageBuilder.build();
+					WSNAppMessages.UpstreamMessage message = messageBuilder.build();
 
 					for (String nodeMessageListener : nodeMessageListeners) {
 
@@ -235,11 +228,18 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				}
 
 				@Override
-				public void receiveNotification(final String notificationString) {
+				public void receiveNotification(@Nullable final String nodeUrn, final DateTime timestamp,
+												final String msg) {
 
-					WSNAppMessages.Notification message = WSNAppMessages.Notification.newBuilder()
-							.setMessage(notificationString)
-							.build();
+					final WSNAppMessages.Notification.Builder builder = WSNAppMessages.Notification.newBuilder()
+							.setTimestamp(timestamp.toString())
+							.setMsg(msg);
+
+					if (nodeUrn != null) {
+						builder.setNodeUrn(nodeUrn);
+					}
+
+					WSNAppMessages.Notification message = builder.build();
 
 					for (String nodeMessageListener : nodeMessageListeners) {
 
@@ -247,7 +247,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 							log.debug("{} => Delivering notification to {}: {}", new String[]{
 									wsnDeviceAppConfiguration.getNodeUrn(),
 									nodeMessageListener,
-									notificationString
+									msg
 							}
 							);
 						}
@@ -280,29 +280,15 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 	public WSNDeviceAppImpl(@Assisted @Nonnull final TestbedRuntime testbedRuntime,
 							@Assisted @Nonnull final DeviceFactory deviceFactory,
 							@Assisted @Nonnull final WSNDeviceAppConfiguration wsnDeviceAppConfiguration,
-							@Assisted
-							@Nonnull
+							@Assisted @Nonnull
 							final WSNDeviceAppConnectorConfiguration wsnDeviceAppConnectorConfiguration,
 							@Nonnull final WSNDeviceAppConnectorFactory wsnDeviceAppConnectorFactory) {
 
-		checkNotNull(testbedRuntime);
-		checkNotNull(deviceFactory);
-		checkNotNull(wsnDeviceAppConfiguration);
-		checkNotNull(wsnDeviceAppConnectorConfiguration);
-		checkNotNull(wsnDeviceAppConnectorFactory);
-
-		this.testbedRuntime = testbedRuntime;
-		this.deviceFactory = deviceFactory;
-		this.wsnDeviceAppConfiguration = wsnDeviceAppConfiguration;
-		this.wsnDeviceAppConnectorFactory = wsnDeviceAppConnectorFactory;
-		this.wsnDeviceAppConnectorConfiguration = wsnDeviceAppConnectorConfiguration;
-
-		try {
-			this.datatypeFactory = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			log.error(wsnDeviceAppConfiguration.getNodeUrn() + " => " + e, e);
-		}
-
+		this.testbedRuntime = checkNotNull(testbedRuntime);
+		this.deviceFactory = checkNotNull(deviceFactory);
+		this.wsnDeviceAppConfiguration = checkNotNull(wsnDeviceAppConfiguration);
+		this.wsnDeviceAppConnectorFactory = checkNotNull(wsnDeviceAppConnectorFactory);
+		this.wsnDeviceAppConnectorConfiguration = checkNotNull(wsnDeviceAppConnectorConfiguration);
 	}
 
 	/**
@@ -430,11 +416,13 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				connector.resetNode(callback);
 				break;
 
-			case SEND:
+			case SEND_DOWNSTREAM:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> send()", wsnDeviceAppConfiguration.getNodeUrn());
 				try {
 
-					WSNAppMessages.Message message = WSNAppMessages.Message.parseFrom(invocation.getArguments());
+					WSNAppMessages.DownstreamMessage message = WSNAppMessages.DownstreamMessage
+							.parseFrom(invocation.getArguments());
+
 					executeSendMessage(message, callback);
 
 				} catch (InvalidProtocolBufferException e) {
@@ -569,12 +557,10 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 		}
 	}
 
-	public void executeSendMessage(final WSNAppMessages.Message message, final ReplyingNodeApiCallback callback) {
-
+	public void executeSendMessage(final WSNAppMessages.DownstreamMessage message,
+								   final ReplyingNodeApiCallback callback) {
 		log.debug("{} => WSNDeviceAppImpl.executeSendMessage()", wsnDeviceAppConfiguration.getNodeUrn());
-
-		byte[] messageBytes = message.getBinaryData().toByteArray();
-		connector.sendMessage(messageBytes, callback);
+		connector.sendMessage(message.getMessageBytes().toByteArray(), callback);
 	}
 
 	public void executeFlashDefaultImage(final SingleRequestMultiResponseListener.Responder responder) {
@@ -644,8 +630,6 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 			return null;
 		}
 	}
-
-	private DatatypeFactory datatypeFactory = null;
 
 	@Override
 	public String getName() {

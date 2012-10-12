@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable;
 
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -54,7 +55,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 
 @Singleton
-class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
+class UnreliableMessagingServiceImpl extends AbstractService implements UnreliableMessagingService {
 
 	private static final Logger log = LoggerFactory.getLogger(UnreliableMessagingService.class);
 
@@ -134,70 +135,75 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 				// try to get a connection
 				Connection connection = getConnection(msg);
 
-				// try to send the message, fails silently if one of the
-				// arguments is null. this results in a drop of the message.
+				log.debug("UnreliableMessagingService.DispatcherRunnable.dispatchMessages(): got connection {}", connection);
+
 				final String to = msg.getTo();
 
-				if (connection != null) {
+				if (connection == null) {
+					String warningMsg = "No connection to \"" + to + "\"!";
+					log.warn(warningMsg);
+					messageCacheEntry.future.setException(new RuntimeException(warningMsg));
+					messageEventService.dropped(msg);
+					return;
+				}
+
+				// try to send the message, fails silently if one of the
+				// arguments is null. this results in a drop of the message.
+				try {
+
+					if (!connection.isConnected()) {
+						throw new IOException("Connection broke!");
+					}
+
+					log.trace("Writing message to connection output stream ({})", connection.getOutputStream());
+					sendMessage(msg, connection);
+					log.trace("Wrote message to connection output stream ({})", connection.getOutputStream());
+					messageCacheEntry.future.set(null);
+					messageEventService.sent(msg);
+
+				} catch (IOException e) {
+
+					log.trace("IOException when trying to send message to {}. Trying to reconnect...", to);
+
+					connection.disconnect();
+
+					// in case the remote host got e.g. restarted it may be that the current connection is
+					// broken. give it a second try here by creating a new connection and only assume sending
+					// failed if this doesn't work now
+					connection = getConnection(msg);
+
+					if (connection == null) {
+						String warningMsg = "No connection to " + to + ".";
+						log.warn(warningMsg);
+						messageCacheEntry.future.setException(new RuntimeException(warningMsg));
+						messageEventService.dropped(msg);
+						return;
+					}
 
 					try {
 
-						log.trace("Writing message to connection output stream ({})", connection.getOutputStream());
 						sendMessage(msg, connection);
-						log.trace("Wrote message to connection output stream ({})", connection.getOutputStream());
 						messageCacheEntry.future.set(null);
 						messageEventService.sent(msg);
 
-					} catch (IOException e) {
-
-						log.trace("IOException when trying to send message to {}. Trying to reconnect...", to);
-
-						connection.disconnect();
-
-						// in case the remote host got e.g. restarted it may be that the current connection is
-						// broken. give it a second try here by creating a new connection and only assume sending
-						// failed if this doesn't work now
-						connection = getConnection(msg);
-
-						if (connection == null) {
-							String warningMsg = "No connection to " + to + ". Dropping message " + msg;
-							log.warn(warningMsg);
-							messageCacheEntry.future.setException(new RuntimeException(warningMsg));
-							messageEventService.dropped(msg);
-							return;
-						}
-
-						try {
-
-							sendMessage(msg, connection);
-							messageCacheEntry.future.set(null);
-							messageEventService.sent(msg);
-
-						} catch (Exception e1) {
-
-							String warningMsg =
-									"Can't send message to " + to + " because the attempt threw an exception: " + e1;
-							log.warn(warningMsg);
-							messageCacheEntry.future.setException(new RuntimeException(warningMsg));
-							messageEventService.dropped(msg);
-						}
-
-					} catch (Exception e) {
+					} catch (Exception e1) {
 
 						String warningMsg =
-								"Exception while serializing message to " + to + ". Dropping message: " + msg;
+								"Can't send message to " + to + " because the attempt threw an exception: " + e1;
 						log.warn(warningMsg);
 						messageCacheEntry.future.setException(new RuntimeException(warningMsg));
 						messageEventService.dropped(msg);
 					}
 
-				} else {
+				} catch (Exception e) {
 
-					String warningMsg = "No connection to " + to + ". Dropping message " + msg;
+					String warningMsg =
+							"Exception while serializing message to " + to + ". Dropping message: " + msg;
 					log.warn(warningMsg);
 					messageCacheEntry.future.setException(new RuntimeException(warningMsg));
 					messageEventService.dropped(msg);
 				}
+
 			}
 
 		}
@@ -338,34 +344,49 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		if (log.isTraceEnabled()) {
-			messageEventService.addListener(new MessageEventListener() {
-				@Override
-				public void messageSent(final Messages.Msg msg) {
-					log.trace("Message sent: {}", MessageTools.toString(msg));
-				}
+		try {
 
-				@Override
-				public void messageDropped(final Messages.Msg msg) {
-					log.warn("Message dropped: {}", MessageTools.toString(msg));
-				}
+			if (log.isTraceEnabled()) {
+				messageEventService.addListener(new MessageEventListener() {
+					@Override
+					public void messageSent(final Messages.Msg msg) {
+						log.trace("Message sent: {}", MessageTools.toString(msg));
+					}
 
-				@Override
-				public void messageReceived(final Messages.Msg msg) {
-					log.trace("Message received: {}", MessageTools.toString(msg));
+					@Override
+					public void messageDropped(final Messages.Msg msg) {
+						log.warn("Message dropped: {}", MessageTools.toString(msg));
+					}
+
+					@Override
+					public void messageReceived(final Messages.Msg msg) {
+						log.trace("Message received: {}", MessageTools.toString(msg));
+					}
 				}
+				);
 			}
-			);
-		}
 
-		dequeuingThread.start();
+			dequeuingThread.start();
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
-		dequeuingThread.interrupt();
-	}
+	protected void doStop() {
 
+		try {
+
+			dequeuingThread.interrupt();
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 }

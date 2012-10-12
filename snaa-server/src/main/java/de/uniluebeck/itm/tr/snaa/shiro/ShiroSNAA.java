@@ -34,6 +34,7 @@ import java.util.Random;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -74,7 +75,7 @@ public class ShiroSNAA implements SNAA {
 	 * Access authorization for users is performed for nodes which uniform resource locator starts
 	 * with this prefix.
 	 */
-	protected String urnPrefix;
+	protected NodeUrnPrefix urnPrefix;
 
 	/**
 	 * A security component that can access application-specific security entities such as users,
@@ -97,7 +98,7 @@ public class ShiroSNAA implements SNAA {
 	 *            Access authorization for users is performed for nodes which uniform resource
 	 *            locator starts with this prefix.
 	 */
-	public ShiroSNAA(Realm realm, String urnPrefix) {
+	public ShiroSNAA(Realm realm, NodeUrnPrefix urnPrefix) {
 		this.realm = realm;
 		this.urnPrefix = urnPrefix;
 	}

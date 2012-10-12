@@ -25,6 +25,9 @@ package de.uniluebeck.itm.tr.iwsn.overlay.messaging.server;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -48,10 +51,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 
 
 @Singleton
-class MessageServerServiceImpl implements MessageServerService, ServerConnectionListener, ConnectionListener {
+class MessageServerServiceImpl extends AbstractService implements MessageServerService {
 
 	private static final Logger log = LoggerFactory.getLogger(MessageServerServiceImpl.class);
 
@@ -64,8 +68,6 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 	private final UnreliableMessagingService unreliableMessagingService;
 
 	private final ScheduledExecutorService scheduler;
-
-	private volatile boolean running;
 
 	/**
 	 * Maps a connection type (e.g. tcp, udp, ...) to a set of {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnectionFactory}
@@ -136,18 +138,22 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 
 	private final LocalNodeNameManager localNodeNameManager;
 
+	private final EventBus eventBus;
+
 	@Inject
 	public MessageServerServiceImpl(final MessageEventService messageEventService,
 									final UnreliableMessagingService unreliableMessagingService,
 									@Named(TestbedRuntime.INJECT_MESSAGE_SERVER_SCHEDULER)
 									final ScheduledExecutorService scheduler,
 									final Set<ServerConnectionFactory> serverConnectionFactories,
-									final LocalNodeNameManager localNodeNameManager) {
+									final LocalNodeNameManager localNodeNameManager,
+									final EventBus eventBus) {
 
 		this.messageEventService = messageEventService;
 		this.unreliableMessagingService = unreliableMessagingService;
 		this.scheduler = scheduler;
 		this.localNodeNameManager = localNodeNameManager;
+		this.eventBus = eventBus;
 
 		// remember ServerConnectionFactory instances according to type
 		Map<String, Set<ServerConnectionFactory>> scfs = new HashMap<String, Set<ServerConnectionFactory>>();
@@ -162,17 +168,44 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 		// now transform them to immutable data structures to reflect the semantics as they wont change anyway
 		ImmutableMap.Builder<String, ImmutableSet<ServerConnectionFactory>> mapBuilder =
 				new ImmutableMap.Builder<String, ImmutableSet<ServerConnectionFactory>>();
+
 		for (Map.Entry<String, Set<ServerConnectionFactory>> entry : scfs.entrySet()) {
 			mapBuilder.put(entry.getKey(), ImmutableSet.copyOf(entry.getValue()));
 		}
+
 		this.serverConnectionFactories = mapBuilder.build();
 
 	}
 
 	@Override
-	public synchronized void start() throws Exception {
-		running = true;
-		openConnections();
+	protected synchronized void doStart() {
+
+		try {
+
+			eventBus.register(this);
+			openConnections();
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected synchronized void doStop() {
+
+		try {
+
+			closeConnections();
+			eventBus.unregister(this);
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
 	}
 
 	private synchronized void openConnections() {
@@ -182,7 +215,6 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 				new EstablishServerConnectionRunnable(entry.getKey()).run();
 			}
 		}
-
 	}
 
 	private synchronized ServerConnection tryCreateServerConnection(Tuple<String, String> config)
@@ -199,55 +231,38 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			throw new ConnectionTypeUnavailableException(type);
 		}
 
-		ServerConnectionFactory cf = connectionFactories.iterator().next();
-
-		log.debug("Found ServerConnectionFactory: {}", cf);
-
-		// try to bind
-		ServerConnection serverConnection = cf.create(address);
-		serverConnection.addListener(this);
-
-		return serverConnection;
-
+		ServerConnectionFactory serverConnectionFactory = connectionFactories.iterator().next();
+		return serverConnectionFactory.create(address, eventBus);
 	}
 
-	private synchronized void closeConnections() {
+	@Subscribe
+	public synchronized void onServerConnectionOpenedEvent(ServerConnectionOpenedEvent event) {
 
-		for (ServerConnection serverConnection : serverConnections.values()) {
-			serverConnection.unbind();
-		}
+		final String type = event.getServerConnection().getType();
+		final String address = event.getServerConnection().getAddress();
+		final Tuple<String, String> key = new Tuple<String, String>(type, address);
 
-		for (Set<Connection> set : openClientConnections.values()) {
-			for (Connection connection : set) {
-				connection.removeListener(this);
-				connection.disconnect();
-			}
-		}
-
+		serverConnections.put(key, event.getServerConnection());
 	}
 
-	@Override
-	public synchronized void stop() {
-		closeConnections();
-		running = false;
+	@Subscribe
+	public synchronized void onServerConnectionClosedEvent(ServerConnectionClosedEvent event) {
+
+		final String type = event.getServerConnection().getType();
+		final String address = event.getServerConnection().getAddress();
+		final Tuple<String, String> key = new Tuple<String, String>(type, address);
+
+		serverConnections.remove(key);
 	}
 
-	@Override
-	public synchronized void serverConnectionOpened(ServerConnection serverConnection) {
-		// nothing to do as instance is added to serverConnections in establishConnections
-	}
+	@Subscribe
+	public synchronized void onConnectionAcceptedEvent(ConnectionAcceptedEvent event) {
 
-	@Override
-	public synchronized void serverConnectionClosed(ServerConnection serverConnection) {
-		serverConnections.remove(new Tuple<String, String>(serverConnection.getType(), serverConnection.getAddress()));
-	}
+		final ServerConnection serverConnection = event.getServerConnection();
+		final Connection connection = event.getConnection();
 
-	@Override
-	public synchronized void connectionEstablished(ServerConnection serverConnection, Connection connection) {
-
-		log.trace("MessageServerServiceImpl.connectionEstablished({}, {})", serverConnection, connection);
+		log.trace("MessageServerServiceImpl.onConnectionAcceptedEvent({}, {})", serverConnection, connection);
 		messageReaderThreadPool.execute(new MessageTools.MessageReader(serverConnection, connection, messageCallback));
-		connection.addListener(this);
 
 		Set<Connection> set = openClientConnections.get(serverConnection);
 		if (set == null) {
@@ -258,18 +273,18 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 
 	}
 
-	@Override
-	public synchronized void connectionOpened(Connection connection) {
-		// this should do nothing i think ;-)
+	@Subscribe
+	public synchronized void onConnectionOpenedEvent(ConnectionOpenedEvent event) {
+		// nothing to do, we only care about accepted incoming connection from which we read incoming messages
 	}
 
-	@Override
-	public synchronized void connectionClosed(Connection connection) {
+	@Subscribe
+	public synchronized void onConnectionClosedEvent(ConnectionClosedEvent event) {
 
 		for (Map.Entry<ServerConnection, Set<Connection>> entry : openClientConnections.entrySet()) {
 			for (Iterator<Connection> iterator = entry.getValue().iterator(); iterator.hasNext(); ) {
 				Connection conn = iterator.next();
-				if (conn == connection) {
+				if (conn == event.getConnection()) {
 					iterator.remove();
 				}
 			}
@@ -300,10 +315,8 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 				serverConnection.bind();
 				log.debug("Successfully bound serverConnection: {}", serverConnection);
 
-
 				// if server connection is not successfully bound we have to reschedule here
 				return serverConnection.isBound();
-
 			}
 
 			return false;
@@ -318,7 +331,6 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			log.info("IOException while binding ServerConnection!", e);
 			return false;
 		}
-
 	}
 
 	private class CloseServerConnectionRunnable implements Runnable {
@@ -334,7 +346,6 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			ServerConnection serverConnection = serverConnections.get(config);
 			serverConnection.unbind();
 		}
-
 	}
 
 	private class EstablishServerConnectionRunnable implements Runnable {
@@ -353,7 +364,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 					reschedule();
 				}
 			} catch (ConnectionInvalidAddressException e) {
-				// errors were logged before so exit 
+				// errors were logged before so exit
 			} catch (ConnectionTypeUnavailableException e) {
 				// errors were logged before so exit
 			}
@@ -376,12 +387,11 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 		serverConnections.put(config, null);
 		messageFilterChains.put(config, new MessageFilterChain(filters));
 
-		if (running) {
+		if (isRunning()) {
 			scheduler.schedule(new EstablishServerConnectionRunnable(config), 0, TimeUnit.MILLISECONDS);
 		}
 
 	}
-
 
 	@Override
 	public synchronized void removeMessageServer(String type, String address) {
@@ -393,7 +403,21 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 		scheduler.schedule(new CloseServerConnectionRunnable(config), 0, TimeUnit.MILLISECONDS);
 
 		// removal from serverConnections will happen through being notified by the connection itself
-
 	}
 
+	private synchronized void closeConnections() {
+
+		final Collection<ServerConnection> serverConnections = newArrayList(this.serverConnections.values());
+		final Collection<Set<Connection>> clientConnections = newArrayList(openClientConnections.values());
+
+		for (ServerConnection serverConnection : serverConnections) {
+			serverConnection.unbind();
+		}
+
+		for (Set<Connection> set : clientConnections) {
+			for (Connection connection : set) {
+				connection.disconnect();
+			}
+		}
+	}
 }

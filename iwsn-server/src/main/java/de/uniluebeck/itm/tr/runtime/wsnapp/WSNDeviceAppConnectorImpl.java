@@ -57,6 +57,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.iostream.IOStreamAddress;
 import org.jboss.netty.channel.iostream.IOStreamChannelFactory;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,7 +226,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		String nodeMacAddressString = StringUtils.getUrnSuffix(configuration.getNodeUrn());
 		MacAddress nodeMacAddress = new MacAddress(nodeMacAddressString);
 
-		final MacAddress macAddress = (MacAddress) deviceEvent.getDeviceInfo().getMacAddress();
+		final MacAddress macAddress = deviceEvent.getDeviceInfo().getMacAddress();
 		boolean eventHasSameMac = nodeMacAddress.equals(macAddress);
 		final String nodeUSBChipID = configuration.getNodeUSBChipID();
 		boolean eventHasSameUSBChipId = nodeUSBChipID != null &&
@@ -246,7 +247,9 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 					}
 					break;
 				case REMOVED:
-					sendNotification("Device " + configuration.getNodeUrn() + " was detached from the gateway.");
+					sendNotification(configuration.getNodeUrn(),
+							"Device " + configuration.getNodeUrn() + " was detached from the gateway."
+					);
 					disconnect();
 					break;
 			}
@@ -254,9 +257,9 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 	}
 
-	private void sendNotification(final String notificationMessage) {
+	private void sendNotification(@Nullable final String nodeUrn, final String msg) {
 		for (NodeOutputListener listener : listenerManager.getListeners()) {
-			listener.receiveNotification(notificationMessage);
+			listener.receiveNotification(nodeUrn, new DateTime(), msg);
 		}
 	}
 
@@ -694,74 +697,45 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", configuration.getNodeUrn());
 
-		if (isConnected()) {
-
-			if (isVirtualLinkMessage(messageBytes)) {
-
-				log.debug("{} => Delivering virtual link message over node API", configuration.getNodeUrn());
-
-				ByteBuffer messageBuffer = ByteBuffer.wrap(messageBytes);
-
-				final byte RSSI = messageBuffer.get(3);
-				final byte LQI = messageBuffer.get(4);
-				final byte payloadLength = messageBuffer.get(5);
-				final long destination = messageBuffer.getLong(6);
-				final long source = messageBuffer.getLong(14);
-				final byte[] payload = new byte[payloadLength];
-
-				System.arraycopy(messageBytes, 22, payload, 0, payloadLength);
-
-				nodeApiExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						callCallback(
-								nodeApi.getInteraction().sendVirtualLinkMessage(RSSI, LQI, destination, source,
-										payload
-								),
-								callback
-						);
-					}
-				}
-				);
-
-			} else {
-
-				log.debug("{} => Delivering message directly over iSenseDevice.send(), i.e. not as a virtual link "
-						+ "message.", configuration.getNodeUrn()
-				);
-
-				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
-
-				deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(final ChannelFuture future) throws Exception {
-
-						if (future.isSuccess()) {
-
-							callback.success(null);
-
-						} else if (future.isCancelled()) {
-
-							String msg = "Sending message was canceled.";
-							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-							callback.failure((byte) -3, msg.getBytes());
-
-						} else {
-
-							String msg = "Failed sending message. Reason: " + future.getCause();
-							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-							callback.failure((byte) -2, msg.getBytes());
-						}
-					}
-				}
-				);
-
-			}
-
-		} else {
+		if (!isConnected()) {
 			callback.failure((byte) -1, "Node is not connected.".getBytes());
+			return;
 		}
 
+		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
+
+		if (log.isDebugEnabled()) {
+			log.debug("{} => Delivering message: ",
+					configuration.getNodeUrn(),
+					ChannelBufferTools.toPrintableString(buffer, 200)
+			);
+		}
+
+		deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
+
+			@Override
+			public void operationComplete(final ChannelFuture future) throws Exception {
+
+				if (future.isSuccess()) {
+
+					callback.success(null);
+
+				} else if (future.isCancelled()) {
+
+					String msg = "Sending message was canceled.";
+					log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+					callback.failure((byte) -3, msg.getBytes());
+
+				} else {
+
+					@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+					String msg = "Failed sending message. Reason: " + future.getCause();
+					log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+					callback.failure((byte) -2, msg.getBytes());
+				}
+			}
+		}
+		);
 	}
 
 	@Override
@@ -859,15 +833,9 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e)
 				throws Exception {
 
-			log.warn(
-					"{} => {} in pipeline: {}",
-					new Object[]{
-							configuration.getNodeUrn(),
-							e.getCause().getClass().getSimpleName(),
-							e.getCause().getMessage()
-					}
-			);
+			log.warn("{} => Exception in pipeline: {}", configuration.getNodeUrn(), e);
 
+			@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 			String notification = "The pipeline seems to be wrongly configured. A(n) " +
 					e.getCause().getClass().getSimpleName() +
 					" was caught and contained the following message: " +
@@ -913,7 +881,10 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 					new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
 			);
 
-			sendNotification("Device " + configuration.getNodeUrn() + " was attached to the gateway.");
+			sendNotification(
+					configuration.getNodeUrn(),
+					"Device " + configuration.getNodeUrn() + " was attached to the gateway."
+			);
 
 			final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(nodeApiExecutor));
 			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
@@ -955,7 +926,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		}
 
 		if (log.isTraceEnabled()) {
-			log.trace("{} => WSNDeviceAppConnectorImpl.receivePacket: {}",
+			log.trace("{} => WSNDeviceAppConnectorImpl.onBytesReceivedFromDevice: {}",
 					configuration.getNodeUrn(),
 					ChannelBufferTools.toPrintableString(buffer, 200)
 			);
@@ -1002,7 +973,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
 
 			for (NodeOutputListener listener : listenerManager.getListeners()) {
-				listener.receiveNotification(notification);
+				listener.receiveNotification(configuration.getNodeUrn(), new DateTime(), notification);
 			}
 
 			pipelineMisconfigurationTimeDiff.touch();
@@ -1022,7 +993,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 							configuration.getMaximumMessageRate() + " per second).";
 
 			for (NodeOutputListener listener : listenerManager.getListeners()) {
-				listener.receiveNotification(notification);
+				listener.receiveNotification(configuration.getNodeUrn(), new DateTime(), notification);
 			}
 
 			packetsDroppedSinceLastNotification = 0;
@@ -1116,12 +1087,6 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 				log.warn("{} => Exception while closing DeviceConnection!", configuration.getNodeUrn(), e);
 			}
 		}
-	}
-
-	private boolean isVirtualLinkMessage(final byte[] messageBytes) {
-		return messageBytes.length > 1 &&
-				messageBytes[0] == MESSAGE_TYPE_WISELIB_DOWNSTREAM &&
-				messageBytes[1] == VIRTUAL_LINK_MESSAGE;
 	}
 
 	private void callCallback(final Future<NodeApiCallResult> future, final Callback listener) {
