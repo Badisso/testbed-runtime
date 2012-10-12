@@ -23,18 +23,13 @@
 
 package de.uniluebeck.itm.tr.snaa.shiro;
 
-import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertAuthenticationCount;
-import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertUrnPrefixServed;
-
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-
+import com.google.common.collect.Lists;
+import de.uniluebeck.itm.tr.snaa.SNAAHelper;
+import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.snaa.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -43,16 +38,15 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 
-import de.uniluebeck.itm.tr.snaa.SNAAHelper;
-import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.snaa.Action;
-import eu.wisebed.api.snaa.AuthenticationExceptionException;
-import eu.wisebed.api.snaa.AuthenticationTriple;
-import eu.wisebed.api.snaa.SNAA;
-import eu.wisebed.api.snaa.SNAAException;
-import eu.wisebed.api.snaa.SNAAExceptionException;
-import eu.wisebed.api.snaa.SecretAuthenticationKey;
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
+import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertAuthenticationCount;
+import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertUrnPrefixServed;
 /**
  * This authentication and authorization component is responsible for
  * <ol>
@@ -81,12 +75,16 @@ public class ShiroSNAA implements SNAA {
 	 * A security component that can access application-specific security entities such as users,
 	 * roles, and permissions to determine authentication and authorization operations.
 	 */
-	private final Realm realm;
+	private Realm realm;
 
 	/** Used to generate {@link SecretAuthenticationKey}s*/
 	private Random r = new SecureRandom();
 
-	// ------------------------------------------------------------------------
+    public ShiroSNAA(){
+
+    }
+
+
 	/**
 	 * Constructor
 	 * 
@@ -103,15 +101,17 @@ public class ShiroSNAA implements SNAA {
 		this.urnPrefix = urnPrefix;
 	}
 
-	@Override
+
+    @Override
 	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+			@WebParam(name = "authenticationData", targetNamespace = "")
+            List<AuthenticationTriple> authenticationTriples)
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
-		assertAuthenticationCount(authenticationData, 1, 1);
-		assertUrnPrefixServed(urnPrefix, authenticationData);
+		assertAuthenticationCount(authenticationTriples, 1, 1);
+		assertUrnPrefixServed(urnPrefix, authenticationTriples);
 
-		AuthenticationTriple authenticationTriple = authenticationData.get(0);
+		AuthenticationTriple authenticationTriple = authenticationTriples.get(0);
 
 		/* Authentication */
 		Subject currentUser = SecurityUtils.getSubject();
@@ -119,7 +119,9 @@ public class ShiroSNAA implements SNAA {
 			currentUser.login(new UsernamePasswordToken(authenticationTriple.getUsername(), authenticationTriple.getPassword()));
 			currentUser.logout();
 		} catch (AuthenticationException e) {
-			throw new SNAAExceptionException("The user could not be authenticated: Wrong username and/or password.", new SNAAException(), e);
+            AuthenticationFault fault = new AuthenticationFault();
+            fault.setMessage("Wrong username and/or password");
+			throw new AuthenticationFault_Exception("The user could not be authenticated: Wrong username and/or password.", fault, e);
 		}
 
 		/* Create a secret authentication key for the authenticated user */
@@ -135,23 +137,40 @@ public class ShiroSNAA implements SNAA {
 		return keys;
 	}
 
-	@Override
-	public boolean isAuthorized(@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
+    @Override
+    public IsValidResponse.ValidationResult isValid(
+            @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
+            SecretAuthenticationKey secretAuthenticationKey)
+            throws SNAAFault_Exception {
 
-		SNAAHelper.assertAuthenticationKeyCount(authenticationData, 1, 1);
-		SNAAHelper.assertSAKUrnPrefixServed(urnPrefix, authenticationData);
+        // check whether the urn prefix associated to the key is served at all
+        SNAAHelper.assertSAKUrnPrefixServed(urnPrefix, Lists.newArrayList(secretAuthenticationKey));
 
-		PrincipalCollection principals = new SimplePrincipalCollection(authenticationData.get(0).getUsername(), realm.getName());
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public AuthorizationResponse isAuthorized(
+            @WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
+            List<UsernameNodeUrnsMap> usernameNodeUrnsMaps,
+            @WebParam(name = "action", targetNamespace = "")
+            Action action)
+            throws SNAAFault_Exception {
+
+
+        AuthorizationResponse authorizationResponse = new AuthorizationResponse();
+
+		PrincipalCollection principals = new SimplePrincipalCollection(usernameNodeUrnsMaps.get(0).getUsername(), realm.getName());
 		Subject subject = new Subject.Builder().principals(principals).buildSubject();
 
 		// TODO: After introducing wisebed API 3.0 node urns will be provided for an action.
 		// (1) Map the provided node urns to a node group (e.g., EXPERIMENT_NODES)
 		// (2) Concat the provided action and node type: "<action>:<node type>"
 		// subject.isPermittedAll("WSN_FLASH_PROGRAMS:EXPERIMENT_NODES"))
-		boolean isAuthorized = subject.isPermittedAll(action.getAction());
+		boolean isAuthorized = subject.isPermittedAll(action.name());
 		subject.logout();
+        authorizationResponse.setAuthorized(isAuthorized);
 
-		return isAuthorized;
+		return authorizationResponse;
 	}
 }

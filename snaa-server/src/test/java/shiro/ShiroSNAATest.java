@@ -1,11 +1,11 @@
 package shiro;
 
-import static org.junit.Assert.*;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
+import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
+import de.uniluebeck.itm.tr.util.Logging;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
+import eu.wisebed.api.v3.snaa.AuthenticationTriple;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -16,12 +16,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
-import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.snaa.AuthenticationExceptionException;
-import eu.wisebed.api.snaa.AuthenticationTriple;
-import eu.wisebed.api.snaa.SNAAExceptionException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
+import static org.junit.Assert.fail;
 public class ShiroSNAATest {
 
 	static {
@@ -42,7 +41,7 @@ public class ShiroSNAATest {
 	private static final UsernamePasswordToken administrator_token = new UsernamePasswordToken(ADMINISTRATOR2, ADMINISTRATOR2_PASS);
 	
 	private static Realm realm;
-	private static String urnPrefix = "urn:wisebed:uzl2:";
+	private static NodeUrnPrefix nodeUrnPrefix = new NodeUrnPrefix("urn:wisebed:uzl2:");
 
 	@BeforeClass
 	public static void setUp() {
@@ -65,15 +64,15 @@ public class ShiroSNAATest {
 		AuthenticationTriple authTriple = new AuthenticationTriple();
 		authTriple.setUsername(EXPERIMENTER1);
 		authTriple.setPassword(EXPERIMENTER1_PASS);
-		authTriple.setUrnPrefix(urnPrefix);
+		authTriple.setUrnPrefix(nodeUrnPrefix);
 		List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
 		authenticationData.add(authTriple);
-    	ShiroSNAA shiroSNAA = new ShiroSNAA(realm,urnPrefix);
+    	ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
     	try {
 			shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationExceptionException e) {
+		} catch (AuthenticationFault_Exception e) {
 			fail();
-		} catch (SNAAExceptionException e) {
+		} catch (SNAAFault_Exception e) {
 			fail();
 		}
 	}
@@ -84,16 +83,16 @@ public class ShiroSNAATest {
         AuthenticationTriple authTriple = new AuthenticationTriple();
         authTriple.setUsername(EXPERIMENTER1);
         authTriple.setPassword(EXPERIMENTER2_PASS);
-        authTriple.setUrnPrefix(urnPrefix);
+        authTriple.setUrnPrefix(nodeUrnPrefix);
         List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
         authenticationData.add(authTriple);
-        ShiroSNAA shiroSNAA = new ShiroSNAA(realm,urnPrefix);
+        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
         try {
             shiroSNAA.authenticate(authenticationData);
             fail();
-        } catch (AuthenticationExceptionException e) {
+        } catch (AuthenticationFault_Exception e) {
             // an exception has to be thrown
-        } catch (SNAAExceptionException e) {
+        } catch (SNAAFault_Exception e) {
             // an exception has to be thrown
         }
     }
