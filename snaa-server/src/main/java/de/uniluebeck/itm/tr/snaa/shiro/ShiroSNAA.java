@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.snaa.shiro;
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.snaa.SNAAHelper;
 import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -44,6 +45,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertAuthenticationCount;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertUrnPrefixServed;
@@ -79,6 +81,8 @@ public class ShiroSNAA implements SNAA {
 
 	/** Used to generate {@link SecretAuthenticationKey}s*/
 	private Random r = new SecureRandom();
+
+    private TimedCache<String, AuthenticationTriple> authenticatedSessions = new TimedCache<String, AuthenticationTriple>(30, TimeUnit.MINUTES);
 
     public ShiroSNAA(){
 
@@ -124,10 +128,13 @@ public class ShiroSNAA implements SNAA {
 			throw new AuthenticationFault_Exception("The user could not be authenticated: Wrong username and/or password.", fault, e);
 		}
 
+        String randomLongAsString = Long.toString(r.nextLong());
+        authenticatedSessions.put(randomLongAsString,authenticationTriple);
+
 		/* Create a secret authentication key for the authenticated user */
 		SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
 		secretAuthenticationKey.setUrnPrefix(authenticationTriple.getUrnPrefix());
-		secretAuthenticationKey.setSecretAuthenticationKey(Long.toString(r.nextLong()));
+		secretAuthenticationKey.setSecretAuthenticationKey(randomLongAsString);
 		secretAuthenticationKey.setUsername(authenticationTriple.getUsername());
 		
 		/* Return the single secret authentication key in a list (due to the federator) */
@@ -146,7 +153,35 @@ public class ShiroSNAA implements SNAA {
         // check whether the urn prefix associated to the key is served at all
         SNAAHelper.assertSAKUrnPrefixServed(urnPrefix, Lists.newArrayList(secretAuthenticationKey));
 
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        // Get the session from the cache of authenticated sessions
+        AuthenticationTriple authTriple = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
+
+        IsValidResponse.ValidationResult result = new IsValidResponse.ValidationResult();
+
+        if (authTriple == null) {
+            result.setValid(false);
+            result.setMessage("The provides secret authentication key is not found. It is either invalid or expired.");
+        } else if (secretAuthenticationKey.getUsername() == null) {
+            result.setValid(false);
+            result.setMessage("The user name comprised in the secret authentication key must not be 'null'.");
+        } else if (authTriple.getUsername() == null) {
+            result.setValid(false);
+            result.setMessage("The user name which was provided by the original authentication is not known.");
+        } else if (!secretAuthenticationKey.getUsername().equals(authTriple.getUsername())) {
+            result.setValid(false);
+            result.setMessage(
+                    "The user name which was provided by the original authentication does not match the one in the secret authentication key.");
+        }else if (secretAuthenticationKey.getUrnPrefix() == null) {
+            result.setValid(false);
+            result.setMessage("The urn prefix comprised in the secret authentication key must not be 'null'.");
+        }else if (!secretAuthenticationKey.getUrnPrefix().equals(authTriple.getUrnPrefix())) {
+            result.setValid(false);
+            result.setMessage("The urn prefix which was provided by the original authentication does not match the one in the secret authentication key.");
+        }  else {
+            result.setValid(true);
+        }
+
+        return result;
     }
 
     @Override

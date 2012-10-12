@@ -3,6 +3,7 @@ package shiro;
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
@@ -20,7 +21,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+
 public class ShiroSNAATest {
 
 	static {
@@ -61,20 +63,20 @@ public class ShiroSNAATest {
 	@Test
 	public void testAuthentication(){
 		// set up Shiro framework
-		AuthenticationTriple authTriple = new AuthenticationTriple();
-		authTriple.setUsername(EXPERIMENTER1);
-		authTriple.setPassword(EXPERIMENTER1_PASS);
-		authTriple.setUrnPrefix(nodeUrnPrefix);
-		List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
-		authenticationData.add(authTriple);
+        List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
     	ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
     	try {
-			shiroSNAA.authenticate(authenticationData);
+            List<SecretAuthenticationKey> sakList = shiroSNAA.authenticate(authenticationData);
+            assertNotNull(sakList);
+            assertEquals(EXPERIMENTER1, sakList.get(0).getUsername());
+            assertEquals(nodeUrnPrefix, sakList.get(0).getUrnPrefix());
+            assertNotNull(sakList.get(0).getSecretAuthenticationKey());
 		} catch (AuthenticationFault_Exception e) {
 			fail();
 		} catch (SNAAFault_Exception e) {
 			fail();
 		}
+
 	}
 
     @Test
@@ -97,4 +99,117 @@ public class ShiroSNAATest {
         }
     }
 
+    @Test
+    public void testIsValidWhenValid(){
+        List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
+        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
+        List<SecretAuthenticationKey> sakList = null;
+        try {
+            sakList = shiroSNAA.authenticate(authenticationData);
+        } catch (AuthenticationFault_Exception e) {
+            fail();
+        } catch (SNAAFault_Exception e) {
+            fail();
+        }
+
+        try {
+            assertTrue(shiroSNAA.isValid(sakList.get(0)).isValid());
+        } catch (SNAAFault_Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            fail();
+        }
+    }
+
+    @Test
+    public void testIsValidWhenUsernameWasChanged(){
+        List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
+        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
+        List<SecretAuthenticationKey> sakList = null;
+        try {
+            sakList = shiroSNAA.authenticate(authenticationData);
+        } catch (AuthenticationFault_Exception e) {
+            fail();
+        } catch (SNAAFault_Exception e) {
+            fail();
+        }
+        sakList.get(0).setUsername(ADMINISTRATOR2);
+        try {
+            assertFalse(shiroSNAA.isValid(sakList.get(0)).isValid());
+        } catch (SNAAFault_Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            fail();
+        }
+    }
+
+    @Test
+    public void testIsValidWhenUsernameWasChangedAndIsUnknown(){
+        List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
+        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
+        List<SecretAuthenticationKey> sakList = null;
+        try {
+            sakList = shiroSNAA.authenticate(authenticationData);
+        } catch (AuthenticationFault_Exception e) {
+            fail();
+        } catch (SNAAFault_Exception e) {
+            fail();
+        }
+        sakList.get(0).setUsername("Trudy");
+        try {
+            assertFalse(shiroSNAA.isValid(sakList.get(0)).isValid());
+        } catch (SNAAFault_Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            fail();
+        }
+    }
+
+    @Test
+    public void testIsValidWhenNodeUrnPrefixWasChanged(){
+        List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
+        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
+        List<SecretAuthenticationKey> sakList = null;
+        try {
+            sakList = shiroSNAA.authenticate(authenticationData);
+        } catch (AuthenticationFault_Exception e) {
+            fail();
+        } catch (SNAAFault_Exception e) {
+            fail();
+        }
+        sakList.get(0).setUrnPrefix(new NodeUrnPrefix("urn:wisebed:uzl88:"));
+        try {
+            assertFalse(shiroSNAA.isValid(sakList.get(0)).isValid());
+            return;
+        } catch (SNAAFault_Exception e) {
+            // expected exception if one is thrown:
+           assertEquals("Not serving node URN prefix urn:wisebed:uzl88:",e.getMessage());
+           return;
+        }catch (Exception e){
+            fail();
+        }
+    }
+
+
+
+
+
+
+
+    private static List<AuthenticationTriple> getAuthenticationTripleListForExperimenter1() {
+        AuthenticationTriple authTriple = new AuthenticationTriple();
+        authTriple.setUsername(EXPERIMENTER1);
+        authTriple.setPassword(EXPERIMENTER1_PASS);
+        authTriple.setUrnPrefix(nodeUrnPrefix);
+        List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
+        authenticationData.add(authTriple);
+        return authenticationData;
+    }
+
+    private static List<AuthenticationTriple> getAuthenticationTripleListForExperimenter2() {
+        AuthenticationTriple authTriple = new AuthenticationTriple();
+        authTriple.setUsername(EXPERIMENTER2);
+        authTriple.setPassword(EXPERIMENTER2_PASS);
+        authTriple.setUrnPrefix(nodeUrnPrefix);
+        List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
+        authenticationData.add(authTriple);
+        return authenticationData;
+    }
 }
