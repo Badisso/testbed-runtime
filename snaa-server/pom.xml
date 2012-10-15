@@ -40,7 +40,7 @@
 	<name>TR :: SNAA Server</name>
 
 	<properties>
-		<shiro.version>1.2.0</shiro.version>
+		<shiro.version>1.2.1</shiro.version>
 	</properties>
 
 	<dependencies>
@@ -137,6 +137,11 @@
 		<dependency>
 			<groupId>org.apache.shiro</groupId>
 			<artifactId>shiro-ehcache</artifactId>
+			<version>${shiro.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-guice</artifactId>
 			<version>${shiro.version}</version>
 		</dependency>
 		<dependency>

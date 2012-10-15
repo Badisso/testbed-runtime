@@ -1,13 +1,17 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
-import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
-import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
-import eu.wisebed.api.v3.snaa.AuthenticationTriple;
-import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -19,12 +23,18 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.persist.jpa.JpaPersistModule;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.junit.Assert.*;
+import de.uniluebeck.itm.tr.snaa.SNAAServer;
+import de.uniluebeck.itm.tr.util.Logging;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
+import eu.wisebed.api.v3.snaa.AuthenticationTriple;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
 public class ShiroSNAATest {
 
@@ -48,17 +58,25 @@ public class ShiroSNAATest {
 	private static Realm realm;
 	private static NodeUrnPrefix nodeUrnPrefix = new NodeUrnPrefix("urn:wisebed:uzl2:");
 
+	
 	@BeforeClass
 	public static void setUp() {
-		String shiroConfigPath = "../localConfigs/shiro.ini";
-		Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(shiroConfigPath);
-		org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
-		SecurityUtils.setSecurityManager(securityManager);
-		Collection<Realm> realms = ((RealmSecurityManager)securityManager).getRealms();
-	    if (realms.size() != 1){
-	    	throw new RuntimeException("Too many realms configured in "+shiroConfigPath);
-	    }
-	    realm = realms.iterator().next();
+		Properties properties = new Properties();
+		try {
+			properties.load(SNAAServer.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+		Injector injector = Guice.createInjector(new MyShiroModule(), new JpaPersistModule("Default").properties(properties));
+		org.apache.shiro.mgt.SecurityManager securityManager = injector.getInstance(org.apache.shiro.mgt.SecurityManager.class);
+        
+    	SecurityUtils.setSecurityManager(securityManager);
+        Collection<Realm> realms = ((RealmSecurityManager)securityManager).getRealms();
+        if (realms.size() != 1){
+            throw new RuntimeException("Too many realms configured");
+        }
+        realm = realms.iterator().next();
 	    
 	}
 
