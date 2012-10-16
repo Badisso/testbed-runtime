@@ -14,19 +14,20 @@ import java.util.Properties;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
-import org.apache.shiro.util.Factory;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
+import de.uniluebeck.itm.tr.snaa.SNAAHelper;
 import de.uniluebeck.itm.tr.snaa.SNAAServer;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -34,6 +35,7 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
+import eu.wisebed.api.v3.snaa.SNAA;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
 public class ShiroSNAATest {
@@ -55,37 +57,36 @@ public class ShiroSNAATest {
 	private static final String ADMINISTRATOR2 = "Administrator2";
 	private static final UsernamePasswordToken administrator_token = new UsernamePasswordToken(ADMINISTRATOR2, ADMINISTRATOR2_PASS);
 	
-	private static Realm realm;
-	private static NodeUrnPrefix nodeUrnPrefix = new NodeUrnPrefix("urn:wisebed:uzl2:");
-
+	private NodeUrnPrefix nodeUrnPrefix = new NodeUrnPrefix("urn:wisebed:uzl2:");
 	
-	@BeforeClass
-	public static void setUp() {
+	private ShiroSNAA shiroSNAA;
+	
+	
+	@Before
+	public void setUp() {
 		Properties properties = new Properties();
 		try {
 			properties.load(SNAAServer.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
+			
 		}
+		Injector jpaInjector = Guice.createInjector(new JpaPersistModule("Default").properties(properties));
+		jpaInjector.getInstance(PersistService.class).start();
 		
-		Injector injector = Guice.createInjector(new MyShiroModule(), new JpaPersistModule("Default").properties(properties));
-		org.apache.shiro.mgt.SecurityManager securityManager = injector.getInstance(org.apache.shiro.mgt.SecurityManager.class);
-        
-    	SecurityUtils.setSecurityManager(securityManager);
-        Collection<Realm> realms = ((RealmSecurityManager)securityManager).getRealms();
-        if (realms.size() != 1){
-            throw new RuntimeException("Too many realms configured");
-        }
-        realm = realms.iterator().next();
-	    
+		MyShiroModule myShiroModule = new MyShiroModule();
+		Injector shiroInjector = jpaInjector.createChildInjector(myShiroModule);
+    	SecurityUtils.setSecurityManager(shiroInjector.getInstance(org.apache.shiro.mgt.SecurityManager.class));
+    	
+    	ShiroSNAAFactory factory = shiroInjector.getInstance(ShiroSNAAFactory.class);
+        shiroSNAA = factory.create(nodeUrnPrefix);
 	}
 
 	
 	@Test
 	public void testAuthentication(){
-		// set up Shiro framework
+
         List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
-    	ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
     	try {
             List<SecretAuthenticationKey> sakList = shiroSNAA.authenticate(authenticationData);
             assertNotNull(sakList);
@@ -102,14 +103,13 @@ public class ShiroSNAATest {
 
     @Test
     public void testAuthenticationFailDueToWrongPasswd(){
-        // set up Shiro framework
+    	
         AuthenticationTriple authTriple = new AuthenticationTriple();
         authTriple.setUsername(EXPERIMENTER1);
         authTriple.setPassword(EXPERIMENTER2_PASS);
         authTriple.setUrnPrefix(nodeUrnPrefix);
         List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
         authenticationData.add(authTriple);
-        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
         try {
             shiroSNAA.authenticate(authenticationData);
             fail();
@@ -122,8 +122,8 @@ public class ShiroSNAATest {
 
     @Test
     public void testIsValidWhenValid(){
+    	
         List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
-        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
         List<SecretAuthenticationKey> sakList = null;
         try {
             sakList = shiroSNAA.authenticate(authenticationData);
@@ -143,8 +143,8 @@ public class ShiroSNAATest {
 
     @Test
     public void testIsValidWhenUsernameWasChanged(){
+    	
         List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
-        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
         List<SecretAuthenticationKey> sakList = null;
         try {
             sakList = shiroSNAA.authenticate(authenticationData);
@@ -164,8 +164,8 @@ public class ShiroSNAATest {
 
     @Test
     public void testIsValidWhenUsernameWasChangedAndIsUnknown(){
+    	
         List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
-        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
         List<SecretAuthenticationKey> sakList = null;
         try {
             sakList = shiroSNAA.authenticate(authenticationData);
@@ -185,8 +185,8 @@ public class ShiroSNAATest {
 
     @Test
     public void testIsValidWhenNodeUrnPrefixWasChanged(){
+    	
         List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
-        ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
         List<SecretAuthenticationKey> sakList = null;
         try {
             sakList = shiroSNAA.authenticate(authenticationData);
@@ -210,7 +210,6 @@ public class ShiroSNAATest {
     
     @Test
     public void testGetNodeGroupsForNodeURNs(){
-    	ShiroSNAA shiroSNAA = new ShiroSNAA(realm, nodeUrnPrefix);
     	shiroSNAA.getNodeGroupsForNodeURNs(Lists.newArrayList(new NodeUrn("urn:wisebed:ulanc1:0x2345")));
     }
 
@@ -220,7 +219,7 @@ public class ShiroSNAATest {
 
 
 
-    private static List<AuthenticationTriple> getAuthenticationTripleListForExperimenter1() {
+    private List<AuthenticationTriple> getAuthenticationTripleListForExperimenter1() {
         AuthenticationTriple authTriple = new AuthenticationTriple();
         authTriple.setUsername(EXPERIMENTER1);
         authTriple.setPassword(EXPERIMENTER1_PASS);
@@ -230,7 +229,7 @@ public class ShiroSNAATest {
         return authenticationData;
     }
 
-    private static List<AuthenticationTriple> getAuthenticationTripleListForExperimenter2() {
+    private List<AuthenticationTriple> getAuthenticationTripleListForExperimenter2() {
         AuthenticationTriple authTriple = new AuthenticationTriple();
         authTriple.setUsername(EXPERIMENTER2);
         authTriple.setPassword(EXPERIMENTER2_PASS);

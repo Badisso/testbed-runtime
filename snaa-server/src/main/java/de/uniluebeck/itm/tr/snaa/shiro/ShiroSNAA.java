@@ -26,12 +26,11 @@ package de.uniluebeck.itm.tr.snaa.shiro;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertAuthenticationCount;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertUrnPrefixServed;
 
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +41,8 @@ import javax.jws.WebService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
@@ -49,15 +50,13 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.collect.Lists;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.persist.PersistService;
-import com.google.inject.persist.jpa.JpaPersistModule;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 import de.uniluebeck.itm.tr.snaa.SNAAHelper;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourcegroups;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourcegroupsId;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -90,55 +89,46 @@ public class ShiroSNAA implements SNAA {
 	static {
 		Logging.setDebugLoggingDefaults();
 	}
-	
+
 	private static final Logger log = LoggerFactory.getLogger(ShiroSNAA.class);
-	
+
 	/**
 	 * Access authorization for users is performed for nodes which uniform resource locator starts
 	 * with this prefix.
 	 */
-	protected NodeUrnPrefix urnPrefix;
+	protected final NodeUrnPrefix nodeUrnPrefix;
 
 	/**
 	 * A security component that can access application-specific security entities such as users,
 	 * roles, and permissions to determine authentication and authorization operations.
 	 */
-	private Realm realm;
+	private final Realm realm;
 
 	/** Used to generate {@link SecretAuthenticationKey}s */
-	private Random r = new SecureRandom();
+	private final Random r = new SecureRandom();
 
-	private TimedCache<String, AuthenticationTriple> authenticatedSessions = new TimedCache<String, AuthenticationTriple>(30, TimeUnit.MINUTES);
-	
-	private Injector injector;
+	private final TimedCache<String, AuthenticationTriple> authenticatedSessions = new TimedCache<String, AuthenticationTriple>(30, TimeUnit.MINUTES);
 
-	public ShiroSNAA() {
-		Properties properties = new Properties();
-		try {
-			properties.load(this.getClass().getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
-		} catch (IOException e) {
-			log.error(e.getMessage(), e);
-		}
-		injector = Guice.createInjector(new JpaPersistModule("Default").properties(properties));
-		injector.getInstance(PersistService.class).start();
-
-	}
+	private final UrnResourceGroupsDao urnResourceGroupsDAO;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param realm
-	 *            The security component that can access application-specific security entities such
-	 *            as users, roles, and permissions to determine authentication and authorization
-	 *            operations.
-	 * @param urnPrefix
+	 * @param securityManager
+	 *            The Instance of the class which executes all security operations for <em>all</em>
+	 *            Subjects across a single application.
+	 * @param urnResourceGroupsDAO DAO to access URN resource groups
+	 * @param nodeUrnPrefix
 	 *            Access authorization for users is performed for nodes which uniform resource
 	 *            locator starts with this prefix.
 	 */
-	public ShiroSNAA(Realm realm, NodeUrnPrefix urnPrefix) {
-		this();
-		this.realm = realm;
-		this.urnPrefix = urnPrefix;
+	@Inject
+	public ShiroSNAA(SecurityManager securityManager, UrnResourceGroupsDao urnResourceGroupsDAO, @Assisted NodeUrnPrefix nodeUrnPrefix) {
+		Collection<Realm> realms = ((RealmSecurityManager) securityManager).getRealms();
+		checkArgument(realms.size() == 1, "Too many realms configured");
+		realm = realms.iterator().next();
+		this.nodeUrnPrefix = nodeUrnPrefix;
+		this.urnResourceGroupsDAO = urnResourceGroupsDAO;
 	}
 
 	@Override
@@ -147,7 +137,7 @@ public class ShiroSNAA implements SNAA {
 			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		assertAuthenticationCount(authenticationTriples, 1, 1);
-		assertUrnPrefixServed(urnPrefix, authenticationTriples);
+		assertUrnPrefixServed(nodeUrnPrefix, authenticationTriples);
 
 		AuthenticationTriple authenticationTriple = authenticationTriples.get(0);
 
@@ -184,7 +174,7 @@ public class ShiroSNAA implements SNAA {
 			throws SNAAFault_Exception {
 
 		// check whether the urn prefix associated to the key is served at all
-		SNAAHelper.assertSAKUrnPrefixServed(urnPrefix, Lists.newArrayList(secretAuthenticationKey));
+		SNAAHelper.assertSAKUrnPrefixServed(nodeUrnPrefix, Lists.newArrayList(secretAuthenticationKey));
 
 		// Get the session from the cache of authenticated sessions
 		AuthenticationTriple authTriple = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
@@ -240,23 +230,20 @@ public class ShiroSNAA implements SNAA {
 	}
 
 	protected Set<String> getNodeGroupsForNodeURNs(List<NodeUrn> nodeUrns) {
-		
+
 		Set<String> nodeGroups = new HashSet<String>();
 		List<String> nodeUrnStringList = new ArrayList<String>();
 		for (NodeUrn nodeUrn : nodeUrns) {
 			nodeUrnStringList.add(nodeUrn.getPrefix().toString() + nodeUrn.getSuffix());
 		}
 
-		GenericDao<UrnResourcegroups, UrnResourcegroupsId> dao = new GenericDaoImpl<UrnResourcegroups, UrnResourcegroupsId>() {
-		};
-		injector.injectMembers(dao);
-		List<UrnResourcegroups> nodeUrnResourceGroups = dao.find();
+		List<UrnResourcegroups> nodeUrnResourceGroups = urnResourceGroupsDAO.find();
 		for (UrnResourcegroups grp : nodeUrnResourceGroups) {
-			if (nodeUrnStringList.contains(grp.getId().getUrn())){
+			if (nodeUrnStringList.contains(grp.getId().getUrn())) {
 				nodeGroups.add(grp.getId().getResourcegroup());
 			}
 		}
-			
+
 		return nodeGroups;
 	}
 }

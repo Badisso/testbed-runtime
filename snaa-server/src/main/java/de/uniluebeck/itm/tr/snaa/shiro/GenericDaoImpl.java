@@ -52,6 +52,7 @@ public abstract class GenericDaoImpl<T, K extends Serializable> implements Gener
 	 * @param entityManager
 	 *            The instance used to interact with the persistence context.
 	 */
+	@Inject
 	public GenericDaoImpl(final EntityManager entityManager) {
 		this.entityManager = entityManager;
 	}
@@ -103,13 +104,13 @@ public abstract class GenericDaoImpl<T, K extends Serializable> implements Gener
 
 	@Override
 	public T find(K id) {
-		log.debug("Tying to fetch " + entityClass + " instance with id: " + id);
+		log.debug("Trying to fetch " + entityClass + " instance with id: " + id);
 		return entityManager.find(entityClass, id);
 	}
 
 	@Override
 	public List<T> find() {
-		log.debug("Tying to fetch all " + entityClass + " instances from persistence context...");
+		log.debug("Trying to fetch all " + entityClass + " instances from persistence context...");
 		CriteriaQuery<T> createQuery = entityManager.getEntityManagerFactory().getCriteriaBuilder().createQuery(entityClass);
 		createQuery.from(entityClass);
 		List<T> resultList = entityManager.createQuery(createQuery).getResultList();

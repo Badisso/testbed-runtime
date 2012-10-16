@@ -17,10 +17,9 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.persist.PersistService;
-import com.google.inject.persist.jpa.JpaPersistModule;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Permissions;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Roles;
@@ -29,36 +28,24 @@ import de.uniluebeck.itm.tr.snaa.shiro.entity.Users;
 public class TRJPARealm extends AuthorizingRealm {
 
 	private static final Logger log = LoggerFactory.getLogger(TRJPARealm.class);
-	private final Injector injector;
-
-	public TRJPARealm() {
-		Properties properties = new Properties();
-		try {
-			properties.load(this.getClass().getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
-		} catch (IOException e) {
-			log.error(e.getMessage(), e);
-		}
-		injector = Guice.createInjector(new JpaPersistModule("Default").properties(properties));
-		injector.getInstance(PersistService.class).start();
-	}
+	
+	@Inject
+	UsersDao usersDao;
 
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken) throws AuthenticationException {
 		UsernamePasswordToken token = (UsernamePasswordToken) authcToken;
-		GenericDao<Users, String> userDao = new GenericDaoImpl<Users, String>() {};
-		injector.injectMembers(userDao);
-		Users user = userDao.find(token.getUsername());
+		Users user = usersDao.find(token.getUsername());
 		if (user != null) {
 			return new SimpleAuthenticationInfo(user.getName(), user.getPassword(), getName());
-		} else {
-			return null;
 		}
+		
+		return null;
+		
 	}
 
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		String userId = (String) principals.fromRealm(getName()).iterator().next();
-		GenericDaoImpl<Users, String> userDao = new GenericDaoImpl<Users, String>() {};
-		injector.injectMembers(userDao);
-		Users user = userDao.find(userId);
+		Users user = usersDao.find(userId);
 		if (user != null) {
 			SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 			for (Roles role : user.getRoleses()) {
@@ -68,9 +55,9 @@ public class TRJPARealm extends AuthorizingRealm {
 				info.addStringPermissions(strPerm);
 			}
 			return info;
-		} else {
-			return null;
 		}
+		
+		return null;
 	}
 
 	private Set<String> toString(Set<Permissions> permissionses) {

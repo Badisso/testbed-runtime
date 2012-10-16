@@ -1,22 +1,22 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
-import org.apache.shiro.config.Ini;
 import org.apache.shiro.guice.ShiroModule;
 
-import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public class MyShiroModule extends ShiroModule {
-    protected void configureShiro() {
+    
+	@Override
+	protected void configureShiro() {
+		
         try {
-//            bindRealm().toConstructor(IniRealm.class.getConstructor(Ini.class));
-            bindRealm().toInstance(new TRJPARealm());
+            bindRealm().to(TRJPARealm.class).in(Singleton.class);
+            install(new FactoryModuleBuilder().build(ShiroSNAAFactory.class));
+            expose(ShiroSNAAFactory.class);
         } catch (Exception e) {
             addError(e);
         }
     }
 
-    @Provides
-    Ini loadShiroIni() {
-        return Ini.fromResourcePath("../localConfigs/shiro.ini");
-    }
 }

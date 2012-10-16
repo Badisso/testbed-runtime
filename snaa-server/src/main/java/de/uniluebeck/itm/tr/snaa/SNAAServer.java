@@ -31,6 +31,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
+import com.google.inject.persist.PersistService;
+import com.google.inject.persist.jpa.JpaPersistModule;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
@@ -40,7 +43,9 @@ import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
+import de.uniluebeck.itm.tr.snaa.shiro.MyShiroModule;
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
+import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAFactory;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.WisebedServiceHelper;
@@ -65,6 +70,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.xml.ws.Endpoint;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.*;
@@ -373,23 +379,31 @@ public class SNAAServer {
 
     private static void startShiroSNAA(String path, NodeUrnPrefix nodeUrnPrefix, String shiroConfigPath, String ehCachePath) {
 
-        // set up Shiro framework
-        Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(shiroConfigPath);
-        org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
-        SecurityUtils.setSecurityManager(securityManager);
-        Collection<Realm> realms = ((RealmSecurityManager)securityManager).getRealms();
-        if (realms.size() != 1){
-            throw new RuntimeException("Too many realms configured in "+shiroConfigPath);
-        }
-
-        ShiroSNAA shiroSNAA = new ShiroSNAA(realms.iterator().next(), nodeUrnPrefix);
-
+		Properties properties = new Properties();
+		try {
+			properties.load(SNAAServer.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+			
+		}
+		Injector jpaInjector = Guice.createInjector(new JpaPersistModule("Default").properties(properties));
+		jpaInjector.getInstance(PersistService.class).start();
+		
+		MyShiroModule myShiroModule = new MyShiroModule();
+		Injector shiroInjector = jpaInjector.createChildInjector(myShiroModule);
+    	SecurityUtils.setSecurityManager(shiroInjector.getInstance(org.apache.shiro.mgt.SecurityManager.class));
+    	
+    	ShiroSNAAFactory factory = shiroInjector.getInstance(ShiroSNAAFactory.class);
+        ShiroSNAA shiroSNAA = factory.create(nodeUrnPrefix);
+        
         HttpContext context = server.createContext(path);
         Endpoint endpoint = Endpoint.create(shiroSNAA);
-        endpoint.publish(context);
-
-        log.info("Started Shiro SNAA on " + server.getAddress() + path);
+     	endpoint.publish(context);
+     	
+     	log.info("Started Shiro SNAA on " + server.getAddress() + path);
     }
+
+
 
 	private static void startShibbolethSNAA(String path, NodeUrnPrefix prefix, String secretKeyURL,
 											IUserAuthorization authorization, Injector injector,
