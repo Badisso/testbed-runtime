@@ -90,6 +90,7 @@ public class ShiroSNAA implements SNAA {
 		Logging.setDebugLoggingDefaults();
 	}
 
+	/** Logs messages */
 	private static final Logger log = LoggerFactory.getLogger(ShiroSNAA.class);
 
 	/**
@@ -107,8 +108,16 @@ public class ShiroSNAA implements SNAA {
 	/** Used to generate {@link SecretAuthenticationKey}s */
 	private final Random r = new SecureRandom();
 
+	/**
+	 * This cache keeps tack of all authenticated sessions for a certain amount of time.<br/>
+	 * It maps a secret String which is only known to one authenticated user to the user's
+	 * authentication details.<br/>
+	 * This cache may be used to check whether the user was authenticated by this server recently
+	 * whenever this secret String is provided.
+	 */
 	private final TimedCache<String, AuthenticationTriple> authenticatedSessions = new TimedCache<String, AuthenticationTriple>(30, TimeUnit.MINUTES);
 
+	/** An object which provides access to the persisted groups of resources */
 	private final UrnResourceGroupsDao urnResourceGroupsDAO;
 
 	/**
@@ -117,7 +126,8 @@ public class ShiroSNAA implements SNAA {
 	 * @param securityManager
 	 *            The Instance of the class which executes all security operations for <em>all</em>
 	 *            Subjects across a single application.
-	 * @param urnResourceGroupsDAO DAO to access URN resource groups
+	 * @param urnResourceGroupsDAO
+	 *            DAO to access URN resource groups
 	 * @param nodeUrnPrefix
 	 *            Access authorization for users is performed for nodes which uniform resource
 	 *            locator starts with this prefix.
@@ -229,7 +239,14 @@ public class ShiroSNAA implements SNAA {
 		return authorizationResponse;
 	}
 
-	protected Set<String> getNodeGroupsForNodeURNs(List<NodeUrn> nodeUrns) {
+	/**
+	 * Iterates over a collection or node urns and returns the groups of these nodes.
+	 * 
+	 * @param nodeUrns
+	 *            A collection of node urns
+	 * @return A set of those groups at least one of the provided node belongs to
+	 */
+	protected Set<String> getNodeGroupsForNodeURNs(final Collection<NodeUrn> nodeUrns) {
 
 		Set<String> nodeGroups = new HashSet<String>();
 		List<String> nodeUrnStringList = new ArrayList<String>();
