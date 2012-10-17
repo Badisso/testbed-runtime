@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.log4j.Level;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.junit.Before;
@@ -41,8 +42,9 @@ import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 public class ShiroSNAATest {
 
 	static {
-		Logging.setLoggingDefaults();
+		Logging.setLoggingDefaults(Level.WARN);
 	}
+	
 	private static final org.slf4j.Logger log = LoggerFactory.getLogger(ShiroSNAATest.class);
 
 	private static final String EXPERIMENTER1_PASS = "Exp1Pass";

@@ -90,10 +90,6 @@ import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 @WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
 public class ShiroSNAA implements SNAA {
 
-	static {
-		Logging.setDebugLoggingDefaults();
-	}
-
 	/** Logs messages */
 	private static final Logger log = LoggerFactory.getLogger(ShiroSNAA.class);
 
