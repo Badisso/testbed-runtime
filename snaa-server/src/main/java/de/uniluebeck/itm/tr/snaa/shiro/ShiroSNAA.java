@@ -51,7 +51,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -63,6 +66,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthenticationFault;
 import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
@@ -180,8 +184,9 @@ public class ShiroSNAA implements SNAA {
 
 	@Override
 	public IsValidResponse.ValidationResult isValid(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "") SecretAuthenticationKey secretAuthenticationKey)
-			throws SNAAFault_Exception {
+			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
+			SecretAuthenticationKey secretAuthenticationKey)
+					throws SNAAFault_Exception {
 
 		// check whether the urn prefix associated to the key is served at all
 		SNAAHelper.assertSAKUrnPrefixServed(nodeUrnPrefix, Lists.newArrayList(secretAuthenticationKey));
@@ -218,24 +223,46 @@ public class ShiroSNAA implements SNAA {
 
 	@Override
 	public AuthorizationResponse isAuthorized(
-			@WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "") List<UsernameNodeUrnsMap> usernameNodeUrnsMaps,
-			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAFault_Exception {
+			@WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
+			List<UsernameNodeUrnsMap> usernameNodeUrnsMaps,
+			@WebParam(name = "action", targetNamespace = "")
+			Action action)
+					throws SNAAFault_Exception {
 
-		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
-
-		PrincipalCollection principals = new SimplePrincipalCollection(usernameNodeUrnsMaps.get(0).getUsername(), realm.getName());
+		Preconditions.checkArgument(usernameNodeUrnsMaps.size() == 1,"The number of username and node urn mappings must be 1 but is "+usernameNodeUrnsMaps.size());
+		
+		UsernameNodeUrnsMap usernameNodeUrnsMapping = usernameNodeUrnsMaps.get(0);
+		
+		UsernameUrnPrefixPair usernameUrnPrefixPair = usernameNodeUrnsMapping.getUsername();
+		String userName = usernameUrnPrefixPair.getUsername();		
+		Preconditions.checkArgument(nodeUrnPrefix.equals(usernameUrnPrefixPair.getUrnPrefix()), "The provided prefix is not served!");
+		
+		SNAAHelper.assertAllUrnPrefixesServed(Sets.newHashSet(nodeUrnPrefix), usernameNodeUrnsMapping.getNodeUrns());
+		
+		PrincipalCollection principals = new SimplePrincipalCollection(usernameUrnPrefixPair.getUsername(), realm.getName());
 		Subject subject = new Subject.Builder().principals(principals).buildSubject();
 
-		Set<String> nodeGroups = getNodeGroupsForNodeURNs(usernameNodeUrnsMaps.get(0).getNodeUrns());
+		Set<String> nodeGroups = getNodeGroupsForNodeURNs(usernameNodeUrnsMapping.getNodeUrns());
+	
 
-		// TODO:
-		// (1) Map the provided node urns to a node group (e.g., EXPERIMENT_NODES)
-		// (2) Concat the provided action and node type: "<action>:<node type>"
-		// subject.isPermittedAll("WSN_FLASH_PROGRAMS:EXPERIMENT_NODES"))
-		boolean isAuthorized = subject.isPermittedAll(action.name());
+		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
+		authorizationResponse.setAuthorized(true);
+		StringBuffer reason = new StringBuffer();
+		for (String nodeGroup : nodeGroups) {
+			if(!subject.isPermittedAll(action.name()+":"+nodeGroup)){
+				authorizationResponse.setAuthorized(false);
+				reason.append("The action '"+action.name()+"' is not allowed for node group '"+nodeGroup+"' and user '"+userName+"'. ");
+			}
+		}
 		subject.logout();
-		authorizationResponse.setAuthorized(isAuthorized);
-
+		
+		if (!authorizationResponse.isAuthorized()){
+			authorizationResponse.setMessage(reason.toString());
+			log.debug("User requested unauthorized action(s): "+ reason.toString());
+		}else{
+			log.debug("The requested actions were authorized successfully.");
+		}
+		
 		return authorizationResponse;
 	}
 
