@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.snaa.shiro;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertAuthenticationCount;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.assertUrnPrefixServed;
 
@@ -50,8 +51,6 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -60,7 +59,6 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.uniluebeck.itm.tr.snaa.SNAAHelper;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourcegroups;
-import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -135,7 +133,7 @@ public class ShiroSNAA implements SNAA {
 	@Inject
 	public ShiroSNAA(SecurityManager securityManager, UrnResourceGroupsDao urnResourceGroupsDAO, @Assisted NodeUrnPrefix nodeUrnPrefix) {
 		Collection<Realm> realms = ((RealmSecurityManager) securityManager).getRealms();
-		checkArgument(realms.size() == 1, "Too many realms configured");
+		checkArgument(realms.size() == 1, "Exactly one realm must be configured");
 		realm = realms.iterator().next();
 		this.nodeUrnPrefix = nodeUrnPrefix;
 		this.urnResourceGroupsDAO = urnResourceGroupsDAO;
