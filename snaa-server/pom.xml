@@ -39,25 +39,20 @@
 	<packaging>jar</packaging>
 	<name>TR :: SNAA Server</name>
 
-	<properties>
-		<shiro.version>1.2.1</shiro.version>
-	</properties>
-
 	<dependencies>
-
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.federator-utils</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>eu.wisebed</groupId>
 			<artifactId>api</artifactId>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>
 			<artifactId>itmutils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.federator-utils</artifactId>
 		</dependency>
 
 		<dependency>
@@ -72,6 +67,14 @@
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject.extensions</groupId>
+			<artifactId>guice-persist</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject.extensions</groupId>
+			<artifactId>guice-assistedinject</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -121,19 +124,6 @@
 			<artifactId>mockito-all</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-persist</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-assistedinject</artifactId>
-		</dependency>
-		
-		<dependency>
 			<groupId>org.apache.shiro</groupId>
 			<artifactId>shiro-core</artifactId>
 		</dependency>
@@ -141,8 +131,6 @@
 			<groupId>org.apache.shiro</groupId>
 			<artifactId>shiro-guice</artifactId>
 		</dependency>
-
-
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
@@ -150,6 +138,10 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 		
 
@@ -208,7 +200,6 @@
 					</components>
 					<componentProperties>
 						<revengfile>/src/main/resources/hibernate.reveng.xml</revengfile>
-						<!-- <reversestrategy>MyReverseEngineeringStrategy</reversestrategy> -->
 						<persistenceunit>Default</persistenceunit>
 						<propertyfile>/src/main/resources/META-INF/hibernate.properties</propertyfile>
 						<jdk5>true</jdk5>
