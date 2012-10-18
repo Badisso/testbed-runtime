@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -14,20 +15,32 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.google.inject.AbstractModule;
 import org.apache.log4j.Level;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
 import de.uniluebeck.itm.tr.snaa.SNAAServer;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Actions;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Permissions;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Resourcegroups;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Roles;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourcegroups;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourcegroupsId;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Users;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -39,6 +52,11 @@ import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
+import javax.persistence.EntityManager;
+
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
 public class ShiroSNAATest {
 
 	static {
@@ -67,20 +85,34 @@ public class ShiroSNAATest {
 
 	private ShiroSNAA shiroSNAA;
 
+    @Mock
+    private EntityManager em;
+
+    @Mock
+    private UsersDao usersDao;
+
+    @Mock
+    private UrnResourceGroupsDao urnResourceGroupsDao;
+
 	@Before
 	public void setUp() {
-		Properties properties = new Properties();
-		try {
-			properties.load(SNAAServer.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
-		} catch (IOException e) {
-			log.error(e.getMessage(), e);
 
-		}
-		Injector jpaInjector = Guice.createInjector(new JpaPersistModule("Default").properties(properties));
-		jpaInjector.getInstance(PersistService.class).start();
+		when(usersDao.find(EXPERIMENTER1)).thenReturn(getExperimenter1());
+		when(usersDao.find(SERVICE_PROVIDER1)).thenReturn(getServiceProvider1());
+		when(usersDao.find(ADMINISTRATOR1)).thenReturn(getAdministrator1());
+		when(urnResourceGroupsDao.find()).thenReturn(getUrnResourcegroups());
+
+        Injector mockedEntityManagerInjector = Guice.createInjector(new AbstractModule() {
+            @Override
+            protected void configure() {
+               bind(EntityManager.class).toInstance(em);
+               bind(UsersDao.class).toInstance(usersDao);
+               bind(UrnResourceGroupsDao.class).toInstance(urnResourceGroupsDao);
+            }
+        });
 
 		MyShiroModule myShiroModule = new MyShiroModule();
-		Injector shiroInjector = jpaInjector.createChildInjector(myShiroModule);
+		Injector shiroInjector = mockedEntityManagerInjector.createChildInjector(myShiroModule);
 		SecurityUtils.setSecurityManager(shiroInjector.getInstance(org.apache.shiro.mgt.SecurityManager.class));
 
 		ShiroSNAAFactory factory = shiroInjector.getInstance(ShiroSNAAFactory.class);
@@ -274,7 +306,7 @@ public class ShiroSNAATest {
 	public void testIsAuthorizedForExperimenter1OnExperimentNode() {
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(EXPERIMENTER1, nodeUrnPrefix, "urn:wisebed:uzl2:0x2211");
 		try {
-			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.SM_ARE_NODES_ALIVE).isAuthorized());
+			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
 			fail();
 		}
@@ -291,10 +323,20 @@ public class ShiroSNAATest {
 	}
 	
 	@Test
+	public void testIsFlashingAuthorizedForServiceProvider1OnServiceNode() {
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefix, "urn:wisebed:uzl2:0x2311");
+		try {
+			assertFalse(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
+		} catch (SNAAFault_Exception e) {
+			fail();
+		}
+	}
+	
+	@Test
 	public void testIsAuthorizedForServiceProvider1OnServiceNode() {
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefix, "urn:wisebed:uzl2:0x2311");
 		try {
-			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
+			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_ARE_NODES_ALIVE).isAuthorized());
 		} catch (SNAAFault_Exception e) {
 			fail();
 		}
@@ -351,5 +393,65 @@ public class ShiroSNAATest {
 		List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
 		authenticationData.add(authTriple);
 		return authenticationData;
+	}
+	
+	private List<Users> getUsers(){
+		List<Users> users = new LinkedList<Users>();
+		
+		users.add(getExperimenter1());
+		users.add(new Users(EXPERIMENTER2, EXPERIMENTER2_PASS, "Exp2Salt", Sets.newHashSet(new Roles("EXPERIMENTER"))));
+		users.add(new Users(ADMINISTRATOR1, ADMINISTRATOR1, "Adm1Salt", Sets.newHashSet(new Roles("ADMINISTRATOR"))));
+		users.add(new Users(SERVICE_PROVIDER1, SERVICE_PROVIDER1_PASS, "SP1Salt", Sets.newHashSet(new Roles("SERVICE_PROVIDER"))));
+		return users;
+	}
+	
+	private Users getExperimenter1(){
+		Roles role = new Roles("EXPERIMENTER");
+		role.setPermissionses(Sets.newHashSet(getPermissionsObject(Action.WSN_FLASH_PROGRAMS, "EXPERIMENT_NODES")));
+		return new Users(EXPERIMENTER1, EXPERIMENTER1_PASS, "Exp1Salt", Sets.newHashSet(role));
+	}
+	
+	private Users getServiceProvider1(){
+		Roles role = new Roles("SERVICE_PROVIDER");
+		role.setPermissionses(Sets.newHashSet(getPermissionsObject(Action.WSN_ARE_NODES_ALIVE, "SERVICE_NODES")));
+		return new Users(SERVICE_PROVIDER1, SERVICE_PROVIDER1_PASS, "SP1Salt", Sets.newHashSet(role));
+	}
+	
+	private Users getAdministrator1(){
+		Roles role = new Roles("Administrator");
+		Set<Permissions> permissionsSet = new HashSet<Permissions>();
+		role.setPermissionses(permissionsSet);
+		permissionsSet.add(getPermissionsObject(Action.WSN_ARE_NODES_ALIVE, "SERVICE_NODES"));
+		permissionsSet.add(getPermissionsObject(Action.SM_ARE_NODES_ALIVE, "EXPERIMENT_NODES"));
+		return new Users(ADMINISTRATOR1, ADMINISTRATOR1_PASS, "Adm1Salt", Sets.newHashSet(role));
+	}
+
+
+	private Permissions getPermissionsObject(Action action, String resourceGroupsName) {
+		Permissions permissions = new Permissions();
+		permissions.setActions(new Actions(action.name()));
+		permissions.setResourcegroups(new Resourcegroups(resourceGroupsName));
+		return permissions;
+	}
+	
+	private List<UrnResourcegroups> getUrnResourcegroups(){
+		List<UrnResourcegroups> urnResourcegroupsList = new LinkedList<UrnResourcegroups>();
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:ulanc1:0x1211", "EXPERIMENT_NODES"), null));
+
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:ulanc1:0x1211", "EXPERIMENT_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:ulanc1:0x1212", "EXPERIMENT_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:ulanc1:0x1213", "EXPERIMENT_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:ulanc1:0x1311", "SERVICE_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:ulanc1:0x1312", "SERVICE_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:ulanc1:0x1313", "SERVICE_NODES"), null));
+		
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:uzl2:0x2211", "EXPERIMENT_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:uzl2:0x2212", "EXPERIMENT_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:uzl2:0x2213", "EXPERIMENT_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:uzl2:0x2311", "SERVICE_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:uzl2:0x2312", "SERVICE_NODES"), null));
+		urnResourcegroupsList.add(new UrnResourcegroups(new UrnResourcegroupsId("urn:wisebed:uzl2:0x2313", "SERVICE_NODES"), null));
+		
+		return urnResourcegroupsList;
 	}
 }
