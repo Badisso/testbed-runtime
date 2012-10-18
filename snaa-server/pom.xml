@@ -141,11 +141,6 @@
 			<version>${shiro.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ehcache</groupId>
-			<artifactId>ehcache</artifactId>
-			<version>1.2.3</version>
-		</dependency>
-		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
 		</dependency>
