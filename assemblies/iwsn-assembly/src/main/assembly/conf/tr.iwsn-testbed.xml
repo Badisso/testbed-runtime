@@ -22,7 +22,14 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
-
+	<!-- The id can be passed using the "-n" parameter during startup. If none is given, the id is matched against the 
+	    hostname:
+	        java.net.InetAddress.getLocalHost().getCanonicalHostName()
+	        java.net.InetAddress.getLocalHost().getHostName()
+	    You can use scala to show them.
+	        scala -e "println(java.net.InetAddress.getLocalHost().getCanonicalHostName())"   
+	        scala -e "println(java.net.InetAddress.getLocalHost().getHostName())"
+	-->
 	<nodes id="REPLACE_WITH_PORTAL_HOSTNAME">
 
 		<names>
